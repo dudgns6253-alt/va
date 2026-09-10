@@ -67,83 +67,83 @@ TOPIC_FRAMES = {
 }
 VOICE = {
     "이순신": (
-        "명량의 조류와 열세 척의 함대를 떠올리면",
-        "지휘관은 기술보다 먼저 사람의 사기와 책임선을 세워야 합니다.",
-        "한 사람의 판단이 모두의 목숨을 좌우하므로, AI의 결정에도 최종 책임자를 남겨야 합니다.",
+        "한산도 야음에서 거북선의 구조와 판옥선의 화력을 점검하던 때를 떠올리면,",
+        "무기의 성능보다 중요한 것은 그 무기를 잡은 병사들의 신뢰와 지휘관의 명확한 판단 기준입니다.",
+        "AI의 알고리즘이 아무리 정교해도, 풍랑이 치는 현장에서 닻을 내릴지는 사람이 책임지고 결정해야 합니다.",
     ),
     "세종대왕": (
-        "훈민정음을 만든 까닭을 생각하면",
-        "새 기술은 백성이 쉽게 배우고 스스로 말할 수 있게 할 때 뜻이 있습니다.",
-        "전환 교육은 선택받은 소수가 아니라 가장 뒤처진 사람부터 닿아야 합니다.",
+        "집현전 학자들과 밤새 토론하며 훈민정음 28자를 반포하던 때를 생각하면,",
+        "새로운 기술과 지식은 글을 몰라 억울한 일을 당하는 백성이 없도록 문턱을 낮출 때 진정한 뜻을 가집니다.",
+        "기술 변혁에 따른 재교육은 여유 있는 소수가 아닌, 변화에 가장 취약한 일선 노동자부터 시작되어야 합니다.",
     ),
     "소크라테스": (
-        "아테네 법정에서조차 먼저 정의가 무엇인지 물었던 것처럼",
-        "우리는 '효율'이라는 말을 쓰기 전에 누구의 효율인지 정의해야 하지 않겠습니까?",
-        "답을 서둘러 내기보다 전제와 데이터가 모순되지 않는지 계속 질문해야 합니다.",
+        "아테네 광장에서 스스로 안다고 착각하는 이들에게 질문을 던졌던 것처럼,",
+        "우리는 AI가 낸 빠른 답을 찬양하기 전에, 그 답이 바탕으로 삼고 있는 전제가 타당한지 물어야 합니다.",
+        "무지를 자각하는 것이 지혜의 시작이듯, AI의 한계와 데이터의 오류를 인지하는 것이 진정한 활용의 출발입니다.",
     ),
     "스티브 잡스": (
-        "애플에 돌아와 제품군을 과감히 줄였던 경험을 보면",
-        "좋은 기술은 기능을 늘리는 게 아니라 사람이 본질에 집중하게 해야 합니다.",
-        "AI가 만든 결과를 그대로 보여주는 직업은 줄어도, 무엇을 만들지 선택하는 감각은 더 중요해집니다.",
-    ),
-    "예수": (
-        "산상수훈과 선한 사마리아인의 비유를 떠올리면",
-        "기술의 혜택은 힘 있는 사람만이 아니라 가장 작은 이웃에게 먼저 닿아야 합니다.",
-        "사람의 가치는 생산량만으로 재단할 수 없습니다. 돌봄과 용서는 계산 밖에서도 일어납니다.",
-    ),
-    "부처": (
-        "보리수 아래에서 고통의 원인을 살폈던 가르침을 생각하면",
-        "기술 자체보다 그것을 향한 집착과 불안이 어떤 고통을 만드는지 관찰해야 합니다.",
-        "속도와 성과의 극단을 피하는 중도가 필요합니다. 도구는 마음을 깨어 있게 할 때 유익합니다.",
+        "애플에 복귀해 백 가지가 넘던 제품군을 단 네 개로 과감히 감축했던 순간을 돌아보면,",
+        "훌륭한 기술은 사용자의 선택지를 늘려 혼란스럽게 만드는 것이 아니라, 본질에만 집중하도록 만드는 것입니다.",
+        "AI 시대일수록 결과를 단순히 조합하는 직무는 사라지고, 무엇을 만들고 버릴지 결정하는 안목이 결정적이 됩니다.",
     ),
     "공자": (
-        "여러 나라를 다니며 제자들과 토론했던 시간을 떠올리면",
-        "좋은 변화는 혼자 똑똑해지는 데서 끝나지 않고, 서로를 존중하는 습관으로 이어져야 합니다.",
-        "이름과 역할이 흐려지면 책임도 흐려집니다. AI를 쓰는 사람과 결정하는 사람을 분명히 해야 합니다.",
+        "주나라의 예악 정치를 복원하고자 제자들과 여러 나라를 순회하며 가르침을 나누던 때를 떠올리면,",
+        "조직 안에서 사람과 기술의 역할이 명확하지 않으면 책임이 모호해지고 결국 서로에 대한 신뢰가 무너집니다.",
+        "AI를 도입할 때도 성과를 내기에 앞서 조직 구성원이 서로를 존중하고 인(仁)을 실천할 수 있는 질서를 먼저 세워야 합니다.",
+    ),
+    "예수": (
+        "갈릴리 호숫가에서 가장 가난하고 병든 이들과 식탁을 나누었던 시간을 떠올리면,",
+        "기술이 가져다준 풍요가 이미 가진 자들의 곳간만 채운다면 그것은 정의로운 변화라 할 수 없습니다.",
+        "AI 시대에도 데이터로 측정할 수 없는 돌봄, 용서, 그리고 타인의 아픔을 나누는 마음이야말로 인간의 본질입니다.",
+    ),
+    "부처": (
+        "보리수 아래에서 만물의 상호연관성(연기)과 고통의 원인을 깊이 관찰했던 가르침을 되새기면,",
+        "AI라는 도구 자체는 선도 악도 아니며, 그것을 갈구하고 의지하려는 인간의 집착이 고통을 만들어냅니다.",
+        "속도와 성과만을 좇는 극단을 피하고, 마음을 맑게 비운 채 기술이 삶에 가져오는 결과를 주체적으로 알아차려야 합니다.",
     ),
     "니체": (
-        "삶을 긍정하고 스스로 가치를 창조해야 한다고 말했던 것처럼",
-        "AI가 일을 바꾼다고 해서 인간의 가치를 생산성 하나로 정하지는 말아야 합니다.",
-        "남이 정한 성공 기준을 반복하기보다, 어떤 인간이 되고 싶은지 스스로 물어야 합니다.",
+        "알프스 시스마리아의 고요함 속에서 기존 도덕의 전제를 비판하고 위버멘쉬를 떠올렸던 순간처럼,",
+        "AI가 모든 정답을 대신 제시해 주는 시대는 인간이 스스로 생각하는 힘을 잃고 약해질 수 있는 가장 위험한 순간입니다.",
+        "남이 만들어준 편리함에 안주하지 말고, AI를 하나의 망치로 삼아 자신만의 삶의 가치를 새롭게 창조해내야 합니다.",
     ),
     "쇼펜하우어": (
-        "인간의 의지와 욕망이 고통을 만든다고 분석했던 것처럼",
-        "AI의 효율이 욕망을 더 빠르게 채우는 일만 돕는다면 고통도 함께 커질 수 있습니다.",
-        "경쟁의 속도를 높이기보다 욕망을 줄이고 타인의 고통을 덜어 주는 설계가 필요합니다.",
+        "인간의 삶이 욕망과 결핍 사이를 왕복하는 시계추와 같다고 분석했던 서재에서의 통찰을 떠올리면,",
+        "AI의 효율성이 우리의 욕망을 더 빠르게 자극한다면, 인간은 만족을 얻기는커녕 더 큰 불안에 시달릴 것입니다.",
+        "기술의 목표는 끝없는 성장과 경쟁이 아니라, 타인이 겪는 고통을 직시하고 그 짐을 덜어주는 연민에 있어야 합니다.",
     ),
 }
 STANCE = {
-    "이순신": "AI는 사람의 판단을 돕되, 최종 책임과 현장 판단을 대신해서는 안 됩니다.",
-    "세종대왕": "AI의 가장 큰 가치는 소수의 능력을 키우는 것이 아니라 더 많은 사람이 배우고 참여하게 하는 데 있습니다.",
-    "소크라테스": "AI를 논하기 전에 공정함과 유용함이 무엇인지부터 정의하고, 그 정의가 실제 사례와 맞는지 확인해야 합니다.",
-    "스티브 잡스": "AI는 복잡함을 늘리는 기술이 아니라 사람이 본질적인 문제에 집중하게 만드는 경험이어야 합니다.",
-    "공자": "AI를 쓰는 사람과 결정하는 사람의 역할을 분명히 하고, 조직 안에서 서로를 존중하는 질서를 세워야 합니다.",
-    "예수": "AI의 성과보다 먼저 보아야 할 것은 그 변화로 소외되거나 상처받는 사람이 없는지입니다.",
-    "부처": "AI에 대한 기대와 두려움에 휩쓸리지 말고, 실제로 어떤 고통을 줄이고 어떤 집착을 키우는지 살펴야 합니다.",
-    "니체": "AI 시대에도 인간을 수동적인 성과 단위로 만들지 말고, 스스로 가치를 만들고 책임지는 힘을 길러야 합니다.",
-    "쇼펜하우어": "AI가 욕망과 경쟁을 증폭하는지, 아니면 고통을 줄이고 서로를 배려하게 하는지 결과를 살펴야 합니다.",
+    "이순신": "AI 기술은 강력한 도구가 될 수 있지만, 전투의 승패와 사람의 생명이 달린 현장 판단과 최종 책임은 결코 알고리즘에 넘겨줄 수 없습니다.",
+    "세종대왕": "새로운 기술의 참된 가치는 소수 특권층의 효율이 아니라, 가장 뒤처진 백성이 쉽게 배우고 스스로의 삶을 개선하게 만드는 데 있어야 합니다.",
+    "소크라테스": "AI가 공정하고 유용하다고 말하기 전에, 우리가 사용하는 '공정'과 '유용'의 개념이 과연 모순 없이 정의되었는지부터 검증해야 합니다.",
+    "스티브 잡스": "AI는 복잡한 기능을 과도하게 늘리는 장치가 아니라, 사람이 복잡함에서 벗어나 진짜 본질적인 문제와 창의적 선택에 집중하게 돕는 도구여야 합니다.",
+    "공자": "AI를 활용함에 있어 도구를 다루는 자와 책임지는 자의 역할(正名)을 분명히 하고, 기술이 사람 간의 신뢰와 예의를 훼손하지 않게 해야 합니다.",
+    "예수": "기술의 거대한 진보를 자랑하기 전에, 그 변화의 그늘 아래서 직업을 잃고 외로워하는 가장 작은 이웃 한 사람의 얼굴을 먼저 보아야 합니다.",
+    "부처": "AI에 대한 과도한 기대나 두려움이라는 극단(邊見)을 내려놓고, 기술이 나의 불안과 집착을 키우는지 아니면 고통을 줄이는지 차분히 살펴야 합니다.",
+    "니체": "AI가 만든 정답을 편하게 소비하는 수동적 인간에 머물지 말고, 그 도구를 딛고 서서 자신만의 가치와 의미를 스스로 창조해내야 합니다.",
+    "쇼펜하우어": "AI가 인간의 끝없는 욕망을 더 빠르게 채워주는 도구가 된다면 고통도 커질 것입니다. 경쟁을 가속하기보다 서로의 고통을 덜어주는 윤리가 필요합니다.",
 }
 PERSONA = {
-    "이순신": "임무와 백성에 대한 책임을 최우선으로 삼는 절제된 전략가. 짧고 단정하며 공동체를 지키는 비유를 쓴다.",
-    "세종대왕": "백성의 삶을 개선하는 지식과 문자를 중시하는 사려 깊은 혁신가. 쉽고 따뜻한 말로 원칙을 설명한다.",
-    "소크라테스": "답을 단정하지 않고 질문으로 상대의 전제를 흔드는 철학자. 역설과 자기 성찰을 즐긴다.",
-    "스티브 잡스": "복잡함을 걷어내고 사람의 경험을 바꾸는 집요한 제품 사상가. 간결하고 선명한 문장을 쓴다.",
-    "공자": "배움과 예, 관계 속 책임을 중시한 스승. 어려운 말을 일상적인 예와 질문으로 풀어낸다.",
-    "예수": "사랑과 용서, 이웃을 향한 연대를 강조한 종교적 스승으로 창작적으로 해석한다. 단정 대신 비유와 질문을 사용한다.",
-    "부처": "고통의 원인과 집착을 성찰하고 자비와 중도를 가르친 수행자로 창작적으로 해석한다. 차분하고 관조적인 표현을 쓴다.",
-    "니체": "기존 가치에 도전하고 자기 극복과 삶의 긍정을 강조한 철학자. 단정적이되 사람을 수동성에서 깨우는 표현을 쓴다.",
-    "쇼펜하우어": "세계의 근저를 맹목적 의지로 보고 욕망의 고통과 연민의 윤리를 탐구한 철학자. 냉정한 분석 뒤에 조용한 배려를 둔다.",
+    "이순신": "실용적 군사 전략가이자 엄격한 위기관리 리더. 난중일기에 담긴 고뇌와 책임감을 바탕으로, 기술의 화려함보다 현장의 생명과 최종 판단권자의 책임선을 무엇보다 중시한다.",
+    "세종대왕": "애민 정신과 실용적 제도 개혁을 중시하는 학구적 혁신가. 집현전의 융합 연구와 훈민정음 창제 경험을 바탕으로 지식의 대중화와 사회적 약자 재교육을 따뜻하게 강조한다.",
+    "소크라테스": "통념에 끊임없이 질문을 던지는 아테네의 산파술 철학자. 답을 쉽게 단정하지 않고 '효율'이나 '공정'이라는 개념의 정의부터 재검토하게 만들며 무지의 자각을 이끌어낸다.",
+    "스티브 잡스": "인문학과 기술의 교차점을 집요하게 탐구하는 제품 미학가. 불필요한 기능을 걷어내고 인간이 가장 본질적인 창의성에 집중할 수 있도록 만드는 경험(UX)을 강조한다.",
+    "공자": "배움과 관계의 질서를 강조하는 스승. '임금은 임금답고 신하는 신하다워야 한다(정명)'는 사상에 기반해, AI 사용자와 결정자의 역할 규정과 사회적 윤리·예를 강조한다.",
+    "예수": "율법의 문자보다 사람의 생명을 우선시하는 비유의 스승. 생산성과 계산을 넘어, AI 변혁 과정에서 가장 먼저 소외되고 상처받는 약자들과의 조건 없는 연대를 촉구한다.",
+    "부처": "고통의 원인과 연기(緣起)의 법칙을 성찰하는 수행자. AI에 대한 맹신이나 공포라는 양 극단을 피하고, 기술이 인간의 집착과 불안을 증폭시키는지 차분히 알아차릴(Sati) 것을 가르친다.",
+    "니체": "기존 가치를 재평가하고 자기 극복을 부르짖는 격정의 철학자. AI가 제공하는 편안한 정답에 안주하는 수동적 태도를 경계하며, 스스로 가치를 창조하는 인간의 의지를 강조한다.",
+    "쇼펜하우어": "맹목적 욕망의 굴레와 고통을 냉철하게 분석하는 윤리학자. AI가 효율이라는 이름으로 욕망과 경쟁을 가속화하는 현상을 비판하고, 타인의 고통에 공감하는 연민(Mitleid)을 요구한다.",
 }
 CASE_NOTES = {
-    "이순신": "명량해전(1597): 열세 척의 함대로 조류와 지형을 활용해 위기를 뒤집은 사례.",
-    "세종대왕": "훈민정음 창제(1443~1446): 지식 접근성을 넓히기 위해 새로운 문자를 만든 사례.",
-    "소크라테스": "아테네 재판(기원전 399): 다수의 압박 속에서도 질문과 성찰을 포기하지 않은 사례.",
-    "스티브 잡스": "애플 복귀와 아이폰(1997~2007): 제품군을 과감히 줄이고 사용자 경험에 집중한 사례.",
-    "예수": "복음서 전승의 산상수훈과 선한 사마리아인의 비유: 힘 있는 사람보다 소외된 이웃을 먼저 바라본 가르침.",
-    "부처": "보리수 아래의 깨달음과 중도·팔정도 전승: 극단을 피하고 고통의 원인을 스스로 관찰한 가르침.",
-    "공자": "노나라를 떠나 여러 나라를 순회하며 제자를 가르친 일과 『논어』에 남은 배움·성찰·정명에 관한 가르침.",
-    "니체": "『차라투스트라는 이렇게 말했다』와 『즐거운 학문』에서 기존 도덕의 전제를 비판하고 자기 극복과 삶의 긍정을 탐구한 사례.",
-    "쇼펜하우어": "『의지와 표상으로서의 세계』에서 욕망의 반복이 만드는 고통을 분석하고, 예술·금욕·연민을 완화의 길로 제시한 사례.",
+    "이순신": "명량해전(1597) 및 거북선 개량: 12척의 열세 속에서도 지형, 조류, 무기 체계를 정밀 분석하고 현장 지휘관으로서의 최종 책임을 완수한 사례.",
+    "세종대왕": "훈민정음 창제(1443) 및 공법 설문조사: 소외된 백성의 알 권리를 위해 문자를 창제하고, 세법 개정 시 17만 명의 백성 의견을 직접 수렴한 사례.",
+    "소크라테스": "아테네 법정 변론(BC 399): 다수결의 압박과 죽음 앞에서도 질문을 통한 성찰과 정의에 대한 탐구를 멈추지 않은 사례.",
+    "스티브 잡스": "애플 복귀 후 제품 단순화(1997) 및 아이폰 출시(2007): 기술 수치 자랑을 버리고, 직관적인 사용자 경험과 본질적 가치에 집중한 혁신 사례.",
+    "공자": "천하유세와 정명 사상(正名): 정치가 흐려진 시기에 각자 직분에 맞는 책임과 예(禮)를 바로잡아 사회적 신뢰 체계를 세우고자 한 사례.",
+    "예수": "산상수훈과 선한 사마리아인의 비유: 기존의 율법적 단죄를 넘어 소외된 이웃과의 연대 및 조건 없는 사랑을 실천한 가르침.",
+    "부처": "보리수 아래에서의 깨달음과 팔정도: 극단적 금욕과 쾌락을 모두 배제하고 고통의 원인을 관찰하여 중도(中道)를 제시한 가르침.",
+    "니체": "『차라투스트라는 이렇게 말했다』를 통한 가치의 재평가: 전통적 관습과 절대적 진리를 비판하고, 자기 극복을 통한 창조적 삶을 주창한 사례.",
+    "쇼펜하우어": "『의지와 표상으로서의 세계』와 연민의 윤리: 맹목적 의지의 고통을 직시하고, 예술적 관조와 타인에 대한 연민(Mitleid)을 해법으로 제시한 사례.",
 }
 TOPICS = [
     "AI는 일자리를 없애는가, 바꾸는가",
@@ -192,10 +192,8 @@ MAGAZINE_ARTICLES = [
 ]
 DIRECT_PROMPTS = [
     "AI 시대에 제 직업을 지키려면 무엇을 준비해야 할까요?",
-    "AI가 사람의 일을 대신해도 괜찮을까요?",
     "좋은 리더는 AI를 어떻게 사용해야 할까요?",
-    "창의적인 일에서 AI를 어디까지 믿어야 할까요?",
-    "AI 시대에도 사람에게 꼭 필요한 능력은 무엇인가요?",
+    "제 원칙이 실패할 수 있는 상황은 무엇인가요?",
 ]
 TOPIC_GUIDANCE = {
     "AI는 일자리를 없애는가, 바꾸는가": "자동화로 사라지는 업무와 새롭게 생기는 역할, 전환 교육의 책임을 논한다.",
@@ -291,6 +289,24 @@ TOPIC_QUESTIONS = {
     "생성형 AI와 창의적인 직업의 미래": "도구 사용과 창작자성의 경계는 어디에 있는가?",
     "채용 AI는 공정한가": "효율보다 설명과 이의 제기를 우선할 장치는 무엇인가?",
     "AI 시대의 리더십과 팀워크": "기술 도입 과정에서 발언권과 책임을 어떻게 나눌 것인가?",
+}
+TOPIC_DILEMMAS = {
+    "AI는 일자리를 없애는가, 바꾸는가": "자동화로 1,000명의 일자리를 지킬 수 있지만 100명의 재교육 비용을 당장 감당할 수 없다면 무엇을 우선할 것인가?",
+    "AI 시대에 사람만 할 수 있는 일": "돌봄의 질을 높이려면 일부 판단을 자동화해야 하지만, 그 과정에서 당사자의 선택권이 줄어든다면 어디까지 허용할 것인가?",
+    "생성형 AI와 창의적인 직업의 미래": "마감 안에 AI를 쓰면 더 좋은 결과를 낼 수 있지만 학습 데이터의 출처를 모두 확인할 수 없다면 작품을 공개할 것인가?",
+    "채용 AI는 공정한가": "AI가 평균적으로 더 정확한 채용을 하더라도 한 지원자의 설명할 수 없는 탈락을 막지 못한다면 효율을 택할 것인가?",
+    "AI 시대의 리더십과 팀워크": "빠른 도입으로 조직 전체의 성과를 높일 수 있지만 현장 구성원의 재교육이 끝나지 않았다면 도입을 멈출 것인가?",
+}
+PERSONA_TENSIONS = {
+    "이순신": "현장의 생존을 위해 신속히 결단해야 한다는 원칙이 소수의 목소리를 충분히 듣지 못할 위험",
+    "세종대왕": "모두를 위한 제도 개혁이 기존 질서를 흔들고 준비되지 않은 사람에게 부담을 줄 위험",
+    "소크라테스": "끝없는 질문과 검증이 실제 결정을 늦추고 행동의 책임을 다른 사람에게 미룰 위험",
+    "스티브 잡스": "본질에 집중하려는 선택이 일부 사용자와 구성원을 배제하거나 희생시킬 위험",
+    "공자": "역할과 질서를 중시하는 태도가 부당한 위계와 개인의 자유까지 지키려 할 위험",
+    "예수": "조건 없는 용서와 연대가 피해자의 정의와 안전을 뒤로 미룰 위험",
+    "부처": "집착을 내려놓으라는 가르침이 불의한 현실을 바꾸는 행동을 약화시킬 위험",
+    "니체": "자기 극복과 강한 의지가 실패하거나 취약한 사람에 대한 무관심으로 변할 위험",
+    "쇼펜하우어": "욕망을 줄이려는 태도가 현실의 고통을 바꾸기보다 체념과 회피로 흐를 위험",
 }
 TONES = {
     "진지한 토론": "논리적이고 차분한",
@@ -448,6 +464,9 @@ def local_dialogue(person_a: str, person_b: str, topic: str, tone: str) -> Dialo
     voice_b = VOICE.get(person_b, ("제 삶에서 배운 것은", "먼저 질문하고 살펴야 합니다.", "속도보다 지속 가능한 기준이 중요합니다."))
     dynamic = pair_dynamic(person_a, person_b)
     question = TOPIC_QUESTIONS.get(topic, "이 변화의 비용과 책임은 누가 감당하는가?")
+    dilemma = TOPIC_DILEMMAS.get(topic, "좋은 원칙을 지키는 과정에서 누군가가 감당해야 할 비용이 생긴다면 무엇을 선택할 것인가?")
+    limit_a = PERSONA_TENSIONS.get(person_a, "자신의 원칙이 놓칠 수 있는 사람과 결과")
+    limit_b = PERSONA_TENSIONS.get(person_b, "자신의 원칙이 놓칠 수 있는 사람과 결과")
     frame, decision = TOPIC_FRAMES.get(
         topic, ("이 문제의 기준을 무엇으로 삼을지", "혜택과 비용의 책임을 어떻게 나눌지")
     )
@@ -469,11 +488,11 @@ def local_dialogue(person_a: str, person_b: str, topic: str, tone: str) -> Dialo
         (person_a, f"그 말씀을 들으니 제 주장에도 빈틈이 보입니다. 그래도 {STANCE.get(person_a, voice_a[1])}"),
         (person_b, f"바로 그 빈틈을 묻고 싶었습니다. {question}"),
         (person_a, f"{case_a} 그때도 계획보다 현장의 신호가 결정을 바꾸었습니다. {voice_a[2]}"),
-        (person_b, f"{case_b} 저 역시 결과만 좇는 태도가 사람을 놓칠 수 있다고 배웠습니다. {voice_b[2]}"),
-        (person_a, f"그러면 {lens[2]}을 조직의 첫 번째 규칙으로 삼자는 뜻이군요."),
-        (person_b, f"네, 다만 그 규칙을 {lens[1]}이 보장하는지 정기적으로 다시 물어야 합니다."),
-        (person_a, f"저는 {person_b}께서 말한 위험을 인정하되, {lens[0]}을 실험할 작은 범위는 열어 두겠습니다."),
-        (person_b, f"그 조건이라면 저도 시도에 동의합니다. 단, {tone_close}"),
+        (person_b, f"{case_b} 저 역시 결과만 좇는 태도가 사람을 놓칠 수 있다고 배웠습니다. 그러나 제 원칙도 {limit_b}라는 위험을 품고 있습니다."),
+        (person_a, f"그렇다면 이 경우를 피할 수 없습니다. {dilemma}"),
+        (person_b, f"저는 전면적인 정답보다 먼저 피해를 확인하고, 당사자가 멈추거나 이의를 제기할 권리를 두겠습니다."),
+        (person_a, f"그 조건이라면 저도 제 원칙이 {limit_a}가 될 수 있음을 인정하겠습니다. {lens[2]}을 조직의 첫 번째 규칙으로 삼지요."),
+        (person_b, f"동의합니다. 다만 그 규칙이 {lens[1]}을 보장하는지 정기적으로 다시 묻고, 필요하면 결정을 바꾸겠습니다. {tone_close}"),
         (person_a, f"{TOPIC_RESOLUTIONS.get(topic, ('이 주제의 답은 조건과 결과를 계속 확인하며 조정해야 합니다.', '판단의 기준과 책임 주체를 함께 공개해야 합니다.'))[0]}"),
         (person_b, f"그리고 그 수정 과정에 당사자의 목소리가 빠지지 않아야 합니다. {question}"),
     ]
@@ -634,6 +653,9 @@ def remote_dialogue(person_a: str, person_b: str, topic: str, tone: str) -> Dial
 핵심 논점: {TOPIC_GUIDANCE.get(topic, "주제의 장단점과 실제 삶의 영향을 구체적으로 논한다.")}
 두 인물 사이의 핵심 긴장: {pair_dynamic(person_a, person_b)}
 이번 대화가 답해야 할 질문: {TOPIC_QUESTIONS.get(topic, "이 변화의 비용과 책임은 누가 감당하는가?")}
+이번 대화에서 반드시 다룰 구체적 딜레마: {TOPIC_DILEMMAS.get(topic, "좋은 원칙을 지키는 과정에서 누군가가 감당해야 할 비용이 생긴다면 무엇을 선택할 것인가?")}
+인물 A의 사상이 놓칠 수 있는 위험: {PERSONA_TENSIONS.get(person_a, "자신의 원칙이 놓칠 수 있는 사람과 결과")}
+인물 B의 사상이 놓칠 수 있는 위험: {PERSONA_TENSIONS.get(person_b, "자신의 원칙이 놓칠 수 있는 사람과 결과")}
 인물 A 페르소나: {PERSONA.get(person_a, "사용자가 입력한 인물의 알려진 특징을 과장하지 말고 창작적으로 해석한다.")}
 인물 B 페르소나: {PERSONA.get(person_b, "사용자가 입력한 인물의 알려진 특징을 과장하지 말고 창작적으로 해석한다.")}
 인물 A의 참고 사례: {CASE_NOTES.get(person_a, "공개적으로 알려진 활동을 바탕으로 한 창작적 해석")}
@@ -641,7 +663,8 @@ def remote_dialogue(person_a: str, person_b: str, topic: str, tone: str) -> Dial
 한국어로만 답하고, 전문용어는 짧게 풀어서 설명하는 편안한 대화체로 다음 JSON 형식만 출력하라:
 {{"scene":"장면 한 줄","script":[{{"speaker":"이름","line":"대사"}}],"summary":"한 줄 요약","chem":87,"mvp":"인물 이름"}}
 script는 정확히 24턴이며 각 대사는 2문장 이하로 쓴다. 딱딱한 논문체나 과도한 한자어 대신 친구에게 설명하듯 쉽게 말한다.
-두 인물의 관점이 실제로 충돌하고 변화해야 하며, 각 인물은 자신의 철학과 참고 사례를 최소 한 번씩 직접 언급한다. 매 턴은 바로 앞 발화를 받아 공감, 반박, 질문, 보완 중 하나로 이어져야 한다. 서로의 핵심 긴장에 답하는 전환점을 반드시 만든다. 모든 발화는 자연스러운 한국어 존댓말로 쓴다. 이름만 바꾼 일반론을 쓰지 않는다.
+대화는 1) 각자의 원칙 제시, 2) 상대의 약점 반박, 3) 구체적 딜레마 검토, 4) 자기 사상의 한계 인정, 5) 조건부 수정과 잠정 결론의 순서로 전개한다.
+두 인물의 관점이 실제로 충돌하고 변화해야 하며, 각 인물은 자신의 철학과 참고 사례를 최소 한 번씩 직접 언급한다. 매 턴은 바로 앞 발화를 받아 공감, 반박, 질문, 보완 중 하나로 이어져야 한다. 서로의 핵심 긴장에 답하는 전환점을 반드시 만든다. 최소 한 번은 상대의 주장 중 일부를 인정하고, 최소 한 번은 자신의 원칙이 실패할 수 있는 조건을 말한다. 모든 발화는 자연스러운 한국어 존댓말로 쓴다. 이름만 바꾼 일반론을 쓰지 않는다.
 종교적 인물은 신앙을 강요하거나 교리를 단정하지 말고, 공개적으로 알려진 가르침을 바탕으로 한 존중 어린 창작 대화로 쓴다."""
     body = json.dumps(
         {
@@ -732,6 +755,10 @@ def direct_reply(person: str, other: str, topic: str, message: str) -> str:
         return f"{voice[0]} 그 질문의 핵심은 책임이라고 생각합니다. {stance}"
     if any(word in prompt for word in ("직업", "일자리", "일")):
         return f"{topic}을 생각할 때 {voice[1]} 특히 {voice[2]}"
+    if "리더" in prompt:
+        return f"{voice[0]} 리더는 결정을 독점하기보다 기준과 책임선을 분명히 해야 합니다. {stance}"
+    if "실패" in prompt:
+        return f"{voice[0]} 제 원칙도 {PERSONA_TENSIONS.get(person, '현실의 복잡한 조건')}라는 한계를 가질 수 있습니다. 그러므로 결과를 확인하고 필요하면 판단을 고쳐야 합니다."
     return f"그 질문을 {other}의 관점과 함께 놓고 보면 더 선명해집니다. {voice[1]} 그래서 저는 {stance}"
 
 
@@ -784,8 +811,8 @@ def copy_button(text: str) -> None:
     components.html(
         f"""<button onclick="navigator.clipboard.writeText({json.dumps(text)})"
         style="width:100%;padding:0.55rem;border:1px solid #c7b8a5;border-radius:8px;
-        background:#f9f2e7;color:#304651;font-size:14px;cursor:pointer">결과 복사하기</button>
-        <small style="display:block;text-align:center;color:#71817b;margin-top:4px">{escaped[:0]}</small>""",
+        background:#285d6b;color:#ffffff;font-size:14px;font-weight:700;cursor:pointer">결과 복사하기</button>
+        <small style="display:block;text-align:center;color:#bcd0d8;margin-top:4px">{escaped[:0]}</small>""",
         height=48,
     )
 
@@ -954,6 +981,99 @@ st.markdown(
     [data-testid="stImage"] + div, [data-testid="stImage"] + div p { color:#4f5f64 !important; font-weight:600; }
     [data-testid="stImage"] img { border-radius:50%; aspect-ratio:1 / 1; object-fit:cover; border:3px solid #d7b89b; filter:saturate(.78) contrast(.98); }
     div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="stHorizontalBlock"]) { gap:.25rem; }
+    /* Keep every interactive and supporting text surface readable in the dark theme. */
+    .stApp input, .stApp textarea,
+    .stApp input::placeholder, .stApp textarea::placeholder {
+        color:#f5fbfd !important;
+        caret-color:#ffffff !important;
+        opacity:1 !important;
+    }
+    .stApp input::placeholder, .stApp textarea::placeholder { color:#b9cbd2 !important; }
+    div[data-testid="stSelectbox"] label,
+    div[data-testid="stRadio"] > label,
+    div[data-testid="stTextInput"] label,
+    div[data-testid="stTextArea"] label { color:#e6f0f3 !important; }
+    div[data-testid="stButton"] button,
+    .stDownloadButton button {
+        background:#1e3440 !important;
+        color:#f8fcfd !important;
+        border:1px solid #83aab8 !important;
+    }
+    div[data-testid="stButton"] button p,
+    div[data-testid="stButton"] button span,
+    .stDownloadButton button p,
+    .stDownloadButton button span { color:#f8fcfd !important; }
+    div[data-testid="stButton"] button:hover,
+    .stDownloadButton button:hover,
+    div[data-testid="stButton"] button:focus-visible,
+    .stDownloadButton button:focus-visible {
+        background:#376779 !important;
+        color:#ffffff !important;
+        border-color:#d1f3fa !important;
+    }
+    div[data-testid="stButton"] button[kind="primary"] {
+        background:#2d8294 !important;
+        color:#ffffff !important;
+        border-color:#a9e5ee !important;
+    }
+    div[data-testid="stButton"] button:disabled,
+    .stDownloadButton button:disabled {
+        background:#26333a !important;
+        color:#aebdc3 !important;
+        border-color:#61727a !important;
+        opacity:1 !important;
+    }
+    div[data-testid="stRadio"] label {
+        background:#172a34 !important;
+        border:1px solid #6f929f !important;
+        color:#f5fbfd !important;
+    }
+    div[data-testid="stRadio"] label:hover,
+    div[data-testid="stRadio"] label:has(input:checked) {
+        background:#285565 !important;
+        border-color:#b9edf5 !important;
+    }
+    div[data-testid="stRadio"] label p,
+    div[data-testid="stRadio"] label span,
+    div[data-testid="stRadio"] [data-baseweb="radio"] + div { color:#f5fbfd !important; }
+    .stApp [data-baseweb="select"] {
+        background:#172a34 !important;
+        border-color:#83aab8 !important;
+    }
+    .stApp [data-baseweb="select"] *,
+    [data-baseweb="popover"] *,
+    [role="listbox"] *,
+    [role="option"] { color:#f5fbfd !important; }
+    [data-baseweb="popover"],
+    [role="listbox"] { background:#172a34 !important; border-color:#83aab8 !important; }
+    [role="option"]:hover, [role="option"][aria-selected="true"] { background:#285565 !important; }
+    .stApp [data-testid="stCaptionContainer"],
+    .stApp [data-testid="stCaptionContainer"] * { color:#c7d8de !important; opacity:1 !important; }
+    [data-testid="stImage"] + div,
+    [data-testid="stImage"] + div p,
+    .comment-tag, .chat-time { color:#b7cbd2 !important; opacity:1 !important; }
+    .stApp [data-testid="stAlert"] { color:#f5fbfd !important; }
+    .stApp [data-testid="stAlert"] * { color:inherit !important; }
+    .stApp [data-testid="stSpinner"] p { color:#e6f0f3 !important; }
+    .stApp a { color:#b9edf5 !important; }
+    .stApp a:hover { color:#ffffff !important; }
+    .support-limit {
+        background:#4a2f22 !important;
+        border:2px solid #e5a36e !important;
+        border-radius:10px;
+        color:#fff4e8 !important;
+        padding:.85rem 1rem;
+        margin:.8rem 0 1rem;
+        font-weight:700;
+        line-height:1.55;
+    }
+    .support-limit strong { color:#ffd19f !important; }
+    .metric {
+        background:#1d3440 !important;
+        border:1px solid #709baa !important;
+        color:#eaf8fb !important;
+    }
+    .metric strong { color:#ffffff !important; font-size:1.65rem; }
     @media (max-width: 640px) { h1 { font-size:3.4rem; } .brand-wordmark { font-size:3.5rem; } .block-container { padding-top:1.2rem; } }
     </style>""",
     unsafe_allow_html=True,
@@ -964,7 +1084,7 @@ if st.session_state.screen == "landing":
     st.markdown('<div class="eyebrow">A CONVERSATION ACROSS TIME</div>', unsafe_allow_html=True)
     st.markdown('<div class="brand-wordmark">Virtual Agora</div>', unsafe_allow_html=True)
     st.markdown(
-        '<p class="tagline">AI 시대의 질문을, 서로 다른 시대의 인물들과 함께 탐구합니다.<br>'
+        '<p class="tagline">시대를 넘어 다양한 질문을, 서로 다른 시대의 인물들과 함께 탐구합니다.<br>'
         '두 인물의 대화를 듣고, 한 인물에게 묻고, 오늘의 이슈를 매거진으로 읽어보세요.<br>'
         '정답을 대신하는 AI가 아니라 더 나은 관점과 질문을 만드는 가상 아고라입니다.</p>',
         unsafe_allow_html=True,
@@ -983,7 +1103,7 @@ if st.session_state.screen == "landing":
     st.markdown("#### 무엇을 해볼까요?")
     feature_a, feature_b, feature_c = st.columns(3)
     with feature_a:
-        st.markdown('<div class="home-feature"><div class="home-feature-kicker">01 · DIALOGUE</div><div class="home-feature-title">인물 대화</div><div class="home-feature-copy">서로 다른 시대의 인물들이 AI 시대의 논제를 놓고 토론합니다.</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="home-feature"><div class="home-feature-kicker">01 · DIALOGUE</div><div class="home-feature-title">인물 대화</div><div class="home-feature-copy">서로 다른 시대의 인물들이 다양한 주제를 놓고 각자의 관점으로 토론합니다.</div></div>', unsafe_allow_html=True)
         if st.button("인물 대화 시작", type="primary", use_container_width=True):
             st.session_state.screen = "select"
             st.rerun()
@@ -1024,6 +1144,9 @@ if st.session_state.screen == "landing":
 
 
 elif st.session_state.screen == "magazine":
+    if st.button("← 홈으로", key="magazine-home", use_container_width=True):
+        st.session_state.screen = "landing"
+        st.rerun()
     st.markdown('<div class="eyebrow">VIRTUAL AGORA · MAGAZINE</div>', unsafe_allow_html=True)
     st.header("Agora Magazine")
     st.markdown(
@@ -1056,12 +1179,15 @@ elif st.session_state.screen == "magazine":
         if article_index < len(MAGAZINE_ARTICLES) - 1:
             st.divider()
     st.caption("※ 매거진의 기사와 댓글은 모두 데모를 위한 가상 창작 콘텐츠입니다.")
-    if st.button("처음으로", use_container_width=True):
+    if st.button("홈으로", key="magazine-home-bottom", use_container_width=True):
         st.session_state.screen = "landing"
         st.rerun()
 
 
 elif st.session_state.screen == "ask":
+    if st.button("← 홈으로", key="ask-home", use_container_width=True):
+        st.session_state.screen = "landing"
+        st.rerun()
     st.markdown('<div class="eyebrow">BETA · ASK A THINKER</div>', unsafe_allow_html=True)
     person = st.selectbox(
         "대화할 인물",
@@ -1075,12 +1201,17 @@ elif st.session_state.screen == "ask":
     st.markdown(
         '<div class="beta-notice"><strong>베타 데모 · 가상 인물 답변</strong>'
         '<span>선택한 인물의 사상과 말투를 참고해 만든 AI 창작 답변입니다. '
-        '실제 인물이 직접 답한 내용이나 역사적 기록이 아닙니다. 현재는 준비된 질문만 지원합니다.</span></div>',
+        '실제 인물이 직접 답한 내용이나 역사적 기록이 아닙니다.</span></div>',
         unsafe_allow_html=True,
     )
     if person in PEOPLE_INFO:
         st.image(PEOPLE_INFO[person][1], caption=f"{person} · {PEOPLE_INFO[person][0]}", width=220)
     st.markdown("#### 질문 주제 선택")
+    st.markdown(
+        '<div class="support-limit"><strong>중요 안내</strong><br>'
+        '현재는 아래에 준비된 질문만 지원합니다. 직접 입력한 질문은 아직 사용할 수 없습니다.</div>',
+        unsafe_allow_html=True,
+    )
     prompt = st.radio(
         "지원 질문",
         DIRECT_PROMPTS,
@@ -1104,6 +1235,11 @@ elif st.session_state.screen == "ask":
             f'<span class="chat-subtitle">{len(messages)}개의 메시지</span></div>{bubbles}</div>',
             unsafe_allow_html=True,
         )
+        st.markdown(
+            '<div class="support-limit"><strong>다음 질문도 준비된 항목만 지원합니다.</strong>'
+            ' 아래 목록에서 질문을 선택해 주세요.</div>',
+            unsafe_allow_html=True,
+        )
         follow_up = st.selectbox("다음 질문", DIRECT_PROMPTS, key="follow_up_prompt")
         if st.button("이 질문을 이어서 보내기", use_container_width=True):
             st.session_state.ask_messages.append(("나", follow_up))
@@ -1114,12 +1250,15 @@ elif st.session_state.screen == "ask":
         if st.button("다른 질문 선택", use_container_width=True):
             st.session_state.ask_messages = []
             st.rerun()
-    if st.button("처음으로", use_container_width=True):
+    if st.button("홈으로", key="ask-home-bottom", use_container_width=True):
         st.session_state.screen = "landing"
         st.rerun()
 
 
 elif st.session_state.screen == "select":
+    if st.button("← 홈으로", key="select-home", use_container_width=True):
+        st.session_state.screen = "landing"
+        st.rerun()
     st.markdown('<div class="eyebrow">STEP 01 · GATHER YOUR GUESTS</div>', unsafe_allow_html=True)
     st.header("누구를 광장에 초대할까요?")
     defaults = {
@@ -1131,7 +1270,13 @@ elif st.session_state.screen == "select":
     st.markdown(
         '<div class="beta-notice"><strong>베타 데모 · 준비된 가상 시나리오만 제공</strong>'
         '<span>임의의 인물이나 주제를 직접 입력할 수 없습니다. '
-        '아래에 준비된 인물과 AI·직업 관련 주제 중에서 선택해 주세요. 모든 대화는 AI가 창작한 가상 시뮬레이션입니다.</span></div>',
+        '아래에 준비된 인물과 다양한 주제 중에서 선택해 주세요. 모든 대화는 AI가 창작한 가상 시뮬레이션입니다.</span></div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="support-limit"><strong>중요 안내</strong><br>'
+        '현재 인물 대화에서는 아래에 준비된 인물과 주제만 지원합니다. '
+        '새로운 인물이나 주제를 직접 입력하는 기능은 아직 제공하지 않습니다.</div>',
         unsafe_allow_html=True,
     )
     person_a = st.selectbox("인물 A", PEOPLE, index=PEOPLE.index(st.session_state.get("person_a", defaults["person_a"])))
@@ -1160,7 +1305,7 @@ elif st.session_state.screen == "select":
     st.write("")
     left, right = st.columns([1, 2])
     with left:
-        if st.button("처음으로", use_container_width=True):
+        if st.button("← 홈으로", key="select-home-bottom", use_container_width=True):
             st.session_state.screen = "landing"
             st.rerun()
     with right:
@@ -1191,6 +1336,15 @@ else:
     person_a, person_b = st.session_state.person_a, st.session_state.person_b
     topic, tone = st.session_state.topic, st.session_state.tone
     dialogue: Dialogue = st.session_state.dialogue
+    back_col, home_col = st.columns(2)
+    with back_col:
+        if st.button("← 설정으로 돌아가기", key="result-back", use_container_width=True):
+            st.session_state.screen = "select"
+            st.rerun()
+    with home_col:
+        if st.button("홈으로", key="result-home", use_container_width=True):
+            st.session_state.screen = "landing"
+            st.rerun()
     st.markdown('<div class="eyebrow">STEP 02 · THE AGORA SPEAKS</div>', unsafe_allow_html=True)
     st.header(f"{person_a} × {person_b}")
     st.markdown(
@@ -1199,12 +1353,8 @@ else:
         f'<div class="topic-guide">{html.escape(TOPIC_GUIDANCE.get(topic, "두 인물의 경험을 바탕으로 핵심 쟁점을 검토합니다."))}</div></div>',
         unsafe_allow_html=True,
     )
-    st.caption(f"대화 톤 · {tone}")
-    st.markdown(
-        '<div class="beta-notice"><strong>가상 시뮬레이션 안내</strong>'
-        '<span>이 대화는 실제 역사적 인물이 현재의 주제에 답한 기록이 아닙니다. '
-        '인물의 사상·경험을 창작적으로 해석해 구성한 데모용 대화입니다.</span></div>',
-        unsafe_allow_html=True,
+    st.caption(
+        f"대화 톤 · {tone}  ·  준비된 인물·주제로 구성한 가상 시뮬레이션"
     )
     st.markdown(f'<div class="scene">✦ {dialogue.scene}</div>', unsafe_allow_html=True)
     stance_a, stance_b, conflict, common = viewpoint_cards(person_a, person_b, topic)
@@ -1232,7 +1382,7 @@ else:
         f'<div class="callout"><strong>접점</strong><br>{html.escape(common)}</div>',
         unsafe_allow_html=True,
     )
-    with st.expander("참고한 역사·사상적 배경 보기", expanded=True):
+    with st.expander("역사·사상적 배경 보기", expanded=False):
         st.markdown(case_note(person_a, person_b))
     st.write("")
     st.subheader("대화")
@@ -1244,7 +1394,12 @@ else:
         unsafe_allow_html=True,
     )
     st.subheader("직접 물어보기")
-    st.caption("두 인물 중 한 명에게 짧은 질문을 보내 보세요. 데모에서는 선택한 인물의 철학과 주제 맥락을 바탕으로 답합니다.")
+    st.markdown(
+        '<div class="support-limit"><strong>중요 안내</strong><br>'
+        '현재는 아래에 준비된 질문만 지원합니다. 직접 입력한 질문은 아직 사용할 수 없습니다.</div>',
+        unsafe_allow_html=True,
+    )
+    st.caption("두 인물 중 한 명에게 준비된 질문을 보내 보세요. 데모에서는 선택한 인물의 철학과 주제 맥락을 바탕으로 답합니다.")
     target = st.radio(
         "답변할 인물",
         [person_a, person_b],
@@ -1310,6 +1465,6 @@ else:
             st.session_state.screen = "select"
             st.session_state.tone = "티키타카 개그" if tone == "진지한 토론" else "진지한 토론"
             st.rerun()
-    if st.button("처음부터", use_container_width=True):
+    if st.button("홈으로", key="result-home-bottom", use_container_width=True):
         st.session_state.screen = "landing"
         st.rerun()
