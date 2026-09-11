@@ -46,6 +46,7 @@ PEOPLE_INFO = {
     "부처": ("자비와 중도 · 집착에서 벗어남", ASSET_DIR / "buddha.png", ASSET_DIR / "buddha.png"),
     "니체": ("자기 극복 · 가치의 재창조", ASSET_DIR / "nietzsche.png", ASSET_DIR / "nietzsche.png"),
     "쇼펜하우어": ("의지와 고통 · 연민의 윤리", ASSET_DIR / "schopenhauer.png", ASSET_DIR / "schopenhauer.png"),
+    "유명 채용 플랫폼 대표": ("사람의 가능성 · 데이터와 실행", ASSET_DIR / "market-founder.png", ASSET_DIR / "market-founder.png"),
 }
 TOPIC_FRAMES = {
     "AI는 일자리를 없애는가, 바꾸는가": (
@@ -127,6 +128,11 @@ VOICE = {
         "AI의 효율성이 우리의 욕망을 더 빠르게 자극한다면, 인간은 만족을 얻기는커녕 더 큰 불안에 시달릴 것입니다.",
         "기술의 목표는 끝없는 성장과 경쟁이 아니라, 타인이 겪는 고통을 직시하고 그 짐을 덜어주는 연민에 있어야 합니다.",
     ),
+    "유명 채용 플랫폼 대표": (
+        "두 번의 창업 실패 뒤 서로 다른 역량을 가진 사람들과 작은 실험부터 시작했던 경험을 떠올리면,",
+        "큰 비전은 필요하지만 처음부터 완벽한 제품을 만들기보다 실제 사용자 반응을 보며 빠르게 검증해야 합니다.",
+        "데이터가 사람의 가능성을 더 잘 발견하도록 도울 수 있지만, 숫자에 잡히지 않는 의지와 관계까지 대신 판단할 수는 없습니다.",
+    ),
 }
 STANCE = {
     "이순신": "AI 기술은 강력한 도구가 될 수 있지만, 전투의 승패와 사람의 생명이 달린 현장 판단과 최종 책임은 결코 알고리즘에 넘겨줄 수 없습니다.",
@@ -138,6 +144,7 @@ STANCE = {
     "부처": "AI에 대한 과도한 기대나 두려움이라는 극단(邊見)을 내려놓고, 기술이 나의 불안과 집착을 키우는지 아니면 고통을 줄이는지 차분히 살펴야 합니다.",
     "니체": "AI가 만든 정답을 편하게 소비하는 수동적 인간에 머물지 말고, 그 도구를 딛고 서서 자신만의 가치와 의미를 스스로 창조해내야 합니다.",
     "쇼펜하우어": "AI가 인간의 끝없는 욕망을 더 빠르게 채워주는 도구가 된다면 고통도 커질 것입니다. 경쟁을 가속하기보다 서로의 고통을 덜어주는 윤리가 필요합니다.",
+    "유명 채용 플랫폼 대표": "데이터와 AI는 사람의 가능성을 발견하고 더 나은 기회를 연결하는 도구가 될 수 있지만, 좋은 팀과 인간적 신뢰를 대신할 수는 없습니다.",
 }
 PERSONA = {
     "이순신": "실용적 군사 전략가이자 엄격한 위기관리 리더. 난중일기에 담긴 고뇌와 책임감을 바탕으로, 기술의 화려함보다 현장의 생명과 최종 판단권자의 책임선을 무엇보다 중시한다.",
@@ -149,6 +156,7 @@ PERSONA = {
     "부처": "고통의 원인과 연기(緣起)의 법칙을 성찰하는 수행자. AI에 대한 맹신이나 공포라는 양 극단을 피하고, 기술이 인간의 집착과 불안을 증폭시키는지 차분히 알아차릴(Sati) 것을 가르친다.",
     "니체": "기존 가치를 재평가하고 자기 극복을 부르짖는 격정의 철학자. AI가 제공하는 편안한 정답에 안주하는 수동적 태도를 경계하며, 스스로 가치를 창조하는 인간의 의지를 강조한다.",
     "쇼펜하우어": "맹목적 욕망의 굴레와 고통을 냉철하게 분석하는 윤리학자. AI가 효율이라는 이름으로 욕망과 경쟁을 가속화하는 현상을 비판하고, 타인의 고통에 공감하는 연민(Mitleid)을 요구한다.",
+    "유명 채용 플랫폼 대표": "유명 채용 플랫폼을 만든 가상의 창업가. 작은 실험과 데이터 검증, 서로 다른 역량의 팀, 실패 뒤의 피벗을 중시하지만 사람을 데이터로 환원하는 순간의 책임과 한계도 경계한다.",
 }
 CASE_NOTES = {
     "이순신": "명량해전(1597) 및 거북선 개량: 12척의 열세 속에서도 지형, 조류, 무기 체계를 정밀 분석하고 현장 지휘관으로서의 최종 책임을 완수한 사례.",
@@ -160,6 +168,7 @@ CASE_NOTES = {
     "부처": "보리수 아래에서의 깨달음과 팔정도: 극단적 금욕과 쾌락을 모두 배제하고 고통의 원인을 관찰하여 중도(中道)를 제시한 가르침.",
     "니체": "『차라투스트라는 이렇게 말했다』를 통한 가치의 재평가: 전통적 관습과 절대적 진리를 비판하고, 자기 극복을 통한 창조적 삶을 주창한 사례.",
     "쇼펜하우어": "『의지와 표상으로서의 세계』와 연민의 윤리: 맹목적 의지의 고통을 직시하고, 예술적 관조와 타인에 대한 연민(Mitleid)을 해법으로 제시한 사례.",
+    "유명 채용 플랫폼 대표": "컨설팅과 초기 창업 실패를 거쳐 지인 추천 기반 채용 서비스를 시작하고, 사용자 반응과 채용 데이터를 쌓아 AI 매칭으로 확장한 창업 경험을 바탕으로 한 창작적 참고 사례.",
 }
 TOPICS = [
     "AI는 일자리를 없애는가, 바꾸는가",
@@ -352,6 +361,7 @@ PERSONA_TENSIONS = {
     "부처": "집착을 내려놓으라는 가르침이 불의한 현실을 바꾸는 행동을 약화시킬 위험",
     "니체": "자기 극복과 강한 의지가 실패하거나 취약한 사람에 대한 무관심으로 변할 위험",
     "쇼펜하우어": "욕망을 줄이려는 태도가 현실의 고통을 바꾸기보다 체념과 회피로 흐를 위험",
+    "유명 채용 플랫폼 대표": "빠른 실험과 데이터 중심의 판단이 구직자의 삶을 숫자로 단순화하거나, 성과 압박을 사람에게 다시 떠넘길 위험",
 }
 TONES = {
     "진지한 토론": "논리적이고 차분한",
@@ -1567,7 +1577,8 @@ def remote_magazine() -> list[dict] | None:
 "comments":[{"person":"인물 이름","comment":"3~5문장의 충분한 논평","tag":"태그"}]}]}
 각 comments에는 아래 인물 중 정확히 4명을 사용하고, 한 기사 안에서 같은 인물을
 중복하지 마세요:
-이순신, 세종대왕, 소크라테스, 스티브 잡스, 공자, 예수, 부처, 니체, 쇼펜하우어."""
+이순신, 세종대왕, 소크라테스, 스티브 잡스, 공자, 예수, 부처, 니체, 쇼펜하우어,
+유명 채용 플랫폼 대표."""
     body = json.dumps({
         "model": model,
         "messages": [
@@ -1653,7 +1664,8 @@ def user_bubble(line: str, turn: int) -> str:
 
 def chat_avatar(name: str) -> str:
     return {"이순신": "李", "세종대왕": "世", "소크라테스": "Σ", "스티브 잡스": "SJ",
-            "공자": "孔", "예수": "✦", "부처": "◌", "니체": "N", "쇼펜하우어": "S"}.get(name, name[:1])
+            "공자": "孔", "예수": "✦", "부처": "◌", "니체": "N", "쇼펜하우어": "S",
+            "유명 채용 플랫폼 대표": "HR"}.get(name, name[:1])
 
 
 def avatar_image(name: str) -> str:
@@ -1708,9 +1720,24 @@ def copy_button(text: str) -> None:
 
 
 def set_selection(person_a: str, person_b: str, topic: str, tone: str) -> None:
+    navigate_to("select")
     st.session_state.update(
-        {"person_a": person_a, "person_b": person_b, "topic": topic, "tone": tone, "screen": "select"}
+        {"person_a": person_a, "person_b": person_b, "topic": topic, "tone": tone}
     )
+
+
+def navigate_to(screen: str) -> None:
+    current = st.session_state.get("screen")
+    if current and current != screen:
+        history = st.session_state.setdefault("screen_history", [])
+        if not history or history[-1] != current:
+            history.append(current)
+    st.session_state.screen = screen
+
+
+def navigate_back(default: str = "landing") -> None:
+    history = st.session_state.setdefault("screen_history", [])
+    st.session_state.screen = history.pop() if history else default
 
 
 def sync_ask_prompt() -> None:
@@ -1718,16 +1745,53 @@ def sync_ask_prompt() -> None:
     st.session_state["ask_custom_prompt"] = "" if selected == "직접 입력" else selected
 
 
+def featured_founder_dialogue() -> Dialogue:
+    """Return the single curated showcase conversation shown on the home page."""
+    founder = "유명 채용 플랫폼 대표"
+    topic = "AI 시대, 어떻게 살아남을 것인가"
+    return Dialogue(
+        scene=(
+            "한쪽에는 제품 발표를 앞둔 조용한 무대의 조명이, 다른 한쪽에는 채용 데이터가 "
+            "쌓인 현대적인 회의실의 모니터가 겹쳐진 가상의 광장. 스티브 잡스와 유명 채용 "
+            "플랫폼 대표가 서로 다른 시대의 질문을 들고 마주 앉아 AI 시대의 일자리를 "
+            "이야기하기 시작했다."
+        ),
+        script=[
+            ("스티브 잡스", "사람들은 새로운 기술이 등장할 때마다 자신의 자리를 잃을까 두려워합니다. 매킨토시가 처음 나왔을 때도 그랬죠. 하지만 AI는 정신을 위한 자전거일 뿐입니다. 더 큰 비극은 AI가 일을 빼앗는 것이 아니라, 자신을 뛰게 하는 일이 무엇인지도 모른 채 평생을 기계처럼 일하는 것입니다."),
+            (founder, "그 문제의식에는 공감합니다. 다만 제가 매일 마주하는 채용 시장의 데이터는 훨씬 냉정합니다. 최근에는 단순 분석과 기획 업무의 수요가 눈에 띄게 줄고 있습니다. 사람들에게 지금 필요한 것은 가슴 뛰는 일이라는 구호만이 아니라, 내 직무가 몇 년 뒤에도 가치를 인정받을지 점검하고 준비하는 현실적인 전략입니다."),
+            ("스티브 잡스", "데이터라니, 정말 지루한 단어군요. 데이터는 과거의 흔적을 보여줄 뿐 미래를 창조하지는 못합니다. 우리가 아이폰을 만들 때 시장 조사를 그대로 따랐다면, 버튼이 조금 더 편한 블랙베리 정도를 만들었겠죠. 세상에 균열을 내는 것은 결국 인간의 직관과 예술적 감각입니다."),
+            (founder, "과거에 사람을 가두려는 게 아니라, 지금 서 있는 현실의 좌표를 보여드리려는 겁니다. 모두가 아이폰을 발명하는 아티스트일 수는 없습니다. 대다수의 노동자와 기업은 매일 생존을 고민하니까요. AI를 내 업무에 연결해 생산성을 높이고, 그 결과 퇴근 후의 삶과 커리어의 행복을 지키는 일도 충분히 창의적인 선택입니다."),
+            ("스티브 잡스", "타협안치고는 나쁘지 않군요. 그래도 도구를 다루는 주체는 언제나 인간의 영혼이어야 합니다. AI가 흠잡을 데 없는 코드와 기획서를 만들어도, 무엇을 만들지, 그것이 왜 세상에 필요한지를 결정하고 생명력을 불어넣는 일은 인간의 열망입니다."),
+            (founder, "정확합니다. 그리고 그 열망에 온전히 집중하려면 역설적으로 시장에서 내 위치를 먼저 알아야 합니다. 반복 업무를 AI에 맡기고 데이터로 내가 더 잘할 수 있는 영역을 확인하면, 비로소 당신이 말한 창의적인 작업에 쓸 시간과 자원이 생깁니다."),
+            ("스티브 잡스", "그렇다면 데이터는 목적지가 아니라 우리가 가고 싶은 곳을 더 선명하게 비추는 나침반이군요. 단, 안전한 생존 공식이라는 얄팍한 안도감이 사람의 심장 소리를 덮어버리지 않도록 경계해야 합니다."),
+            (founder, "동의합니다. 다만 그 심장 소리가 머릿속 구호로만 남아서도 안 됩니다. 오늘 당장 시장의 문제 하나를 찾아 작은 실험을 시작하고, AI라는 나침반으로 결과를 확인하며 방향을 고치는 사람. 그런 실행력을 가진 사람이 이 시대의 주도권을 갖게 될 것입니다."),
+        ],
+        summary="스티브 잡스는 직관과 몰입을, 유명 채용 플랫폼 대표는 데이터와 실용적인 생존 전략을 앞세웠다. 두 사람은 열정과 데이터가 대립하는 대신 서로의 한계를 보완해야 한다는 데 가까워졌다.",
+        chem=88,
+        mvp=founder,
+        perspective_summaries={
+            "스티브 잡스": "일자리의 안전성을 과거의 직무 유지로만 보지 않고, 무엇을 만들고 왜 만드는지 결정하는 인간의 열망과 직관에서 찾았습니다. 데이터가 방향을 대신 정하지 않도록 경계하면서도, 현실을 이해하는 도구로서의 역할은 일부 받아들였습니다.",
+            founder: "AI 시대의 생존에는 막연한 열정보다 시장에서 검증되는 역량과 작은 실험이 필요하다고 보았습니다. 다만 데이터가 사람의 가능성을 전부 설명할 수 없다는 점을 인정하고, 데이터가 창의적 몰입을 돕는 수단이 되어야 한다고 관점을 넓혔습니다.",
+        },
+        conflict_reason="스티브 잡스는 미래를 여는 직관과 몰입을 출발점으로 삼았고, 유명 채용 플랫폼 대표는 변화하는 시장에서 검증 가능한 역량과 생존 전략을 먼저 요구했습니다. 후반부에는 서로의 주장을 일부 받아들이며 열정과 데이터의 역할을 구분했습니다.",
+        mvp_reason="유명 채용 플랫폼 대표는 추상적인 열정을 실제 시장 데이터, 작은 실험, AI 활용 전략으로 구체화해 논쟁을 현실의 커리어 문제로 끌어왔습니다. 동시에 잡스의 창의성 관점을 받아들여 데이터가 목적이 아니라 몰입을 돕는 수단이어야 한다는 전환점을 만들었습니다.",
+    )
+
+
 def start_showcase(person_a: str, person_b: str, topic: str) -> None:
     """Open a prepared showcase dialogue directly, without the selection step."""
-    with st.spinner("두 인물이 광장에 모이는 중…"):
-        dialogue = remote_dialogue(person_a, person_b, topic, "진지한 토론")
+    featured_pair = {person_a, person_b} == {"유명 채용 플랫폼 대표", "스티브 잡스"}
+    if featured_pair:
+        dialogue = featured_founder_dialogue()
+    else:
+        with st.spinner("두 인물이 광장에 모이는 중…"):
+            dialogue = remote_dialogue(person_a, person_b, topic, "진지한 토론")
     if dialogue is None:
         st.error(st.session_state.get("ai_error") or connection_error_message())
         return
+    navigate_to("result")
     st.session_state.update(
         {
-            "screen": "result",
             "dialogue": dialogue,
             "person_a": person_a,
             "person_b": person_b,
@@ -1739,9 +1803,9 @@ def start_showcase(person_a: str, person_b: str, topic: str) -> None:
 
 
 def start_ask_mode(person: str) -> None:
+    navigate_to("ask")
     st.session_state.update(
         {
-            "screen": "ask",
             "ask_person": person,
             "ask_messages": [],
             "ask_prompt": DIRECT_PROMPTS[0],
@@ -1751,6 +1815,7 @@ def start_ask_mode(person: str) -> None:
 
 if "screen" not in st.session_state:
     st.session_state.screen = "intro"
+st.session_state.setdefault("screen_history", [])
 
 st.markdown(
     """<style>
@@ -1809,6 +1874,9 @@ st.markdown(
     .person-caption { color:#5e6965; font-size:.82rem; margin-top:-.5rem; }
     .metric { background:#f9f2e7; border:1px solid #dfd0bd; border-radius:12px; padding:1rem; text-align:center; }
     .metric strong { display:block; font-size:1.5rem; color:#304651; }
+    .summary-card { background:#fff8ed; border:2px solid #b56c4a; border-radius:14px; padding:1rem 1.2rem; margin:1rem 0 .8rem; color:#304651 !important; line-height:1.75; box-shadow:0 5px 18px rgba(72,54,35,.08); }
+    .summary-card strong { display:block; color:#a05237 !important; font-size:.78rem; letter-spacing:.12em; margin-bottom:.3rem; }
+    .summary-card span { color:#263f4a !important; font-size:1rem; font-weight:600; }
     .insight-card { background:#f9f2e7; border:1px solid #dfd0bd; border-radius:12px; padding:1rem; min-height:7.8rem; color:#304651; line-height:1.65; }
     .insight-card b { display:block; color:#b56c4a; font-size:.76rem; letter-spacing:.08em; margin-bottom:.35rem; }
     .insight-card strong { color:#304651; }
@@ -1978,6 +2046,9 @@ st.markdown(
         color:#eaf8fb !important;
     }
     .metric strong { color:#ffffff !important; font-size:1.65rem; }
+    .summary-card { background:#162a35 !important; border-color:#d18a62 !important; color:#f5fbfd !important; }
+    .summary-card strong { color:#ffd0aa !important; }
+    .summary-card span { color:#f5fbfd !important; }
     /* Refined entry screen: cool midnight glass with a restrained warm accent. */
     .intro-shell {
         min-height:660px;
@@ -2029,6 +2100,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+if st.session_state.screen not in {"intro", "landing"}:
+    if st.button("← 이전 화면", key="global-back", use_container_width=True):
+        navigate_back()
+        st.rerun()
+
 
 if st.session_state.screen == "intro":
     intro_image = image_data_url(INTRO_IMAGE)
@@ -2044,7 +2120,7 @@ if st.session_state.screen == "intro":
         unsafe_allow_html=True,
     )
     if st.button("아고라 입장하기  →", type="primary", use_container_width=True, key="enter-agora"):
-        st.session_state.screen = "landing"
+        navigate_to("landing")
         st.rerun()
 
 
@@ -2063,17 +2139,13 @@ elif st.session_state.screen == "landing":
         '실제 만남이나 실제 발언, 역사적 기록으로 받아들이지 말아 주세요.</span></div>',
         unsafe_allow_html=True,
     )
-    st.markdown(
-        '<div class="quote">서로 다른 철학과 경험을 충돌시켜<br>당신의 판단 기준을 다시 설계합니다.</div>',
-        unsafe_allow_html=True,
-    )
     st.write("")
     st.markdown("#### 무엇을 해볼까요?")
     feature_a, feature_b, feature_c = st.columns(3)
     with feature_a:
         st.markdown('<div class="home-feature"><div class="home-feature-kicker">01 · DIALOGUE</div><div class="home-feature-title">인물 대화</div><div class="home-feature-copy">서로 다른 시대의 인물들이 다양한 주제를 놓고 각자의 관점으로 토론합니다.</div></div>', unsafe_allow_html=True)
         if st.button("인물 대화 시작", type="primary", use_container_width=True):
-            st.session_state.screen = "select"
+            navigate_to("select")
             st.rerun()
     with feature_b:
         st.markdown('<div class="home-feature"><div class="home-feature-kicker">02 · ASK</div><div class="home-feature-title">인물에게 질문하기</div><div class="home-feature-copy">준비된 질문으로 한 인물의 관점과 말투를 가까이 만나봅니다.</div></div>', unsafe_allow_html=True)
@@ -2083,7 +2155,7 @@ elif st.session_state.screen == "landing":
     with feature_c:
         st.markdown('<div class="home-feature"><div class="home-feature-kicker">03 · MAGAZINE</div><div class="home-feature-title">아고라 매거진</div><div class="home-feature-copy">가상의 최신 이슈에 역사적 인물들이 남긴 코멘트를 읽어봅니다.</div></div>', unsafe_allow_html=True)
         if st.button("매거진 읽기", use_container_width=True):
-            st.session_state.screen = "magazine"
+            navigate_to("magazine")
             st.rerun()
     if st.button("✦ 랜덤 광장 열기", use_container_width=True, key="home-random"):
         a, b = random.sample(PEOPLE, 2)
@@ -2092,6 +2164,7 @@ elif st.session_state.screen == "landing":
     st.write("")
     st.markdown("#### 오늘의 광장")
     for a, b, topic in [
+        ("유명 채용 플랫폼 대표", "스티브 잡스", "AI 시대, 어떻게 살아남을 것인가"),
         ("이순신", "공자", "개인의 양심과 공동체의 명령이 충돌할 때 무엇을 따라야 하는가?"),
         ("세종대왕", "소크라테스", "사람을 바꾸는 것은 지식을 가르치는 일인가, 스스로 질문하게 하는 일인가?"),
         ("스티브 잡스", "니체", "새로운 것을 만들기 위해 기존의 기준과 전통을 어디까지 깨뜨려야 하는가?"),
@@ -2113,7 +2186,7 @@ elif st.session_state.screen == "landing":
 
 elif st.session_state.screen == "magazine":
     if st.button("← 홈으로", key="magazine-home", use_container_width=True):
-        st.session_state.screen = "landing"
+        navigate_to("landing")
         st.rerun()
     st.markdown('<div class="eyebrow">VIRTUAL AGORA · MAGAZINE</div>', unsafe_allow_html=True)
     st.header("Agora Magazine")
@@ -2168,13 +2241,13 @@ elif st.session_state.screen == "magazine":
             st.divider()
     st.caption("※ 매거진의 기사와 댓글은 모두 AI가 생성한 가상 창작 콘텐츠입니다.")
     if st.button("홈으로", key="magazine-home-bottom", use_container_width=True):
-        st.session_state.screen = "landing"
+        navigate_to("landing")
         st.rerun()
 
 
 elif st.session_state.screen == "ask":
     if st.button("← 홈으로", key="ask-home", use_container_width=True):
-        st.session_state.screen = "landing"
+        navigate_to("landing")
         st.rerun()
     st.markdown('<div class="eyebrow">BETA · ASK A THINKER</div>', unsafe_allow_html=True)
     person = st.selectbox(
@@ -2192,7 +2265,6 @@ elif st.session_state.screen == "ask":
         '실제 인물이 직접 답한 내용이나 역사적 기록이 아닙니다.</span></div>',
         unsafe_allow_html=True,
     )
-    st.caption("● OpenRouter AI 실시간 생성 모드")
     if st.session_state.get("ai_error"):
         st.warning(st.session_state.ai_error)
     if person in PEOPLE_INFO:
@@ -2255,13 +2327,13 @@ elif st.session_state.screen == "ask":
             st.session_state.ask_messages = []
             st.rerun()
     if st.button("홈으로", key="ask-home-bottom", use_container_width=True):
-        st.session_state.screen = "landing"
+        navigate_to("landing")
         st.rerun()
 
 
 elif st.session_state.screen == "select":
     if st.button("← 홈으로", key="select-home", use_container_width=True):
-        st.session_state.screen = "landing"
+        navigate_to("landing")
         st.rerun()
     st.markdown('<div class="eyebrow">STEP 01 · GATHER YOUR GUESTS</div>', unsafe_allow_html=True)
     st.header("누구를 광장에 초대할까요?")
@@ -2309,7 +2381,7 @@ elif st.session_state.screen == "select":
     left, right = st.columns([1, 2])
     with left:
         if st.button("← 홈으로", key="select-home-bottom", use_container_width=True):
-            st.session_state.screen = "landing"
+            navigate_to("landing")
             st.rerun()
     with right:
         if st.button("대화 생성하기  →", type="primary", use_container_width=True):
@@ -2347,11 +2419,16 @@ else:
     back_col, home_col = st.columns(2)
     with back_col:
         if st.button("← 설정으로 돌아가기", key="result-back", use_container_width=True):
-            st.session_state.screen = "select"
+            if {person_a, person_b} == {"유명 채용 플랫폼 대표", "스티브 잡스"}:
+                st.session_state.pop("person_a", None)
+                st.session_state.pop("person_b", None)
+                navigate_to("landing")
+            else:
+                navigate_to("select")
             st.rerun()
     with home_col:
         if st.button("홈으로", key="result-home", use_container_width=True):
-            st.session_state.screen = "landing"
+            navigate_to("landing")
             st.rerun()
     st.markdown('<div class="eyebrow">STEP 02 · THE AGORA SPEAKS</div>', unsafe_allow_html=True)
     st.header(f"{person_a} × {person_b}")
@@ -2361,8 +2438,7 @@ else:
         f'<div class="topic-guide">{html.escape(TOPIC_GUIDANCE.get(topic, "두 인물의 경험을 바탕으로 핵심 쟁점을 검토합니다."))}</div></div>',
         unsafe_allow_html=True,
     )
-    mode_label = "OpenRouter AI 실시간 생성 대화"
-    st.caption(f"대화 톤 · {tone}  ·  {mode_label} · 가상 시뮬레이션")
+    st.caption(f"대화 톤 · {tone} · 가상 시뮬레이션")
     if st.session_state.get("ai_error"):
         st.warning(st.session_state.ai_error)
     st.markdown(f'<div class="scene">✦ {dialogue.scene}</div>', unsafe_allow_html=True)
@@ -2439,22 +2515,17 @@ else:
                     unsafe_allow_html=True,
                 )
     st.divider()
-    st.markdown(f"**한 줄 요약**  \n{dialogue.summary}")
-    c1, c2 = st.columns(2)
-    with c1:
-        st.markdown(
-            f'<div class="metric"><strong>{dialogue.chem}/100</strong>'
-            f'<span>관점 충돌도</span><small>전제 차이 · 반박 · 관점 변화 · 남은 쟁점</small></div>',
-            unsafe_allow_html=True,
-        )
-        st.caption(dialogue.conflict_reason or "네 가지 기준을 종합해 AI가 실제 대화 내용을 바탕으로 평가했습니다.")
-    with c2:
-        st.markdown(
-            f'<div class="metric"><strong>{html.escape(dialogue.mvp)}</strong>'
-            f'<span>대화의 핵심 기여자</span><small>쟁점 선명화 · 근거 제시 · 전환점 기여</small></div>',
-            unsafe_allow_html=True,
-        )
-        st.caption(dialogue.mvp_reason or "핵심 쟁점을 발전시킨 발언을 기준으로 선정했습니다.")
+    st.markdown(
+        f'<div class="summary-card"><strong>대화 한 줄 요약</strong>'
+        f'<span>{html.escape(dialogue.summary)}</span></div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f'<div class="metric"><strong>{dialogue.chem}/100</strong>'
+        f'<span>관점 충돌도</span><small>전제 차이 · 반박 · 관점 변화 · 남은 쟁점</small></div>',
+        unsafe_allow_html=True,
+    )
+    st.caption(dialogue.conflict_reason or "네 가지 기준을 종합해 AI가 실제 대화 내용을 바탕으로 평가했습니다.")
     st.write("")
     result_text = format_result(dialogue, person_a, person_b, topic, tone)
     copy_button(result_text)
@@ -2473,9 +2544,9 @@ else:
                 st.rerun()
     with a2:
         if st.button("톤 바꿔 다시 생성", use_container_width=True):
-            st.session_state.screen = "select"
+            navigate_to("select")
             st.session_state.tone = "티키타카 개그" if tone == "진지한 토론" else "진지한 토론"
             st.rerun()
     if st.button("홈으로", key="result-home-bottom", use_container_width=True):
-        st.session_state.screen = "landing"
+        navigate_to("landing")
         st.rerun()
