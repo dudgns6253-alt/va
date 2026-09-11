@@ -7,7 +7,7 @@
 - **인물 대화**: 9명의 인물과 8개 주제의 2인 대화
 - **인물에게 질문하기**: 한 인물의 관점으로 직접 질문하고 후속 질문하기
 - **아고라 매거진**: AI, 창작, 추천 알고리즘 등 동시대 이슈와 인물별 코멘트
-- **오프라인 데모**: API 키 없이도 사전 구성된 고품질 대화와 24턴 대화 생성
+- **AI 실시간 생성**: 선택한 인물과 사용자가 입력한 주제로 매번 새로운 대화 생성
 - **대화 후 관점 확인**: 대화 전후의 판단 변화를 비교
 
 ## 다루는 주제
@@ -23,7 +23,13 @@ python -m pip install -r requirements.txt
 streamlit run app.py
 ```
 
-실행 후 `http://localhost:8501`에서 확인할 수 있습니다. API 키 없이도 데모가 작동합니다.
+실행 후 `http://localhost:8501`에서 확인할 수 있습니다. AI 기능을 사용하려면 OpenRouter API 키가 필요합니다.
+
+API 연동 전 오프라인 버전은 `app_0.py`로 보관되어 있습니다. 오프라인 버전을 실행하려면 다음처럼 파일명을 지정하세요.
+
+```powershell
+streamlit run app_0.py
+```
 
 ## Streamlit Community Cloud 배포
 
@@ -38,27 +44,28 @@ Main file path: app.py
 
 배포 후 생성되는 `https://<app-name>.streamlit.app` 주소를 서비스 링크로 제출합니다.
 
-실시간 모델을 연결할 때만 앱의 Secrets에 아래 값을 추가합니다. 미설정 상태에서는 로컬 큐레이션 대화가 사용됩니다.
+앱의 Secrets에 아래 값을 추가합니다. API 키가 없거나 API 요청이 실패하면 하드코딩 답변으로 대체하지 않고 연결 오류만 표시합니다.
 
 ```text
-OPENAI_API_KEY = "..."
-OPENAI_BASE_URL = "https://api.openai.com/v1"
-OPENAI_MODEL = "gpt-4o-mini"
+OPENROUTER_API_KEY = "..."
+OPENROUTER_MODEL = "openai/gpt-4o-mini"
 ```
+
+OpenRouter API 키는 [OpenRouter](https://openrouter.ai/)에서 발급할 수 있습니다. 무료 모델은 제공량과 rate limit이 변동될 수 있으므로 실제 사용 가능한 `:free` 모델을 선택하세요. 로컬에서는 환경 변수로 설정하고, Streamlit Community Cloud에서는 앱의 Secrets에 등록하세요. 인물에게 질문하기와 대화 결과의 직접 물어보기 모두 자유 입력을 지원하며, API가 연결되면 대화 이력과 함께 OpenRouter에 전달됩니다.
 
 ## 추천 시연 순서
 
 1. 입장 페이지에서 **아고라 입장하기**
 2. **인물 대화**에서 두 인물과 주제를 선택
 3. 대화 전 관점을 고른 뒤 **대화 생성하기**
-4. 24턴 대화, 충돌 지점, 공통 접점, 대화 후 관점 확인
+4. AI가 생성한 12~24턴 대화와 직접 질문 기능 확인
 5. 홈으로 돌아가 **인물에게 질문하기**와 **아고라 매거진** 확인
 
 ## 기술 스택
 
 - Python
 - Streamlit
-- OpenAI-compatible API 선택 연동
+- Groq API 선택 연동
 - 생성형 AI 기반 콘텐츠 큐레이션
 
 ## 저작권 및 콘텐츠 안내

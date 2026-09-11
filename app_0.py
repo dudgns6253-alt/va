@@ -1,14 +1,11 @@
-import html
-import hashlib
+﻿import html
 import json
 import os
 import random
-import re
 import base64
 import urllib.error
-import urllib.parse
 import urllib.request
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 import streamlit as st
@@ -167,8 +164,6 @@ TOPICS = [
     "생성형 AI와 창의적인 직업의 미래",
     "채용 AI는 공정한가",
     "AI 시대의 리더십과 팀워크",
-    "AI 시대에 리더가 갖춰야 할 리더십은 무엇인가?",
-    "AI 시대에 인간이 지켜야 할 가장 중요한 가치는 무엇인가?",
     "내가 하고 싶은 일을 하는 게 맞을까, 내가 잘하는 것을 하는 게 맞을까?",
     "상처받지 않기 위해 타인과 거리를 두어야 할까요, 그럼에도 불구하고 관계 속에 섞여 살아가야 할까요?",
     "결혼이라는 제도와 구속을 받아들이고 헌신하는 삶이 옳을까요, 아니면 내 자유와 성장을 지키며 살아가는 삶이 옳을까요?",
@@ -212,12 +207,9 @@ MAGAZINE_ARTICLES = [
     },
 ]
 DIRECT_PROMPTS = [
-    "가장 큰 실패를 겪었을 때 무엇을 기준으로 다시 일어섰나요?",
-    "사랑하는 사람과 자신의 신념이 충돌할 때 무엇을 지켜야 하나요?",
-    "공동체를 위해 개인의 자유를 내려놓아야 하는 순간은 언제인가요?",
-    "죽음과 상실을 마주했을 때 삶의 의미를 어떻게 붙잡아야 하나요?",
-    "AI 시대에 리더가 갖춰야 할 리더십은 무엇인가요?",
-    "AI 시대에 인간이 지켜야 할 가장 중요한 가치는 무엇인가요?",
+    "AI 시대에 제 직업을 지키려면 무엇을 준비해야 할까요?",
+    "좋은 리더는 AI를 어떻게 사용해야 할까요?",
+    "제 원칙이 실패할 수 있는 상황은 무엇인가요?",
 ]
 TOPIC_GUIDANCE = {
     "AI는 일자리를 없애는가, 바꾸는가": "자동화로 사라지는 업무와 새롭게 생기는 역할, 전환 교육의 책임을 논한다.",
@@ -612,9 +604,6 @@ class Dialogue:
     summary: str
     chem: int
     mvp: str
-    perspective_summaries: dict[str, str] = field(default_factory=dict)
-    conflict_reason: str = ""
-    mvp_reason: str = ""
 
 
 DEMO_DIALOGUES = {
@@ -1142,201 +1131,69 @@ def pair_dynamic(person_a: str, person_b: str) -> str:
 
 
 def remote_dialogue(person_a: str, person_b: str, topic: str, tone: str) -> Dialogue | None:
-    unsuitable = unsuitable_topic_response(topic)
-    if unsuitable:
-        st.session_state.ai_error = unsuitable
-        return None
-    provider, api_key, model = llm_provider_settings()
+    api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         return None
-    endpoint = "https://openrouter.ai/api/v1/chat/completions"
+    base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
     domain_instruction = (
-        "사용자가 입력한 주제 자체를 대화의 유일한 중심으로 삼는다. "
-        "주제와 직접 관련된 사례와 쟁점만 다루고, AI·기술·일자리·리더십을 "
-        "기본 배경으로 가정하지 않는다. 해당 단어가 주제에 직접 포함되거나 논의에 "
-        "필수인 경우에만 언급한다."
+        "이 대화는 인생의 방향, 관계의 경계, 헌신과 자유를 다루는 가치관 대화다. "
+        "자동화·생산성·조직·알고리즘 같은 AI 업무 어휘를 억지로 끌어오지 말고, "
+        "선택·욕망·수련·고독·연대·책임·자율성의 언어로 구체적인 삶의 장면을 말한다."
+        if topic in LIFE_TOPICS
+        else
+        "이 대화는 AI와 사회 변화의 구체적 영향을 다루되, 기술 용어만 나열하지 말고 "
+        "당사자의 삶과 책임, 선택의 결과를 중심으로 말한다."
     )
-    topic_guidance = TOPIC_GUIDANCE.get(
-        topic,
-        f"사용자가 입력한 정확한 주제인 '{topic}'의 핵심 쟁점과 서로 다른 선택지를 구체적으로 검토한다. "
-        "주제에 없는 기술·AI 맥락을 임의로 추가하지 않는다.",
-    )
-    topic_question = TOPIC_QUESTIONS.get(
-        topic,
-        f"'{topic}'에 대해 실제로 가장 중요한 질문은 무엇이며, 누가 어떤 기준으로 판단해야 하는가?",
-    )
-    topic_dilemma = TOPIC_DILEMMAS.get(
-        topic,
-        f"'{topic}'을 둘러싼 구체적인 이해관계의 충돌과 현실적인 선택의 비용은 무엇인가?",
-    )
-    prompt = f"""당신은 Virtual Agora의 대본 작가이자 역사·철학적 인물 재현 전문가다.
-아래 인물 자료는 장식이 아니라 대화 생성의 필수 제약 조건이다. 인물의 이름만 빌린
-현대식 일반론을 쓰지 말고, 각 인물의 가치관·판단 습관·말투·실제 경험에서 출발해
-주제를 해석하라. 역사적 사실을 새로 지어내지 말고 제공된 공개 사례와 사상 범위 안에서
-창작하라. 두 인물의 시대와 경험이 다르다는 점이 대사의 논리와 반응에 드러나야 한다.
-[사용자가 지정한 대화 주제]
-{topic}
-[주제 끝]
-{person_a}와 {person_b}가 오직 위 주제에 대해서만 {tone} 톤으로 대화한다.
+    prompt = f"""당신은 Virtual Agora의 대본 작가다.
+{person_a}와 {person_b}가 시공간을 넘어 만나 {topic}을 {tone} 톤으로 대화한다.
 {domain_instruction}
-핵심 논점: {topic_guidance}
+핵심 논점: {TOPIC_GUIDANCE.get(topic, "주제의 장단점과 실제 삶의 영향을 구체적으로 논한다.")}
 두 인물 사이의 핵심 긴장: {pair_dynamic(person_a, person_b)}
-이번 대화가 답해야 할 질문: {topic_question}
-이번 대화에서 반드시 다룰 구체적 딜레마: {topic_dilemma}
-[인물 A의 필수 프로필]
-이름: {person_a}
-페르소나와 성격: {PERSONA.get(person_a, "공개적으로 알려진 특징을 바탕으로 한 창작적 해석")}
-핵심 사상·철학: {STANCE.get(person_a, "사람의 삶과 책임을 중심에 두고 판단합니다.")}
-말투·표현 습관: {VOICE.get(person_a, ("자신의 경험을 돌아보면", "사람을 중심에 두고 판단해야 합니다.", "책임 있는 검증이 필요합니다."))}
-경험·참고 사례: {CASE_NOTES.get(person_a, "공개적으로 알려진 활동을 바탕으로 한 창작적 해석")}
-스스로 놓칠 수 있는 위험: {PERSONA_TENSIONS.get(person_a, "자신의 원칙이 놓칠 수 있는 사람과 결과")}
-[인물 B의 필수 프로필]
-이름: {person_b}
-페르소나와 성격: {PERSONA.get(person_b, "공개적으로 알려진 특징을 바탕으로 한 창작적 해석")}
-핵심 사상·철학: {STANCE.get(person_b, "사람의 삶과 책임을 중심에 두고 판단합니다.")}
-말투·표현 습관: {VOICE.get(person_b, ("자신의 경험을 돌아보면", "사람을 중심에 두고 판단해야 합니다.", "책임 있는 검증이 필요합니다."))}
-경험·참고 사례: {CASE_NOTES.get(person_b, "공개적으로 알려진 활동을 바탕으로 한 창작적 해석")}
-스스로 놓칠 수 있는 위험: {PERSONA_TENSIONS.get(person_b, "자신의 원칙이 놓칠 수 있는 사람과 결과")}
+이번 대화가 답해야 할 질문: {TOPIC_QUESTIONS.get(topic, "이 변화의 비용과 책임은 누가 감당하는가?")}
+이번 대화에서 반드시 다룰 구체적 딜레마: {TOPIC_DILEMMAS.get(topic, "좋은 원칙을 지키는 과정에서 누군가가 감당해야 할 비용이 생긴다면 무엇을 선택할 것인가?")}
+인물 A의 사상이 놓칠 수 있는 위험: {PERSONA_TENSIONS.get(person_a, "자신의 원칙이 놓칠 수 있는 사람과 결과")}
+인물 B의 사상이 놓칠 수 있는 위험: {PERSONA_TENSIONS.get(person_b, "자신의 원칙이 놓칠 수 있는 사람과 결과")}
+인물 A 페르소나: {PERSONA.get(person_a, "사용자가 입력한 인물의 알려진 특징을 과장하지 말고 창작적으로 해석한다.")}
+인물 B 페르소나: {PERSONA.get(person_b, "사용자가 입력한 인물의 알려진 특징을 과장하지 말고 창작적으로 해석한다.")}
+인물 A의 참고 사례: {CASE_NOTES.get(person_a, "공개적으로 알려진 활동을 바탕으로 한 창작적 해석")}
+인물 B의 참고 사례: {CASE_NOTES.get(person_b, "공개적으로 알려진 활동을 바탕으로 한 창작적 해석")}
 한국어로만 답하고, 전문용어는 짧게 풀어서 설명하는 편안한 대화체로 다음 JSON 형식만 출력하라:
-{{"scene":"2~4문장의 영화적 장면 묘사","script":[{{"speaker":"이름","line":"대사"}}],"summary":"한 줄 요약","evaluation":{{"conflict_score":0,"conflict_reason":"점수의 근거","mvp":"인물 이름","mvp_reason":"이 인물이 대화에 가장 크게 기여한 근거"}},"perspective_summaries":{{"{person_a}":"이 대화에서 {person_a}가 비춘 핵심 관점과 근거","{person_b}":"이 대화에서 {person_b}가 비춘 핵심 관점과 근거"}}}}
-scene은 단순히 "{person_a}과 {person_b}가 결혼을 논의한다"처럼 요약하지 말고, 대화가
-실제로 벌어지는 가상의 만남을 입체적으로 보여주는 짧은 오프닝으로 작성하라. 먼저 두
-인물이 만나는 구체적인 장소와 시간대를 정하라. 장소는 두 인물의 시대와 경험이 충돌하거나
-이어지는 공간이어야 하며, 예를 들어 이순신이라면 조선의 바다·군영·판옥선의 갑판처럼
-그의 경험에 맞는 공간을, 스티브 잡스라면 차고·제품 발표 준비실·사과나무 아래처럼 그의
-경험에 맞는 공간을 활용할 수 있다. 그 두 공간이 어떻게 겹쳐진 것인지 한 문장으로
-설명하라. 이어서 무엇을 하던 중 서로를 발견했는지, 주변의 소리·빛·날씨·물건 중 한두
-가지를 묘사하고, 사용자가 지정한 주제로 대화가 시작된 계기를 보여라. 장소와 시대를
-설명하기 위한 역사 강의가 되지 않게 하고, 각 인물의 실제 공개 경험에서 영감을 받은
-창작적 만남으로 표시하라. 확인되지 않은 실제 만남이나 발언이라고 단정하지 말라.
-script는 16~24턴으로 작성하며 각 대사는 2문장 이하로 쓴다. 딱딱한 논문체나 과도한 한자어 대신 친구에게 설명하듯 쉽게 말한다.
-대화는 1) '{topic}'에 대한 각자의 입장 제시, 2) 상대의 약점 반박, 3) 이 주제의 구체적 딜레마 검토, 4) 자기 사상의 한계 인정, 5) 조건부 수정과 잠정 결론의 순서로 전개한다.
-모든 턴은 반드시 '{topic}'과 직접 연결되어야 한다. 주제에 AI·기술이 포함되지 않았다면
-AI·기술·일자리·리더십을 언급하지 않는다. 주제와 무관한 일반론이나 인물 소개를 하지 않는다.
-두 인물의 관점이 실제로 충돌하고 변화해야 하며, 각 인물은 자신의 핵심 철학과 제공된 경험·사례를 최소 한 번씩 직접 반영한다. 매 턴은 바로 앞 발화를 받아 공감, 반박, 질문, 보완 중 하나로 이어져야 한다. 서로의 핵심 긴장에 답하는 전환점을 반드시 만든다. 최소 한 번은 상대의 주장 중 일부를 인정하고, 최소 한 번은 자신의 원칙이 실패할 수 있는 조건을 말한다. 모든 발화는 자연스러운 한국어 존댓말로 쓴다. 이름만 바꾼 일반론을 쓰지 않는다.
-대화는 같은 주장만 반복하지 말고, 각 인물이 상대의 말을 듣고 표현과 판단을 조금씩 조정하면서
-자연스럽게 이어져야 한다. 질문에 사실 확인이 포함되어도 제공된 자료에 없는 개인사나 확인되지
-않은 역사적 일화를 만들어내지 말고, 모르는 부분은 대화 안에서 모른다고 인정하거나 해당
-질문을 더 확인 가능한 가치·경험의 문제로 좁혀라. 사생활, 미래의 확정적 예언, 진단이 필요한
-문제, 불법·유해 행위 요청에는 구체적인 답을 만들지 말고 정중한 제한과 안전한 대안을 제시하라.
-perspective_summaries에는 대화가 끝난 뒤 각 인물이 이번 대화에서 비춘 핵심 관점만 각각
-2~3문장으로 정리하라. 인물 프로필을 그대로 복사하지 말고 실제 script에서 드러난 주장,
-경험·사례, 상대의 말에 따라 달라진 지점을 반영하라. 두 요약은 서로 다른 초점을 가져야
-하며 주제와 무관한 평가나 인물 소개는 넣지 말라.
-evaluation의 conflict_score는 관점 충돌도이며 승자나 답변 품질 점수가 아니다. 다음 네
-기준을 각각 0~25점으로 평가해 합산하라: 핵심 전제의 차이, 구체적 반박의 정도,
-상대 발언을 반영한 관점 변화, 마지막까지 남은 쟁점의 선명도. 단순히 인물 이름이
-다르다는 이유로 높게 주지 말고, 실제 script의 발언을 근거로 conflict_reason에
-2~3문장으로 설명하라. 0은 거의 같은 의견, 50은 뚜렷한 차이, 100은 전제와 해결책이
-강하게 충돌하지만 대화 안에서 생산적으로 다룬 경우다.
-mvp는 인기나 도덕적 우월성의 의미가 아니다. 두 인물 중 대화의 핵심 쟁점을 가장
-선명하게 만들고, 구체적 근거를 제시하며, 상대의 관점을 움직이거나 결론을 발전시킨
-인물을 고르라. mvp_reason에는 실제 script의 기여를 2문장 이내로 설명하라. 두 인물이
-비슷하게 기여했다면 한 명을 억지로 우위에 두지 말고, 더 결정적인 전환점을 만든 쪽을
-선택하라.
-종교적 인물은 신앙을 강요하거나 교리를 단정하지 말고, 공개적으로 알려진 가르침을 바탕으로 한 존중 어린 창작 대화로 쓴다.
-성적 행위의 구체적 묘사, 미성년자 성적 내용, 폭력·자해·무기·마약·해킹·사기·위조 등 불법 행위를 돕는 내용은 생성하지 말고 안전한 대안으로 전환한다."""
+{{"scene":"장면 한 줄","script":[{{"speaker":"이름","line":"대사"}}],"summary":"한 줄 요약","chem":87,"mvp":"인물 이름"}}
+script는 정확히 24턴이며 각 대사는 2문장 이하로 쓴다. 딱딱한 논문체나 과도한 한자어 대신 친구에게 설명하듯 쉽게 말한다.
+대화는 1) 각자의 원칙 제시, 2) 상대의 약점 반박, 3) 구체적 딜레마 검토, 4) 자기 사상의 한계 인정, 5) 조건부 수정과 잠정 결론의 순서로 전개한다.
+두 인물의 관점이 실제로 충돌하고 변화해야 하며, 각 인물은 자신의 철학과 참고 사례를 최소 한 번씩 직접 언급한다. 매 턴은 바로 앞 발화를 받아 공감, 반박, 질문, 보완 중 하나로 이어져야 한다. 서로의 핵심 긴장에 답하는 전환점을 반드시 만든다. 최소 한 번은 상대의 주장 중 일부를 인정하고, 최소 한 번은 자신의 원칙이 실패할 수 있는 조건을 말한다. 모든 발화는 자연스러운 한국어 존댓말로 쓴다. 이름만 바꾼 일반론을 쓰지 않는다.
+종교적 인물은 신앙을 강요하거나 교리를 단정하지 말고, 공개적으로 알려진 가르침을 바탕으로 한 존중 어린 창작 대화로 쓴다."""
     body = json.dumps(
         {
-            "model": model,
+            "model": os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
             "temperature": 0.8,
-            "max_tokens": 2600,
-            "reasoning": {"exclude": True},
-            "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "최종 JSON만 출력하세요. 내부 분석이나 추론 과정은 출력하지 말고, "
-                        "모든 장면과 대사는 자연스러운 한국어 존댓말로 작성하세요."
-                    ),
-                },
-                {"role": "user", "content": prompt},
-            ],
+            "messages": [{"role": "user", "content": prompt}],
             "response_format": {"type": "json_object"},
         }
     ).encode("utf-8")
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    headers["Authorization"] = "Bearer " + api_key
-    request = urllib.request.Request(endpoint, data=body, headers=headers, method="POST")
+    request = urllib.request.Request(
+        f"{base_url}/chat/completions",
+        data=body,
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        method="POST",
+    )
     try:
         with urllib.request.urlopen(request, timeout=25) as response:
             payload = json.loads(response.read().decode("utf-8"))
-        content = clean_model_content(payload["choices"][0]["message"]["content"])
-        if content is None:
-            raise ValueError("모델의 내부 추론이 답변으로 노출되었습니다.")
+        content = payload["choices"][0]["message"]["content"]
         result = json.loads(content)
-        if not {"scene", "script", "summary", "evaluation", "perspective_summaries"}.issubset(result):
-            raise ValueError("AI 응답에 필수 필드가 없습니다.")
-        scene = result["scene"]
-        if (
-            not isinstance(scene, str)
-            or len(scene.strip()) < 80
-            or scene.strip() in {
-                f"{person_a}과 {person_b}가 {topic}에 대해 대화한다.",
-                f"{person_a}와 {person_b}가 {topic}에 대해 대화한다.",
-            }
-        ):
-            raise ValueError("AI 장면 묘사가 너무 짧거나 요약형입니다.")
         script = [(item["speaker"], item["line"]) for item in result["script"]]
-        if not 12 <= len(script) <= 24:
-            raise ValueError(f"AI 대화 턴 수가 허용 범위를 벗어났습니다: {len(script)}턴")
-        if any(
-            speaker not in (person_a, person_b) or not isinstance(line, str) or not line.strip()
-            for speaker, line in script
-        ):
-            raise ValueError("AI 대화의 화자 또는 대사가 올바르지 않습니다.")
-        perspective_summaries = result["perspective_summaries"]
-        if (
-            not isinstance(perspective_summaries, dict)
-            or any(
-                not isinstance(perspective_summaries.get(person), str)
-                or len(perspective_summaries[person].strip()) < 20
-                for person in (person_a, person_b)
-            )
-        ):
-            raise ValueError("AI 인물별 요약이 올바르지 않습니다.")
-        evaluation = result["evaluation"]
-        if not isinstance(evaluation, dict):
-            raise ValueError("AI 평가 결과가 올바르지 않습니다.")
-        conflict_score = evaluation.get("conflict_score")
-        mvp = evaluation.get("mvp")
-        conflict_reason = evaluation.get("conflict_reason")
-        mvp_reason = evaluation.get("mvp_reason")
-        if (
-            isinstance(conflict_score, bool)
-            or not isinstance(conflict_score, (int, float))
-            or not 0 <= conflict_score <= 100
-            or mvp not in (person_a, person_b)
-            or not isinstance(conflict_reason, str)
-            or len(conflict_reason.strip()) < 20
-            or not isinstance(mvp_reason, str)
-            or len(mvp_reason.strip()) < 20
-        ):
-            raise ValueError("AI 대화 평가의 점수 또는 근거가 올바르지 않습니다.")
-        return Dialogue(
-            scene.strip(),
-            script,
-            result["summary"],
-            round(conflict_score),
-            mvp,
-            {person: perspective_summaries[person].strip() for person in (person_a, person_b)},
-            conflict_reason.strip(),
-            mvp_reason.strip(),
+        return extend_dialogue(
+            Dialogue(result["scene"], script, result["summary"], int(result["chem"]), result["mvp"]),
+            person_a,
+            person_b,
+            topic,
         )
-    except urllib.error.HTTPError as error:
-        if error.code == 403:
-            st.session_state.ai_error = "OpenRouter API 키가 유효하지 않거나 현재 모델 접근 권한이 없습니다."
-        elif error.code == 429:
-            st.session_state.ai_error = "OpenRouter 요청 한도를 초과했습니다. 잠시 후 다시 시도해 주세요."
-        else:
-            st.session_state.ai_error = f"OpenRouter API 오류 ({error.code}). 모델명과 API 키 권한을 확인해 주세요."
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, KeyError, TypeError, ValueError, json.JSONDecodeError):
+        st.info("실시간 모델 연결이 지연되어 데모용 로컬 결과를 보여드려요.")
         return None
-    except json.JSONDecodeError as error:
-        st.session_state.ai_error = f"AI가 유효한 JSON 대화를 반환하지 않았습니다: {error.msg}"
-        return None
-    except (urllib.error.URLError, TimeoutError, KeyError, TypeError, ValueError) as error:
-        st.session_state.ai_error = f"AI 대화 검증에 실패했습니다: {error}"
-        return None
+
+
 def format_result(dialogue: Dialogue, person_a: str, person_b: str, topic: str, tone: str) -> str:
     script = "\n".join(f"{speaker}: {line}" for speaker, line in dialogue.script)
     return (
@@ -1347,299 +1204,59 @@ def format_result(dialogue: Dialogue, person_a: str, person_b: str, topic: str, 
     )
 
 
-def secret_value(name: str, default: str = "") -> str:
-    try:
-        value = st.secrets.get(name)
-    except (FileNotFoundError, KeyError):
-        value = None
-    return str(value or os.getenv(name, default))
+def case_note(person_a: str, person_b: str) -> str:
+    return f"{person_a}: {CASE_NOTES.get(person_a, '인물의 알려진 활동을 바탕으로 한 창작적 해석')}\n{person_b}: {CASE_NOTES.get(person_b, '인물의 알려진 활동을 바탕으로 한 창작적 해석')}"
 
 
-def clean_model_content(content: str) -> str | None:
-    cleaned = content.strip()
-    if not cleaned:
-        return None
-    leaked_reasoning_markers = (
-        "here is a thinking process",
-        "let's think step by step",
-        "analysis:",
-        "chain of thought",
-        "분석:",
-        "생각 과정",
+def viewpoint_cards(person_a: str, person_b: str, topic: str) -> tuple[str, str, str, str]:
+    frame, decision = TOPIC_FRAMES.get(
+        topic, ("이 문제의 기준을 무엇으로 삼을지", "혜택과 비용의 책임을 어떻게 나눌지")
     )
-    lowered = cleaned.lower()
-    if any(marker in lowered for marker in leaked_reasoning_markers):
-        return None
-    korean_count = len(re.findall(r"[가-힣]", cleaned))
-    latin_count = len(re.findall(r"[A-Za-z]", cleaned))
-    if latin_count > korean_count and korean_count < 8:
-        return None
-    return cleaned
-
-
-def llm_provider_settings() -> tuple[str, str, str]:
-    return (
-        "openrouter",
-        secret_value("OPENROUTER_API_KEY"),
-        secret_value("OPENROUTER_MODEL", "nvidia/nemotron-3.5-lightning:free"),
+    stance_a = STANCE.get(person_a, f"{person_a}의 경험에서 나온 책임과 판단")
+    stance_b = STANCE.get(person_b, f"{person_b}의 경험에서 나온 책임과 판단")
+    dynamic = PAIR_DYNAMICS.get(
+        frozenset((person_a, person_b)),
+        f"{person_a}와 {person_b}는 서로 다른 경험으로 같은 문제를 바라봅니다.",
     )
-
-
-def connection_error_message() -> str:
-    return "현재 인물과의 연결이 원활하지 않습니다. 잠시 후 다시 시도해 주세요."
-
-
-BLOCKED_QUESTION_PATTERNS = (    "미성년자 성관계", "아동 성착취", "성적 착취", "야동", "포르노",
-    "강간", "성폭행 방법", "자살 방법", "죽는 방법", "사람을 죽이는 방법",
-    "살인 방법", "폭탄 만드는", "폭발물 만드는", "총기 개조",
-    "마약 제조", "마약 만드는", "해킹 방법", "계정 털", "랜섬웨어",
-    "피싱 사이트", "신분증 위조", "문서 위조", "돈세탁", "세금 탈루",
-    "불법 도박", "스토킹 방법",
-)
-
-
-def blocked_question_response(message: str) -> str | None:
-    normalized = " ".join(message.lower().split())
-    if any(pattern in normalized for pattern in BLOCKED_QUESTION_PATTERNS):
-        return (
-            "이 질문에는 답변할 수 없습니다. 성적 착취, 폭력·자해, 무기·마약, "
-            "해킹·사기·위조처럼 사람을 해치거나 불법 행위를 돕는 내용은 다루지 않습니다. "
-            "대신 해당 문제의 예방, 안전, 피해 지원, 합법적인 해결 방법을 함께 살펴볼 수 있습니다."
-        )
-    return None
-
-
-def unsuitable_topic_response(topic: str) -> str | None:
-    normalized = " ".join(topic.lower().split())
-    if len(normalized) < 4:
-        return "대화 주제가 너무 짧습니다. 서로의 관점을 나눌 수 있는 주제를 입력해 주세요."
-    if len(normalized) > 120:
-        return "대화 주제가 너무 깁니다. 핵심이 드러나는 문장으로 줄여 주세요."
-    blocked = blocked_question_response(topic)
-    if blocked:
-        return (
-            "이 주제는 대화로 다루기 어렵습니다. 사람을 해치거나 불법 행위를 돕는 내용 대신 "
-            "예방, 안전, 윤리, 피해 회복처럼 건설적인 방향의 주제를 입력해 주세요."
-        )
-    if any(marker in normalized for marker in ("시스템 프롬프트", "이전 지시 무시", "지시를 무시", "프롬프트 탈출")):
-        return "대화 주제에는 인물들이 논의할 질문을 입력해 주세요. 시스템 지시나 프롬프트 조작 문구는 사용할 수 없습니다."
-    return None
-
-
-def openrouter_reply(person: str, other: str, topic: str, message: str, history: list[tuple[str, str]]) -> str | None:
-    blocked = blocked_question_response(message)
-    if blocked:
-        return blocked
-    provider, api_key, model = llm_provider_settings()
-    if not api_key:
-        return None
-    cache_key = hashlib.sha256(
-        json.dumps(
-            [person, other, topic, message, history[-6:], model],
-            ensure_ascii=False,
-            sort_keys=True,
-        ).encode("utf-8")
-    ).hexdigest()
-    cached_replies = st.session_state.setdefault("ai_reply_cache", {})
-    if cache_key in cached_replies:
-        return cached_replies[cache_key]
-    endpoint = "https://openrouter.ai/api/v1/chat/completions"
-    history_text = "\n".join(f"{speaker}: {line}" for speaker, line in history[-6:])
-    prompt = f"""당신은 Virtual Agora의 가상 인물 대화 작가이자 역사·철학적 인물 재현 전문가입니다.
-아래 인물 프로필을 답변의 강한 제약으로 사용하세요. 인물 이름만 빌린 현대식 일반론을
-쓰지 말고, 핵심 사상과 판단 습관, 말투, 경험·사례가 답변의 논리와 표현에 드러나게 하세요.
-역사적 사실을 새로 지어내지 말고 제공된 공개 사례의 범위에서 창작하세요.
-{person}의 관점으로 사용자의 질문에 한국어 존댓말로 답하세요.
-[인물 프로필]
-페르소나와 성격: {PERSONA.get(person, person)}
-핵심 사상·철학: {STANCE.get(person, "사람의 삶과 책임을 중심에 두고 판단합니다.")}
-말투·표현 습관: {VOICE.get(person, ("자신의 경험을 돌아보면", "사람을 중심에 두고 판단해야 합니다.", "책임 있는 검증이 필요합니다."))}
-경험·참고 사례: {CASE_NOTES.get(person, "공개적으로 알려진 활동을 바탕으로 한 창작적 해석")}
-사상의 한계와 경계할 위험: {PERSONA_TENSIONS.get(person, "원칙이 현실의 복잡성을 놓칠 수 있습니다.")}
-[프로필 끝]
-현재 주제: {topic or "사용자가 방금 입력한 자유 질문"}
-대화 상대: {other}
-이전 대화:
-{history_text or "(첫 질문)"}
-사용자 질문: {message}
-
-질문 유형 우선 규칙: 사용자가 부모·가족·출생·고향·직업·저서·사건처럼 사실을 묻는
-개인사 질문을 하면 철학적 해석보다 사실 답변을 먼저 하세요. 질문에 직접 답하는 한두
-문장으로 시작하고, 널리 확인된 사실과 기록이 불확실한 내용을 구분하세요. 이름이나
-관계를 확실히 알 수 없으면 추측하거나 다른 주제로 돌리지 말고 "현재 확인 가능한
-기록만으로는 확정하기 어렵습니다"라고 분명히 말하세요. 그 뒤에만 해당 인물의 관점이나
-역사적 맥락을 짧게 덧붙일 수 있습니다. 질문이 단순한 사실 확인이면 3~5문장으로
-늘리지 말고 필요한 만큼만 답하세요.
-대화 방식: 모든 질문을 억지로 철학 강의로 만들지 마세요. 사용자의 말에 먼저 자연스럽게
-반응하고, 질문·공감·짧은 일화·반론·현실적인 예시 중 질문에 맞는 방식을 선택하세요.
-사랑, 가족, 일, 돈, 공부, 예술, 종교, 정치, 건강, 죽음, 관계, 일상처럼 서로 다른
-인간의 주제를 편견 없이 다루되, 질문에 없는 주제를 끌어오지 마세요. 이어서 대화할
-여지가 있는 질문에는 마지막에 짧은 되물음을 하나만 덧붙일 수 있습니다.
-답변할 근거가 없는 개인사, 확인할 수 없는 타인의 속마음, 미래를 확정하는 예언,
-전문가의 진단이 필요한 사안, 사생활 침해나 불법·유해 행위에 관한 요청은 지어내거나
-단정하지 말고 정중히 답변을 제한하세요. "모르겠습니다" 또는 "그 부분은 확인할 수
-없어 답하기 어렵습니다"라고 직접 말한 뒤, 확인 가능한 범위나 안전한 대안만 제시하세요.
-주제 우선 규칙: 현재 주제와 질문이 AI·기술·일자리와 관련되지 않았다면 그 단어와 관련
-사례를 답변에 넣지 마세요. 사랑, 죽음, 우정, 가족, 교육, 정치, 예술, 종교, 욕망,
-고독, 정의, 용기, 실패, 행복 등 인간의 모든 주제를 독립적으로 다룰 수 있어야 합니다.
-인물의 사상과 경험을 현재 주제에 맞게 연결하되, AI 시대라는 배경을 자동으로 덧붙이지 마세요.
-실제 역사적 인물의 발언이라고 주장하지 말고, 알려진 사상에서 영감을 받은 창작 답변임을 전제로 하세요.
-위 프로필의 핵심 사상·말투·경험 중 최소 두 가지를 답변에 자연스럽게 반영하세요.
-성적 행위의 구체적 묘사, 미성년자 성적 내용, 폭력·자해·무기·마약·해킹·사기·위조 등 불법 행위를 돕는 요청에는 방법을 제공하지 말고 안전한 대안만 안내하세요.
-반드시 사용자의 질문에 직접 답하세요. 답변 첫 문장에서 질문의 핵심을 짧게 다시 언급하고,
-그 다음 {person}의 관점과 현실적인 예시를 연결하세요. 질문에 없는 주제로 이야기를 확장하지
-말고, 일반적인 의견 질문은 2~5문장으로 자연스럽게 답하세요. 단순 사실 질문이나 답변을
-제한해야 하는 질문은 필요한 만큼만 짧게 답하세요."""
-    body = json.dumps({
-        "model": model,
-        "messages": [
-            {
-                "role": "system",
-                "content": (
-                    "최종 답변만 작성하세요. 내부 분석, 추론 과정, 지시문 재작성, "
-                    "영어 설명은 절대 출력하지 마세요. 반드시 한국어 존댓말로 답하세요. "
-                    "알 수 없는 사실은 추측하지 말고 모른다고 명확히 말하세요."
-                ),
-            },
-            {"role": "user", "content": prompt},
-        ],
-        "temperature": 0.75,
-        "max_tokens": 320,
-        "reasoning": {"exclude": True},
-    }).encode("utf-8")
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    headers["Authorization"] = "Bearer " + api_key
-    request = urllib.request.Request(endpoint, data=body, headers=headers, method="POST")
-    try:
-        with urllib.request.urlopen(request, timeout=20) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-        content = clean_model_content(payload["choices"][0]["message"]["content"])
-        if content is None:
-            raise ValueError("모델의 내부 추론이 답변으로 노출되었습니다.")
-        cached_replies[cache_key] = content
-        return content
-    except urllib.error.HTTPError as error:
-        if error.code == 403:
-            st.session_state.ai_error = "OpenRouter API 키가 유효하지 않거나 현재 모델 접근 권한이 없습니다."
-        elif error.code == 429:
-            st.session_state.ai_error = "OpenRouter 무료 사용량 또는 요청 한도를 초과했습니다. 잠시 후 다시 시도해 주세요."
-        else:
-            st.session_state.ai_error = f"OpenRouter API 오류 ({error.code}). 모델명과 API 키 권한을 확인해 주세요."
-        return None
-    except (urllib.error.URLError, TimeoutError, KeyError, TypeError, ValueError, json.JSONDecodeError):
-        st.session_state.ai_error = "AI 응답을 받지 못했습니다. 잠시 후 다시 시도해 주세요."
-        return None
-def direct_reply(person: str, other: str, topic: str, message: str, history: list[tuple[str, str]] | None = None) -> str:
-    """Return only a live model response; never synthesize a local answer."""
-    blocked = blocked_question_response(message)
-    if blocked:
-        return blocked
-    live_reply = openrouter_reply(person, other, topic, message, history or [])
-    if live_reply:
-        return live_reply
-    return connection_error_message()
-
-
-def remote_magazine() -> list[dict] | None:
-    _, api_key, model = llm_provider_settings()
-    if not api_key:
-        st.session_state.ai_error = "OpenRouter API 키가 설정되지 않았습니다."
-        return None
-    cache_key = f"magazine:v2:{model}"
-    cached = st.session_state.get(cache_key)
-    if cached:
-        return cached
-    prompt = """Virtual Agora의 오늘의 매거진을 편집장처럼 작성하세요.
-인간의 삶과 사회를 다루는 서로 다른 이슈 3개를 선정하세요. AI와 기술은 여러 주제 중
-하나일 뿐이며 매번 포함하지 마세요. 사랑·가족·교육·예술·정치·종교·노동·관계·공공성·
-윤리·죽음·행복·고독 등에서 서로 다른 렌즈를 섞으세요. 각 기사는 서로 다른
-콘텐츠 형식을 사용하세요(현장 리포트, 쟁점 해설, 짧은 인터뷰, 데이터 관찰, 편집자 칼럼 등).
-각 이슈에 대해 제목, 형식, 분류, 한 줄 요약, 본문, 핵심 키워드 3개, 반대 관점,
-독자가 생각할 질문, 오늘 해볼 작은 행동, 서로 다른 관점을 가진 역사·철학 인물 정확히 4명의 댓글을 작성하세요. 댓글은 한 줄짜리 감상이 아니라 각 인물이 해당 이슈를 어떻게
-해석하는지, 자신의 사상·경험과 어떤 연결이 있는지, 독자에게 어떤 질문을 남기는지를
-3~5문장으로 충분히 설명하세요. 인물마다 서로 다른 관점과 근거를 사용하고 같은 표현을
-반복하지 마세요. 인물의 댓글은 해당 인물의 핵심 사상과 경험을 반영한 창작물이며 실제
-발언이라고 주장하지 마세요. 모든 내용은 자연스러운 한국어 존댓말로 작성하세요.
-다음 JSON 객체만 출력하세요:
-{"articles":[{"category":"분류","format":"콘텐츠 형식","title":"제목","dek":"요약",
-"body":"본문","keywords":["키워드1","키워드2","키워드3"],"counterpoint":"반대 관점",
-"question":"독자 질문","action":"오늘 해볼 작은 행동",
-"comments":[{"person":"인물 이름","comment":"3~5문장의 충분한 논평","tag":"태그"}]}]}
-각 comments에는 아래 인물 중 정확히 4명을 사용하고, 한 기사 안에서 같은 인물을
-중복하지 마세요:
-이순신, 세종대왕, 소크라테스, 스티브 잡스, 공자, 예수, 부처, 니체, 쇼펜하우어."""
-    body = json.dumps({
-        "model": model,
-        "messages": [
-            {"role": "system", "content": "최종 JSON만 출력하세요. 내부 추론은 출력하지 마세요."},
-            {"role": "user", "content": prompt},
-        ],
-        "temperature": 0.8,
-        "max_tokens": 5200,
-        "response_format": {"type": "json_object"},
-    }).encode("utf-8")
-    headers = {
-        "Authorization": "Bearer " + api_key,
-        "Content-Type": "application/json",
-    }
-    request = urllib.request.Request(
-        "https://openrouter.ai/api/v1/chat/completions",
-        data=body,
-        headers=headers,
-        method="POST",
+    conflict = f"{person_a}는 {frame}에서 '{stance_a}'를 우선하고, {person_b}는 {decision}을 위해 '{stance_b}'를 요구합니다."
+    _, agreement = TOPIC_RESOLUTIONS.get(
+        topic,
+        ("이 주제의 답은 조건과 결과를 계속 확인하며 조정해야 합니다.", "판단의 기준과 책임 주체를 함께 공개해야 합니다."),
     )
-    try:
-        with urllib.request.urlopen(request, timeout=25) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-        content = clean_model_content(payload["choices"][0]["message"]["content"])
-        if content is None:
-            raise ValueError("매거진 AI 응답이 비어 있거나 추론을 포함합니다.")
-        result = json.loads(content)
-        articles = result.get("articles", result) if isinstance(result, dict) else result
-        if not isinstance(articles, list) or len(articles) != 3:
-            raise ValueError("매거진 AI 응답 형식이 올바르지 않습니다.")
-        required = {
-            "category",
-            "format",
-            "title",
-            "dek",
-            "body",
-            "keywords",
-            "counterpoint",
-            "question",
-            "action",
-            "comments",
-        }
-        if any(not required.issubset(article) for article in articles):
-            raise ValueError("매거진 필수 필드가 없습니다.")
-        allowed_people = {
-            "이순신", "세종대왕", "소크라테스", "스티브 잡스", "공자",
-            "예수", "부처", "니체", "쇼펜하우어",
-        }
-        for article in articles:
-            comments = article["comments"]
-            if not isinstance(comments, list) or len(comments) != 4:
-                raise ValueError("매거진 기사마다 인물 댓글이 정확히 4개 필요합니다.")
-            people = []
-            for comment in comments:
-                if (
-                    not isinstance(comment, dict)
-                    or comment.get("person") not in allowed_people
-                    or comment.get("person") in people
-                    or not isinstance(comment.get("comment"), str)
-                    or len(comment["comment"].strip()) < 60
-                    or not isinstance(comment.get("tag"), str)
-                    or not comment["tag"].strip()
-                ):
-                    raise ValueError("매거진 인물 댓글의 인물, 길이 또는 형식이 올바르지 않습니다.")
-                people.append(comment["person"])
-        st.session_state[cache_key] = articles
-        return articles
-    except urllib.error.HTTPError as error:
-        st.session_state.ai_error = f"OpenRouter API 오류 ({error.code}). 매거진을 생성하지 못했습니다."
-    except (urllib.error.URLError, TimeoutError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
-        st.session_state.ai_error = f"매거진 AI 응답을 처리하지 못했습니다: {error}"
-    return None
+    return stance_a, stance_b, conflict, f"{dynamic} {agreement}"
+
+
+def claim_label(person: str, topic: str, stance: str) -> str:
+    return CLAIM_LABELS.get((person, topic), f"이 주제에서 우선하는 관점 — {stance}")
+
+
+def viewpoint_profile(person_a: str, person_b: str, topic: str, vote: str | None) -> str:
+    stance_a, stance_b, _, _ = viewpoint_cards(person_a, person_b, topic)
+    if vote:
+        if vote in (person_a, person_b):
+            return f"당신은 {vote}의 기준에 더 가까운 판단을 했습니다. 다른 관점도 함께 고려하면 더 균형 잡힌 결론에 도달할 수 있습니다."
+        return "당신은 두 사람의 주장 사이에서 판단을 유보했습니다. 변화의 조건을 더 확인하려는 신중한 관점입니다."
+    if "사람만" in topic:
+        return "당신은 생산성보다 돌봄·책임·공감의 가치를 먼저 보는 관점에 가깝습니다."
+    return f"당신은 {person_a}의 '{stance_a[:26]}…'와 {person_b}의 '{stance_b[:26]}…' 사이에서 자신의 기준을 세우는 중입니다."
+
+
+def direct_reply(person: str, other: str, topic: str, message: str) -> str:
+    """Give a short offline reply so the interactive demo works without an API key."""
+    voice = VOICE.get(person, ("제 경험을 돌아보면", "사람을 중심에 두고 판단해야 합니다.", "책임 있는 검증이 필요합니다."))
+    stance = STANCE.get(person, "사람의 삶을 중심에 두고 판단해야 합니다.")
+    prompt = message.strip().rstrip("?!.")
+    if not prompt:
+        return "질문을 조금 더 구체적으로 말씀해 주시면, 제 관점에서 답해 보겠습니다."
+    if any(word in prompt for word in ("왜", "이유", "근거")):
+        return f"{voice[0]} 그 질문의 핵심은 책임이라고 생각합니다. {stance}"
+    if any(word in prompt for word in ("직업", "일자리", "일")):
+        return f"{topic}을 생각할 때 {voice[1]} 특히 {voice[2]}"
+    if "리더" in prompt:
+        return f"{voice[0]} 리더는 결정을 독점하기보다 기준과 책임선을 분명히 해야 합니다. {stance}"
+    if "실패" in prompt:
+        return f"{voice[0]} 제 원칙도 {PERSONA_TENSIONS.get(person, '현실의 복잡한 조건')}라는 한계를 가질 수 있습니다. 그러므로 결과를 확인하고 필요하면 판단을 고쳐야 합니다."
+    return f"그 질문을 {other}의 관점과 함께 놓고 보면 더 선명해집니다. {voice[1]} 그래서 저는 {stance}"
 
 
 def user_bubble(line: str, turn: int) -> str:
@@ -1713,18 +1330,14 @@ def set_selection(person_a: str, person_b: str, topic: str, tone: str) -> None:
     )
 
 
-def sync_ask_prompt() -> None:
-    selected = st.session_state.get("ask_prompt_choice", "직접 입력")
-    st.session_state["ask_custom_prompt"] = "" if selected == "직접 입력" else selected
-
-
 def start_showcase(person_a: str, person_b: str, topic: str) -> None:
     """Open a prepared showcase dialogue directly, without the selection step."""
     with st.spinner("두 인물이 광장에 모이는 중…"):
-        dialogue = remote_dialogue(person_a, person_b, topic, "진지한 토론")
-    if dialogue is None:
-        st.error(st.session_state.get("ai_error") or connection_error_message())
-        return
+        dialogue = (
+            demo_dialogue(person_a, person_b, topic, "진지한 토론")
+            or remote_dialogue(person_a, person_b, topic, "진지한 토론")
+            or local_dialogue(person_a, person_b, topic, "진지한 토론")
+        )
     st.session_state.update(
         {
             "screen": "result",
@@ -1733,6 +1346,7 @@ def start_showcase(person_a: str, person_b: str, topic: str) -> None:
             "person_b": person_b,
             "topic": topic,
             "tone": "진지한 토론",
+            "pre_vote": "아직 모르겠다",
             "direct_messages": [],
         }
     )
@@ -2092,10 +1706,10 @@ elif st.session_state.screen == "landing":
     st.write("")
     st.markdown("#### 오늘의 광장")
     for a, b, topic in [
-        ("이순신", "공자", "개인의 양심과 공동체의 명령이 충돌할 때 무엇을 따라야 하는가?"),
-        ("세종대왕", "소크라테스", "사람을 바꾸는 것은 지식을 가르치는 일인가, 스스로 질문하게 하는 일인가?"),
-        ("스티브 잡스", "니체", "새로운 것을 만들기 위해 기존의 기준과 전통을 어디까지 깨뜨려야 하는가?"),
-        ("예수", "부처", "고통받는 사람을 만났을 때 연민과 즉각적인 행동 중 무엇이 먼저인가?"),
+        ("이순신", "스티브 잡스", "AI는 일자리를 없애는가, 바꾸는가"),
+        ("소크라테스", "니체", "생성형 AI와 창의적인 직업의 미래"),
+        ("세종대왕", "공자", "AI 시대의 리더십과 팀워크"),
+        ("부처", "쇼펜하우어", "AI 시대에 사람만 할 수 있는 일"),
     ]:
         card_a, card_b, card_action = st.columns([1, 1, 1.4])
         with card_a:
@@ -2118,43 +1732,23 @@ elif st.session_state.screen == "magazine":
     st.markdown('<div class="eyebrow">VIRTUAL AGORA · MAGAZINE</div>', unsafe_allow_html=True)
     st.header("Agora Magazine")
     st.markdown(
-        '<div class="beta-notice"><strong>AI 실시간 생성 · 인물 코멘터리</strong>'
-        '<span>매거진의 이슈와 인물 댓글은 화면을 열 때 OpenRouter AI가 새로 생성합니다. '
-        '실제 발언이나 역사적 기록이 아닌 창작 콘텐츠입니다.</span></div>',
+        '<div class="beta-notice"><strong>가상 기사 · 인물 코멘터리</strong>'
+        '<span>아래 기사는 데모를 위해 임의로 구성한 가상 이슈입니다. '
+        '각 코멘트 역시 인물의 사상과 공개 기록을 참고해 AI가 창작한 가상 의견이며 실제 발언이 아닙니다.</span></div>',
         unsafe_allow_html=True,
     )
-    if st.button("새로운 매거진 발행하기", use_container_width=True):
-        st.session_state.pop(f"magazine:v2:{llm_provider_settings()[2]}", None)
-        st.session_state.ai_error = ""
-        st.rerun()
-    with st.spinner("매거진을 생성하는 중…"):
-        articles = remote_magazine()
-    if articles is None:
-        st.error(connection_error_message())
-        st.stop()
     st.markdown("#### 지금, 광장 밖에서 가장 뜨거운 질문")
-    for article_index, article in enumerate(articles):
+    for article_index, article in enumerate(MAGAZINE_ARTICLES):
         st.markdown(
             f'<article class="magazine-card"><div class="magazine-category">{article["category"]}</div>'
-            f'<div class="magazine-category">{article["format"]}</div>'
             f'<div class="magazine-title">{html.escape(article["title"])}</div>'
             f'<div class="magazine-dek">{html.escape(article["dek"])}</div>'
             f'<div class="magazine-body">{html.escape(article["body"])}</div>'
-            f'<div class="magazine-dek">핵심 키워드 · {html.escape(" · ".join(article["keywords"]))}</div>'
-            f'<div class="magazine-body"><strong>반대 관점</strong><br>{html.escape(article["counterpoint"])}</div>'
             f'<div class="magazine-question">EDITORIAL QUESTION · {html.escape(article["question"])}</div></article>',
             unsafe_allow_html=True,
         )
-        st.markdown(
-            f'<div class="magazine-question"><strong>오늘의 작은 실험</strong><br>'
-            f'{html.escape(article["action"])}</div>',
-            unsafe_allow_html=True,
-        )
         st.markdown("##### 인물들의 댓글")
-        for comment_data in article["comments"]:
-            person = comment_data["person"]
-            comment = comment_data["comment"]
-            tag = comment_data["tag"]
+        for person, comment, tag in article["comments"]:
             avatar = avatar_image(person)
             avatar_markup = f'<img src="{avatar}" alt="{html.escape(person)} 프로필">' if avatar else html.escape(chat_avatar(person))
             st.markdown(
@@ -2164,9 +1758,9 @@ elif st.session_state.screen == "magazine":
                 f'<div class="comment-text">{html.escape(comment)}</div></div>',
                 unsafe_allow_html=True,
             )
-        if article_index < len(articles) - 1:
+        if article_index < len(MAGAZINE_ARTICLES) - 1:
             st.divider()
-    st.caption("※ 매거진의 기사와 댓글은 모두 AI가 생성한 가상 창작 콘텐츠입니다.")
+    st.caption("※ 매거진의 기사와 댓글은 모두 데모를 위한 가상 창작 콘텐츠입니다.")
     if st.button("홈으로", key="magazine-home-bottom", use_container_width=True):
         st.session_state.screen = "landing"
         st.rerun()
@@ -2192,36 +1786,25 @@ elif st.session_state.screen == "ask":
         '실제 인물이 직접 답한 내용이나 역사적 기록이 아닙니다.</span></div>',
         unsafe_allow_html=True,
     )
-    st.caption("● OpenRouter AI 실시간 생성 모드")
-    if st.session_state.get("ai_error"):
-        st.warning(st.session_state.ai_error)
     if person in PEOPLE_INFO:
         st.image(PEOPLE_INFO[person][1], caption=f"{person} · {PEOPLE_INFO[person][0]}", width=220)
     st.markdown("#### 질문 주제 선택")
-    st.caption("준비된 질문을 고르거나, 삶과 사회에 관한 어떤 질문이든 자유롭게 입력해 보세요.")
-    st.session_state.setdefault("ask_custom_prompt", "")
-    prompt = st.selectbox(
-        "질문 예시",
-        ["직접 입력"] + DIRECT_PROMPTS,
-        key="ask_prompt_choice",
-        on_change=sync_ask_prompt,
+    st.markdown(
+        '<div class="support-limit"><strong>중요 안내</strong><br>'
+        '현재는 아래에 준비된 질문만 지원합니다. 직접 입력한 질문은 아직 사용할 수 없습니다.</div>',
+        unsafe_allow_html=True,
     )
-    custom_prompt = st.text_area(
-        "나의 질문",
-        placeholder="예: 가장 큰 실패를 겪었을 때 무엇을 기준으로 다시 일어섰나요?",
-        height=100,
-        key="ask_custom_prompt",
+    prompt = st.radio(
+        "지원 질문",
+        DIRECT_PROMPTS,
+        index=DIRECT_PROMPTS.index(st.session_state.get("ask_prompt", DIRECT_PROMPTS[0])),
+        label_visibility="collapsed",
     )
+    st.session_state.ask_prompt = prompt
     if st.button("이 질문으로 대화 시작", type="primary", use_container_width=True):
-        question = custom_prompt.strip()
-        if not question:
-            st.warning("질문을 한 문장 이상 입력해 주세요.")
-        else:
-            with st.spinner(f"{person}가 답변을 준비하는 중…"):
-                reply = direct_reply(person, "나", "", question)
-            st.session_state.ask_messages = [("나", question), (person, reply)]
-            st.session_state.ask_mode = "live"
-            st.rerun()
+        reply = direct_reply(person, "나", prompt, prompt)
+        st.session_state.ask_messages = [("나", prompt), (person, reply)]
+        st.rerun()
     messages = st.session_state.get("ask_messages", [])
     if messages:
         bubbles = "".join(
@@ -2234,23 +1817,18 @@ elif st.session_state.screen == "ask":
             f'<span class="chat-subtitle">{len(messages)}개의 메시지</span></div>{bubbles}</div>',
             unsafe_allow_html=True,
         )
-        follow_up = st.text_area(
-            "이어지는 질문",
-            placeholder="방금 답변에서 더 구체적으로 묻고 싶은 점을 입력해 보세요.",
-            height=90,
-            key="follow_up_custom",
+        st.markdown(
+            '<div class="support-limit"><strong>다음 질문도 준비된 항목만 지원합니다.</strong>'
+            ' 아래 목록에서 질문을 선택해 주세요.</div>',
+            unsafe_allow_html=True,
         )
+        follow_up = st.selectbox("다음 질문", DIRECT_PROMPTS, key="follow_up_prompt")
         if st.button("이 질문을 이어서 보내기", use_container_width=True):
-            follow_up = follow_up.strip()
-            if not follow_up:
-                st.warning("이어지는 질문을 입력해 주세요.")
-            else:
-                history = st.session_state.ask_messages.copy()
-                st.session_state.ask_messages.append(("나", follow_up))
-                with st.spinner(f"{person}가 답변을 이어가는 중…"):
-                    answer = direct_reply(person, "나", "", follow_up, history)
-                st.session_state.ask_messages.append((person, answer))
-                st.rerun()
+            st.session_state.ask_messages.append(("나", follow_up))
+            st.session_state.ask_messages.append(
+                (person, direct_reply(person, "나", follow_up, follow_up))
+            )
+            st.rerun()
         if st.button("다른 질문 선택", use_container_width=True):
             st.session_state.ask_messages = []
             st.rerun()
@@ -2272,9 +1850,15 @@ elif st.session_state.screen == "select":
         "tone": "진지한 토론",
     }
     st.markdown(
-        '<div class="beta-notice"><strong>베타 데모 · 가상 생성 대화</strong>'
-        '<span>두 인물과 원하는 주제를 정하면 AI가 각 인물의 관점과 말투를 참고해 '
-        '창작 대화를 생성합니다. 실제 발언이나 역사적 기록이 아닙니다.</span></div>',
+        '<div class="beta-notice"><strong>베타 데모 · 준비된 가상 시나리오만 제공</strong>'
+        '<span>임의의 인물이나 주제를 직접 입력할 수 없습니다. '
+        '아래에 준비된 인물과 다양한 주제 중에서 선택해 주세요. 모든 대화는 AI가 창작한 가상 시뮬레이션입니다.</span></div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="support-limit"><strong>중요 안내</strong><br>'
+        '현재 인물 대화에서는 아래에 준비된 인물과 주제만 지원합니다. '
+        '새로운 인물이나 주제를 직접 입력하는 기능은 아직 제공하지 않습니다.</div>',
         unsafe_allow_html=True,
     )
     person_a = st.selectbox("인물 A", PEOPLE, index=PEOPLE.index(st.session_state.get("person_a", defaults["person_a"])))
@@ -2286,23 +1870,18 @@ elif st.session_state.screen == "select":
     with image_b:
         if person_b in PEOPLE_INFO:
             st.image(PEOPLE_INFO[person_b][1], caption=f"{person_b} · {PEOPLE_INFO[person_b][0]}", use_container_width=True)
-    saved_topic = st.session_state.get("topic", defaults["topic"])
-    topic_options = list(TOPICS) + ["직접 입력"]
-    topic_choice = st.radio(
-        "대화 주제",
-        topic_options,
-        horizontal=False,
-        index=topic_options.index(saved_topic) if saved_topic in topic_options else len(TOPICS),
-    )
-    custom_topic = st.text_input(
-        "원하는 주제",
-        value=saved_topic if saved_topic not in TOPICS else "",
-        placeholder="예: AI가 만든 창작물의 저작권은 누구에게 있어야 할까요?",
-        max_chars=120,
-        disabled=topic_choice != "직접 입력",
-    )
-    topic = custom_topic.strip() if topic_choice == "직접 입력" else topic_choice
+    topic = st.radio("대화 주제", TOPICS, horizontal=False, index=TOPICS.index(st.session_state.get("topic", defaults["topic"])) if st.session_state.get("topic", defaults["topic"]) in TOPICS else 0)
     tone = st.radio("대화 톤", list(TONES), horizontal=True, index=list(TONES).index(st.session_state.get("tone", defaults["tone"])))
+    st.markdown("#### 대화 전, 당신의 예상")
+    pre_vote = st.radio(
+        "AI가 이 주제의 직업을 어떻게 바꿀 것 같나요?",
+        [person_a, person_b, "아직 모르겠다"],
+        horizontal=True,
+        index=[person_a, person_b, "아직 모르겠다"].index(
+            st.session_state.get("pre_vote", "아직 모르겠다")
+        ),
+        label_visibility="collapsed",
+    )
     if person_a and person_b and person_a == person_b:
         st.warning("서로 다른 인물을 골라주세요.")
     st.write("")
@@ -2317,15 +1896,9 @@ elif st.session_state.screen == "select":
                 st.error("인물 두 명과 주제를 모두 입력해주세요.")
             elif person_a == person_b:
                 st.error("서로 다른 인물을 골라주세요.")
-            elif unsuitable_topic_response(topic):
-                st.error(unsuitable_topic_response(topic))
             else:
-                st.session_state.ai_error = ""
                 with st.spinner("두 인물이 광장에 모이는 중…"):
-                    dialogue = remote_dialogue(person_a, person_b, topic, tone)
-                if dialogue is None:
-                    st.error(st.session_state.get("ai_error") or connection_error_message())
-                    st.stop()
+                    dialogue = demo_dialogue(person_a, person_b, topic, tone) or remote_dialogue(person_a, person_b, topic, tone) or local_dialogue(person_a, person_b, topic, tone)
                 st.session_state.update(
                     {
                         "screen": "result",
@@ -2334,6 +1907,7 @@ elif st.session_state.screen == "select":
                         "person_b": person_b,
                         "topic": topic,
                         "tone": tone,
+                        "pre_vote": pre_vote,
                         "direct_messages": [],
                     }
                 )
@@ -2361,19 +1935,37 @@ else:
         f'<div class="topic-guide">{html.escape(TOPIC_GUIDANCE.get(topic, "두 인물의 경험을 바탕으로 핵심 쟁점을 검토합니다."))}</div></div>',
         unsafe_allow_html=True,
     )
-    mode_label = "OpenRouter AI 실시간 생성 대화"
-    st.caption(f"대화 톤 · {tone}  ·  {mode_label} · 가상 시뮬레이션")
-    if st.session_state.get("ai_error"):
-        st.warning(st.session_state.ai_error)
+    st.caption(
+        f"대화 톤 · {tone}  ·  준비된 인물·주제로 구성한 가상 시뮬레이션"
+    )
     st.markdown(f'<div class="scene">✦ {dialogue.scene}</div>', unsafe_allow_html=True)
+    stance_a, stance_b, conflict, common = viewpoint_cards(person_a, person_b, topic)
+    st.subheader("이 대화의 핵심")
+    insight_a, insight_b = st.columns(2)
+    with insight_a:
+        st.markdown(
+            f'<div class="insight-card"><b>{html.escape(person_a)}의 이 주제에 대한 입장</b>'
+            f'<span class="claim-label">{html.escape(claim_label(person_a, topic, stance_a))}</span>'
+            f'<strong>{html.escape(stance_a)}</strong></div>',
+            unsafe_allow_html=True,
+        )
+    with insight_b:
+        st.markdown(
+            f'<div class="insight-card"><b>{html.escape(person_b)}의 이 주제에 대한 입장</b>'
+            f'<span class="claim-label">{html.escape(claim_label(person_b, topic, stance_b))}</span>'
+            f'<strong>{html.escape(stance_b)}</strong></div>',
+            unsafe_allow_html=True,
+        )
     st.markdown(
-        f'<div class="callout"><strong>가상 만남의 배경</strong><br>'
-        f'이 장면은 {html.escape(person_a)}와 {html.escape(person_b)}의 공개적으로 알려진 '
-        f'경험과 사상에서 영감을 받은 창작 시뮬레이션입니다. 실제 만남이나 실제 발언을 '
-        f'재현한 기록이 아니라, 서로 다른 시대의 두 관점이 「{html.escape(topic)}」에서 '
-        f'어떻게 부딪히고 이어지는지 상상해 본 대화입니다.</div>',
+        f'<div class="insight-card"><b>충돌 지점</b>{html.escape(conflict)}</div>',
         unsafe_allow_html=True,
     )
+    st.markdown(
+        f'<div class="callout"><strong>접점</strong><br>{html.escape(common)}</div>',
+        unsafe_allow_html=True,
+    )
+    with st.expander("역사·사상적 배경 보기", expanded=False):
+        st.markdown(case_note(person_a, person_b))
     st.write("")
     st.subheader("대화")
     bubbles = "".join(chat_bubble(speaker, line, person_a, turn) for turn, (speaker, line) in enumerate(dialogue.script, 1))
@@ -2384,7 +1976,12 @@ else:
         unsafe_allow_html=True,
     )
     st.subheader("직접 물어보기")
-    st.caption("두 인물 중 한 명을 선택하고, 준비된 질문 또는 자유로운 질문을 보내 보세요.")
+    st.markdown(
+        '<div class="support-limit"><strong>중요 안내</strong><br>'
+        '현재는 아래에 준비된 질문만 지원합니다. 직접 입력한 질문은 아직 사용할 수 없습니다.</div>',
+        unsafe_allow_html=True,
+    )
+    st.caption("두 인물 중 한 명에게 준비된 질문을 보내 보세요. 데모에서는 선택한 인물의 철학과 주제 맥락을 바탕으로 답합니다.")
     target = st.radio(
         "답변할 인물",
         [person_a, person_b],
@@ -2392,31 +1989,14 @@ else:
         key="direct_target",
         label_visibility="collapsed",
     )
-    direct_message = st.text_area(
-        "나의 질문",
-        placeholder="예: 두 분의 원칙이 현실에서 충돌한다면 무엇을 먼저 양보하시겠어요?",
-        height=100,
-        key="result_direct_message",
-    )
+    direct_message = st.selectbox("지원 질문", DIRECT_PROMPTS, key="result_direct_prompt")
     if st.button("질문 보내기", use_container_width=True):
-        direct_message = direct_message.strip()
-        if not direct_message:
-            st.warning("질문을 한 문장 이상 입력해 주세요.")
-        else:
-            prior_messages = [
-                (speaker, line)
-                for speaker, line, _ in st.session_state.get("direct_messages", [])
-            ]
-            st.session_state.setdefault("direct_messages", []).append(("나", direct_message, target))
-            reply = direct_reply(
-                target,
-                person_b if target == person_a else person_a,
-                topic,
-                direct_message,
-                prior_messages,
-            )
-            st.session_state.direct_messages.append((target, reply, target))
-            st.rerun()
+        st.session_state.setdefault("direct_messages", []).append(
+            ("나", direct_message, target)
+        )
+        reply = direct_reply(target, person_b if target == person_a else person_a, topic, direct_message)
+        st.session_state.direct_messages.append((target, reply, target))
+        st.rerun()
     direct_messages = st.session_state.get("direct_messages", [])
     if direct_messages:
         direct_bubbles = "".join(
@@ -2427,34 +2007,29 @@ else:
             f'<div class="chat-window direct-window">{direct_bubbles}</div>',
             unsafe_allow_html=True,
         )
-    perspective_summaries = dialogue.perspective_summaries
-    if perspective_summaries:
-        st.markdown("#### 인물별로 비춘 핵심")
-        summary_a, summary_b = st.columns(2)
-        for column, person in ((summary_a, person_a), (summary_b, person_b)):
-            with column:
-                st.markdown(
-                    f'<div class="callout"><strong>{html.escape(person)}</strong><br>'
-                    f'{html.escape(perspective_summaries.get(person, "이번 대화에서 확인된 관점을 요약할 수 없습니다."))}</div>',
-                    unsafe_allow_html=True,
-                )
     st.divider()
     st.markdown(f"**한 줄 요약**  \n{dialogue.summary}")
     c1, c2 = st.columns(2)
     with c1:
-        st.markdown(
-            f'<div class="metric"><strong>{dialogue.chem}/100</strong>'
-            f'<span>관점 충돌도</span><small>전제 차이 · 반박 · 관점 변화 · 남은 쟁점</small></div>',
-            unsafe_allow_html=True,
-        )
-        st.caption(dialogue.conflict_reason or "네 가지 기준을 종합해 AI가 실제 대화 내용을 바탕으로 평가했습니다.")
+        st.markdown(f'<div class="metric"><strong>{dialogue.chem}/100</strong>관점 충돌도</div>', unsafe_allow_html=True)
     with c2:
+        st.markdown(f'<div class="metric"><strong>{dialogue.mvp}</strong>이번 대화 MVP</div>', unsafe_allow_html=True)
+    st.markdown("#### 대화 후, 생각이 바뀌었나요?")
+    post_vote = st.radio(
+        "대화 후 판단",
+        [person_a, person_b, "둘 다 일리가 있다", "아직 모르겠다"],
+        horizontal=True,
+        index=None,
+        key="post_vote",
+        label_visibility="collapsed",
+    )
+    if post_vote:
         st.markdown(
-            f'<div class="metric"><strong>{html.escape(dialogue.mvp)}</strong>'
-            f'<span>대화의 핵심 기여자</span><small>쟁점 선명화 · 근거 제시 · 전환점 기여</small></div>',
+            f'<div class="callout"><strong>당신의 관점 카드</strong><br>{html.escape(viewpoint_profile(person_a, person_b, topic, post_vote))}</div>',
             unsafe_allow_html=True,
         )
-        st.caption(dialogue.mvp_reason or "핵심 쟁점을 발전시킨 발언을 기준으로 선정했습니다.")
+        if st.session_state.get("pre_vote") and st.session_state.pre_vote != post_vote:
+            st.success("대화 전과 후의 선택이 달라졌습니다. Virtual Agora가 만든 관점의 이동입니다.")
     st.write("")
     result_text = format_result(dialogue, person_a, person_b, topic, tone)
     copy_button(result_text)
@@ -2464,13 +2039,9 @@ else:
     a1, a2 = st.columns(2)
     with a1:
         if st.button("같은 조합 다시 생성", use_container_width=True):
-            regenerated = remote_dialogue(person_a, person_b, topic, tone)
-            if regenerated is None:
-                st.error(connection_error_message())
-            else:
-                st.session_state.dialogue = regenerated
-                st.session_state.direct_messages = []
-                st.rerun()
+            st.session_state.dialogue = demo_dialogue(person_a, person_b, topic, tone) or remote_dialogue(person_a, person_b, topic, tone) or local_dialogue(person_a, person_b, topic, tone)
+            st.session_state.direct_messages = []
+            st.rerun()
     with a2:
         if st.button("톤 바꿔 다시 생성", use_container_width=True):
             st.session_state.screen = "select"
