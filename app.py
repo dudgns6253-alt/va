@@ -32,6 +32,239 @@ PEOPLE = [
     "니체",
     "쇼펜하우어",
 ]
+RANDOM_INSIGHTS = [
+    {
+        "character": "이순신", "concept": "절제된 용기와 책임의 리더십",
+        "quote": "무릇 죽고자 하면 살 것이고, 살고자 하면 죽을 것이다.",
+        "interpretation": "결과에 대한 두려움 때문에 몸을 사릴수록 판단이 흐려집니다. 당장 내 손으로 제어할 수 있는 현장의 문제에 몰입해야 길을 찾습니다.",
+        "action": "오늘 나를 주저하게 만들던 가장 까다로운 임무 1개를 골라 10분 내로 실행하기.",
+        "tags": ["#책임감", "#배수진", "#결단력"],
+    },
+    {
+        "character": "세종대왕", "concept": "애민 정신과 지식의 대중화",
+        "quote": "백성은 나라의 근본이니, 근본이 튼튼해야 나라가 평안하다.",
+        "interpretation": "조직이나 가정에서도 약한 고리를 먼저 챙기는 리더십이 장기적 안정을 만듭니다.",
+        "action": "오늘 공동체에서 가장 도움이 필요한 사람의 목소리를 먼저 듣기.",
+        "tags": ["#애민정신", "#리더십", "#공공성"],
+    },
+    {
+        "character": "세종대왕", "concept": "애민 정신과 지식의 대중화",
+        "quote": "사람이 가난하면 내가 어찌 편할 수 있겠느냐?",
+        "interpretation": "타인의 고통을 나의 문제로 느끼는 공감이 협력과 신뢰의 기반이 됩니다.",
+        "action": "오늘 주변 사람의 어려움을 해결할 수 있는 작은 도움 한 가지 실천하기.",
+        "tags": ["#공감", "#연대", "#신뢰"],
+    },
+    {
+        "character": "세종대왕", "concept": "애민 정신과 지식의 대중화",
+        "quote": "배움은 최고의 무기다. 진정한 학자는 국민을 위해 봉사해야 한다.",
+        "interpretation": "지식은 개인적 성공보다 공공의 문제 해결에 쓸 때 진짜 힘을 발휘합니다.",
+        "action": "오늘 배운 지식 하나를 다른 사람의 문제를 해결하는 데 사용하기.",
+        "tags": ["#배움", "#지식공유", "#봉사"],
+    },
+    {
+        "character": "세종대왕", "concept": "애민 정신과 지식의 대중화",
+        "quote": "남을 너그럽게 받아들이는 사람은 사람들의 마음을 얻고, 위험과 힘으로 다스리려는 자는 사람들의 노여움을 사게 된다.",
+        "interpretation": "통제보다 포용이 장기적인 영향력을 키웁니다.",
+        "action": "오늘 의견이 다른 사람의 말을 끊지 않고 끝까지 경청하기.",
+        "tags": ["#포용", "#신뢰", "#공동체"],
+    },
+    {
+        "character": "소크라테스", "concept": "끊임없는 질문과 성찰",
+        "quote": "나는 내가 아는 것이 없다는 것만 안다.",
+        "interpretation": "모른다고 인정하는 용기가 학습과 성장의 시작점입니다.",
+        "action": "오늘 모르는 것을 아는 척하지 말고 정확히 질문하기.",
+        "tags": ["#겸손", "#학습", "#성찰"],
+    },
+    {
+        "character": "소크라테스", "concept": "끊임없는 질문과 성찰",
+        "quote": "너 자신을 알라.",
+        "interpretation": "타인의 기준보다 내 가치와 한계, 동기를 먼저 점검해야 합니다.",
+        "action": "오늘 내 선택을 움직인 진짜 동기를 한 문장으로 적어보기.",
+        "tags": ["#자기이해", "#성찰", "#가치"],
+    },
+    {
+        "character": "소크라테스", "concept": "끊임없는 질문과 성찰",
+        "quote": "질문을 이해하는 것은 정답의 반을 찾은 것과 같다. 의심은 지식의 시작이다.",
+        "interpretation": "성급한 결론보다 좋은 질문이 문제 해결을 앞당깁니다.",
+        "action": "오늘 풀리지 않는 문제를 새로운 질문 세 가지로 다시 써보기.",
+        "tags": ["#질문", "#의심", "#문제해결"],
+    },
+    {
+        "character": "소크라테스", "concept": "끊임없는 질문과 성찰",
+        "quote": "어영부영 사는 것이 중요한 것이 아니라, 훌륭하게·아름답게·올바르게 사는 것이 중요하다.",
+        "interpretation": "바쁨보다 올바름과 품위를 우선순위에 두어야 합니다.",
+        "action": "오늘 일정 하나를 줄이고 정말 중요한 일에 집중하기.",
+        "tags": ["#품위", "#우선순위", "#올바름"],
+    },
+    {
+        "character": "스티브 잡스", "concept": "집요한 미학과 사용자 경험",
+        "quote": "Your time is limited, so don’t waste it living someone else’s life.",
+        "interpretation": "남의 기대가 아닌 자신의 내면 목소리에 따른 선택을 해야 합니다.",
+        "action": "오늘 남의 기대 때문에 미뤄온 선택 하나를 내 기준으로 다시 결정하기.",
+        "tags": ["#자기주도성", "#시간", "#선택"],
+    },
+    {
+        "character": "스티브 잡스", "concept": "집요한 미학과 사용자 경험",
+        "quote": "Stay hungry. Stay foolish.",
+        "interpretation": "만족에 안주하지 말고 낯선 시도를 두려워하지 마세요.",
+        "action": "오늘 익숙한 방식 대신 작은 실험 하나를 시도하기.",
+        "tags": ["#도전", "#호기심", "#혁신"],
+    },
+    {
+        "character": "스티브 잡스", "concept": "집요한 미학과 사용자 경험",
+        "quote": "The only way to do great work is to love what you do.",
+        "interpretation": "열정이 지속 가능한 탁월함을 만듭니다. 일이 싫다면 찾고, 타협하지 않아야 합니다.",
+        "action": "내 일에서 가장 몰입되는 요소와 바꾸고 싶은 요소를 각각 적어보기.",
+        "tags": ["#몰입", "#탁월함", "#열정"],
+    },
+    {
+        "character": "스티브 잡스", "concept": "집요한 미학과 사용자 경험",
+        "quote": "Death is very likely the single best invention of Life. It clears out the old to make way for the new.",
+        "interpretation": "끝남을 받아들여야 새로운 시작이 가능합니다. 변화는 필연이자 기회입니다.",
+        "action": "더 이상 필요하지 않은 일이나 습관 하나를 정리하기.",
+        "tags": ["#변화", "#전환", "#새로운시작"],
+    },
+    {
+        "character": "공자", "concept": "배움과 예, 함께 만드는 질서",
+        "quote": "배우고 때로 익히면, 참으로 기쁘지 아니한가.",
+        "interpretation": "배움은 시험용이 아니라 삶에서 반복해 익힐 때 즐거움이 됩니다.",
+        "action": "오늘 배운 한 가지를 실제 행동으로 반복해보기.",
+        "tags": ["#배움", "#습관", "#기쁨"],
+    },
+    {
+        "character": "공자", "concept": "배움과 예, 함께 만드는 질서",
+        "quote": "아는 것을 안다고 하고, 모르는 것을 모른다고 하는 것, 이것이 아는 것이다.",
+        "interpretation": "아는 척은 신뢰를 깎아먹습니다. 정직한 무지가 진짜 지혜의 문입니다.",
+        "action": "오늘 모르는 일을 솔직히 인정하고 배울 방법을 찾기.",
+        "tags": ["#정직", "#지혜", "#겸손"],
+    },
+    {
+        "character": "공자", "concept": "배움과 예, 함께 만드는 질서",
+        "quote": "내가 당하기 싫은 일은 남에게도 하지 말라.",
+        "interpretation": "관계의 최소 규칙은 공감에서 나옵니다.",
+        "action": "오늘 내 말과 행동을 상대의 입장에서 한 번 더 점검하기.",
+        "tags": ["#공감", "#예의", "#관계"],
+    },
+    {
+        "character": "공자", "concept": "배움과 예, 함께 만드는 질서",
+        "quote": "작은 일부터 시작하라. 첫째도 겸손, 둘째도 겸손, 셋째도 겸손.",
+        "interpretation": "거창한 목표보다 일상적 실천과 겸손이 성품을 만듭니다.",
+        "action": "오늘 목표를 가장 작은 실행 단위 하나로 쪼개 바로 시작하기.",
+        "tags": ["#겸손", "#실천", "#꾸준함"],
+    },
+    {
+        "character": "예수", "concept": "사랑과 용서, 낮은 곳의 연대",
+        "quote": "심령이 가난한 자는 복이 있나니…",
+        "interpretation": "결핍을 인정하고 의지할 줄 아는 마음이 참된 자유의 시작입니다.",
+        "action": "오늘 도움이 필요한 부분을 숨기지 말고 신뢰하는 사람에게 요청하기.",
+        "tags": ["#겸손", "#자유", "#회복"],
+    },
+    {
+        "character": "예수", "concept": "사랑과 용서, 낮은 곳의 연대",
+        "quote": "원수를 사랑하라.",
+        "interpretation": "복수 대신 선으로 대응하는 용기가 관계를 끊지 않고 바꿉니다.",
+        "action": "갈등 중인 사람에게 공격이 아닌 평화로운 문장 하나 건네기.",
+        "tags": ["#사랑", "#용서", "#화해"],
+    },
+    {
+        "character": "예수", "concept": "사랑과 용서, 낮은 곳의 연대",
+        "quote": "남을 판단하지 말라… 먼저 네 눈의 들보를 빼라.",
+        "interpretation": "타인 비판 전에 자기 성찰이 선행되어야 공정한 시선이 생깁니다.",
+        "action": "오늘 비판하고 싶은 일에서 내 몫의 책임을 먼저 돌아보기.",
+        "tags": ["#성찰", "#공정함", "#겸손"],
+    },
+    {
+        "character": "예수", "concept": "사랑과 용서, 낮은 곳의 연대",
+        "quote": "너희는 남에게서 바라는 대로 남에게 해 주어라.",
+        "interpretation": "대인관계의 간단하면서도 강력한 운영 원칙입니다.",
+        "action": "오늘 내가 받고 싶은 배려를 먼저 다른 사람에게 실천하기.",
+        "tags": ["#황금률", "#배려", "#연대"],
+    },
+    {
+        "character": "부처", "concept": "자비와 중도, 집착에서 벗어남",
+        "quote": "모든 것은 변한다(무상).",
+        "interpretation": "변화는 고장이 아니라 법칙입니다. 집착을 누그러뜨리면 고통이 줄어듭니다.",
+        "action": "변화한 상황 하나를 저항하지 않고 있는 그대로 관찰하기.",
+        "tags": ["#무상", "#변화", "#집착해소"],
+    },
+    {
+        "character": "부처", "concept": "자비와 중도, 집착에서 벗어남",
+        "quote": "자신을 이기는 것이 최대의 승리다.",
+        "interpretation": "외부 경쟁보다 내 욕망과 분노, 공포를 다스리는 것이 진짜 자유입니다.",
+        "action": "오늘 충동적으로 반응하기 전 호흡을 세 번 고르기.",
+        "tags": ["#자기절제", "#평정", "#자유"],
+    },
+    {
+        "character": "부처", "concept": "자비와 중도, 집착에서 벗어남",
+        "quote": "지혜로운 사람은 모든 것을 하나로 이해한다.",
+        "interpretation": "분열된 현상 너머의 연결성을 보는 눈이 평정을 줍니다.",
+        "action": "오늘 갈등하는 두 입장 사이의 공통된 필요를 찾아보기.",
+        "tags": ["#지혜", "#연결", "#평정"],
+    },
+    {
+        "character": "부처", "concept": "자비와 중도, 집착에서 벗어남",
+        "quote": "악을 짓지 말고, 선을 행하고, 마음을 정화하라.",
+        "interpretation": "윤리와 선행, 명상의 삼박자가 일상의 수행입니다.",
+        "action": "오늘 해를 줄이는 행동 하나, 돕는 행동 하나, 마음을 정돈하는 시간 만들기.",
+        "tags": ["#자비", "#선행", "#마음정화"],
+    },
+    {
+        "character": "니체", "concept": "자기 극복과 가치의 재창조",
+        "quote": "인간은 극복되어야 할 그 무엇이다.",
+        "interpretation": "현재의 자아를 완성형으로 보지 말고 끊임없이 넘어설 대상으로 삼으세요.",
+        "action": "오늘의 나를 넘어서는 작은 기준 하나를 정하고 실행하기.",
+        "tags": ["#자기극복", "#성장", "#주체성"],
+    },
+    {
+        "character": "니체", "concept": "자기 극복과 가치의 재창조",
+        "quote": "춤추는 별을 낳으려면 내면에 혼돈을 지녀야 한다.",
+        "interpretation": "창의성은 질서만으로 나오지 않습니다. 내면의 소란을 창조 에너지로 전환하세요.",
+        "action": "오늘 떠오른 엉뚱한 생각을 판단하지 말고 아이디어로 기록하기.",
+        "tags": ["#창의성", "#혼돈", "#표현"],
+    },
+    {
+        "character": "니체", "concept": "자기 극복과 가치의 재창조",
+        "quote": "네가 높이 올라가고 싶거든 너의 다리를 사용해라. 운반되어지지 마라.",
+        "interpretation": "의존보다 자기 책임이 진짜 성장입니다.",
+        "action": "오늘 남이 대신해주길 기다리던 일 하나를 직접 처리하기.",
+        "tags": ["#자기책임", "#독립", "#실행"],
+    },
+    {
+        "character": "니체", "concept": "자기 극복과 가치의 재창조",
+        "quote": "영원회귀: 내 삶이 무한히 반복된다 해도, 나는 이 삶을 다시 선택하겠다.",
+        "interpretation": "후회 대신 다시 살아도 좋다고 말할 수 있는 오늘을 설계하세요.",
+        "action": "오늘의 선택 중 다시 반복하고 싶은 행동 하나를 의식적으로 실천하기.",
+        "tags": ["#영원회귀", "#운명애", "#선택"],
+    },
+    {
+        "character": "쇼펜하우어", "concept": "의지와 고통, 연민의 윤리",
+        "quote": "인생은 고통(결핍)과 권태(지루함) 사이를 오가는 시계추와 같다.",
+        "interpretation": "만족의 지속을 기대하기보다 결핍과 과잉의 중간을 의도적으로 설계하세요.",
+        "action": "오늘 과도하게 채우거나 비워둔 영역 하나의 균형 조정하기.",
+        "tags": ["#균형", "#욕망", "#현실감각"],
+    },
+    {
+        "character": "쇼펜하우어", "concept": "의지와 고통, 연민의 윤리",
+        "quote": "세계는 나의 표상이다.",
+        "interpretation": "세상은 내가 해석하는 대로 나타납니다. 해석을 바꾸면 고통의 강도도 달라집니다.",
+        "action": "오늘 힘들었던 사건을 다른 관점의 문장으로 다시 해석해보기.",
+        "tags": ["#해석", "#관점", "#마음"],
+    },
+    {
+        "character": "쇼펜하우어", "concept": "의지와 고통, 연민의 윤리",
+        "quote": "우리 행복의 90퍼센트는 건강에 의해 좌우된다.",
+        "interpretation": "성공보다 수면과 운동, 식단이 행복의 기본 인프라입니다.",
+        "action": "오늘 수면·운동·식단 중 하나를 위한 현실적인 행동 예약하기.",
+        "tags": ["#건강", "#행복", "#생활"],
+    },
+    {
+        "character": "쇼펜하우어", "concept": "의지와 고통, 연민의 윤리",
+        "quote": "인간이 자신의 본래 모습 그대로 있을 때는 홀로 있을 때뿐이다.",
+        "interpretation": "고독을 회피하지 말고 자기 회복과 성찰의 시간으로 활용하세요.",
+        "action": "오늘 휴대폰을 내려놓고 혼자 있는 회복의 시간 20분 갖기.",
+        "tags": ["#고독", "#회복", "#자기성찰"],
+    },
+]
 HISTORICAL_DATES = {
     "이순신": (1545, 1598),
     "세종대왕": (1397, 1450),
@@ -1945,6 +2178,8 @@ def start_ask_mode(person: str) -> None:
 
 if "screen" not in st.session_state:
     st.session_state.screen = "intro"
+if "insight_index" not in st.session_state:
+    st.session_state.insight_index = random.randrange(len(RANDOM_INSIGHTS))
 
 background_styles = """<style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Noto+Sans+KR:wght@400;500;700&display=swap');
@@ -2260,6 +2495,50 @@ background_styles = """<style>
         background-size:180px 180px, 240px 240px, 210px 210px;
         opacity:.7;
     }
+    .insight-book {
+        position:relative;
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        margin:1.4rem 0 1.8rem;
+        border:1px solid rgba(224,190,144,.55);
+        border-radius:18px;
+        overflow:hidden;
+        background:linear-gradient(135deg,#2a2020,#161b22);
+        box-shadow:0 20px 45px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .insight-book::after {
+        content:"";
+        position:absolute;
+        top:0;
+        bottom:0;
+        left:50%;
+        width:1px;
+        background:rgba(232,205,166,.3);
+        box-shadow:0 0 18px rgba(0,0,0,.65);
+    }
+    .insight-page {
+        min-height:230px;
+        padding:1.45rem 1.5rem 1.35rem;
+        background:linear-gradient(105deg,rgba(248,235,205,.98),rgba(227,208,172,.94));
+        color:#46372c !important;
+    }
+    .insight-page.right {
+        background:linear-gradient(255deg,rgba(244,228,194,.98),rgba(218,196,155,.95));
+    }
+    .insight-page * { color:#46372c !important; }
+    .insight-book-kicker { color:#9a5c3e !important; font-size:.67rem; font-weight:800; letter-spacing:.16em; }
+    .insight-author { font-family:'DM Serif Display',serif; font-size:1.55rem; margin:.45rem 0 .1rem; }
+    .insight-concept { font-size:.76rem; font-weight:700; color:#80604d !important; }
+    .insight-quote { font-family:'DM Serif Display',serif; font-size:1.23rem; line-height:1.45; margin:1.15rem 0 .5rem; }
+    .insight-quote-mark { color:#b56c4a !important; font-size:2rem; line-height:0; vertical-align:-.25rem; margin-right:.1rem; }
+    .insight-interpretation { font-size:.83rem; line-height:1.65; margin-top:.7rem; }
+    .insight-action { margin-top:1rem; padding:.65rem .75rem; border-left:3px solid #b56c4a; background:rgba(255,248,230,.5); font-size:.78rem; line-height:1.5; }
+    .insight-tags { margin-top:.8rem; color:#9a5c3e !important; font-size:.72rem; font-weight:700; letter-spacing:.02em; }
+    @media (max-width:640px) {
+        .insight-book { grid-template-columns:1fr; }
+        .insight-book::after { top:50%; left:0; right:0; width:auto; height:1px; }
+        .insight-page { min-height:0; }
+    }
     @media (max-width: 640px) { h1 { font-size:3.4rem; } .brand-wordmark { font-size:3.5rem; } .block-container { padding-top:1.2rem; } }
     </style>""".replace("__AGORA_BACKGROUND_IMAGE__", image_data_url(INTRO_IMAGE))
 st.markdown(background_styles, unsafe_allow_html=True)
@@ -2295,6 +2574,26 @@ elif st.session_state.screen == "landing":
         '<span>역사적 인물의 사상과 기록을 참고해 AI가 만든 창작 콘텐츠입니다. 실제 발언이 아닙니다.</span></div>',
         unsafe_allow_html=True,
     )
+    insight = RANDOM_INSIGHTS[st.session_state.insight_index]
+    insight_tags = " ".join(insight["tags"])
+    st.markdown(
+        f'<section class="insight-book">'
+        f'<div class="insight-page"><div class="insight-book-kicker">TODAY\'S INSIGHT · 오늘의 명언</div>'
+        f'<div class="insight-author">{html.escape(insight["character"])}</div>'
+        f'<div class="insight-concept">{html.escape(insight["concept"])}</div>'
+        f'<div class="insight-quote"><span class="insight-quote-mark">“</span>{html.escape(insight["quote"])}<span class="insight-quote-mark">”</span></div>'
+        f'<div class="insight-tags">{html.escape(insight_tags)}</div></div>'
+        f'<div class="insight-page right"><div class="insight-book-kicker">AGORA NOTE</div>'
+        f'<div class="insight-interpretation">{html.escape(insight["interpretation"])}</div>'
+        f'<div class="insight-action"><b>오늘의 작은 실천</b><br>{html.escape(insight["action"])}</div></div>'
+        f'</section>',
+        unsafe_allow_html=True,
+    )
+    if st.button("새로운 명언 뽑기  ↻", use_container_width=True, key="new-insight"):
+        current_index = st.session_state.insight_index
+        candidates = [index for index in range(len(RANDOM_INSIGHTS)) if index != current_index]
+        st.session_state.insight_index = random.choice(candidates)
+        st.rerun()
     st.write("")
     st.markdown("#### 무엇을 해볼까요?")
     feature_a, feature_b, feature_c = st.columns(3)
