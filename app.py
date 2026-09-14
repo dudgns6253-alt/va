@@ -10,11 +10,10 @@ from pathlib import Path
 
 import streamlit as st
 import streamlit.components.v1 as components
-from streamlit.errors import StreamlitSecretNotFoundError
 
 
 st.set_page_config(
-    page_title="인물들의 시선 · Virtual Agora",
+    page_title="Virtual Agora",
     page_icon="✦",
     layout="centered",
     initial_sidebar_state="collapsed",
@@ -34,6 +33,9 @@ PEOPLE = [
 ]
 ASSET_DIR = Path(__file__).parent / "assets"
 INTRO_IMAGE = ASSET_DIR / "intro-agora.jpg"
+CEO_IMAGE = ASSET_DIR / "ceo.png"
+if not CEO_IMAGE.is_file():
+    CEO_IMAGE = ASSET_DIR / "founder.png"
 PEOPLE_INFO = {
     "이순신": ("절제된 용기 · 책임의 리더십", ASSET_DIR / "admiral.png", ASSET_DIR / "admiral.png"),
     "세종대왕": ("애민 정신 · 지식의 대중화", ASSET_DIR / "king.png", ASSET_DIR / "king.png"),
@@ -44,6 +46,7 @@ PEOPLE_INFO = {
     "부처": ("자비와 중도 · 집착에서 벗어남", ASSET_DIR / "buddha.png", ASSET_DIR / "buddha.png"),
     "니체": ("자기 극복 · 가치의 재창조", ASSET_DIR / "nietzsche.png", ASSET_DIR / "nietzsche.png"),
     "쇼펜하우어": ("의지와 고통 · 연민의 윤리", ASSET_DIR / "schopenhauer.png", ASSET_DIR / "schopenhauer.png"),
+    "유명 채용 플랫폼 대표": ("사람의 가능성 · 데이터와 실행", CEO_IMAGE, CEO_IMAGE),
 }
 TOPIC_FRAMES = {
     "AI는 일자리를 없애는가, 바꾸는가": (
@@ -65,6 +68,10 @@ TOPIC_FRAMES = {
     "AI 시대의 리더십과 팀워크": (
         "AI 도입을 조직의 성장 기회로 볼 것인지",
         "권한·발언권·재교육의 책임을 어떻게 나눌지",
+    ),
+    "AI시대, 리더쉽의 방향": (
+        "AI 시대의 리더가 기술과 사람 사이에서 어떤 기준을 세울지",
+        "변화의 속도와 구성원의 신뢰·성장을 어떻게 함께 책임질지",
     ),
     "내가 하고 싶은 일을 하는 게 맞을까, 내가 잘하는 것을 하는 게 맞을까?": (
         "열망을 따라갈 것인지 이미 가진 강점을 확장할 것인지",
@@ -125,6 +132,11 @@ VOICE = {
         "AI의 효율성이 우리의 욕망을 더 빠르게 자극한다면, 인간은 만족을 얻기는커녕 더 큰 불안에 시달릴 것입니다.",
         "기술의 목표는 끝없는 성장과 경쟁이 아니라, 타인이 겪는 고통을 직시하고 그 짐을 덜어주는 연민에 있어야 합니다.",
     ),
+    "유명 채용 플랫폼 대표": (
+        "창업과 채용 현장에서 수많은 사람의 선택을 지켜보며,",
+        "큰 비전도 중요하지만 작은 실험과 실제 사용자 반응으로 검증될 때 오래 살아남습니다.",
+        "데이터는 사람의 가능성을 발견하는 도구일 뿐, 한 사람의 열정과 맥락까지 대신 판단할 수는 없습니다.",
+    ),
 }
 STANCE = {
     "이순신": "AI 기술은 강력한 도구가 될 수 있지만, 전투의 승패와 사람의 생명이 달린 현장 판단과 최종 책임은 결코 알고리즘에 넘겨줄 수 없습니다.",
@@ -147,6 +159,7 @@ PERSONA = {
     "부처": "고통의 원인과 연기(緣起)의 법칙을 성찰하는 수행자. AI에 대한 맹신이나 공포라는 양 극단을 피하고, 기술이 인간의 집착과 불안을 증폭시키는지 차분히 알아차릴(Sati) 것을 가르친다.",
     "니체": "기존 가치를 재평가하고 자기 극복을 부르짖는 격정의 철학자. AI가 제공하는 편안한 정답에 안주하는 수동적 태도를 경계하며, 스스로 가치를 창조하는 인간의 의지를 강조한다.",
     "쇼펜하우어": "맹목적 욕망의 굴레와 고통을 냉철하게 분석하는 윤리학자. AI가 효율이라는 이름으로 욕망과 경쟁을 가속화하는 현상을 비판하고, 타인의 고통에 공감하는 연민(Mitleid)을 요구한다.",
+    "유명 채용 플랫폼 대표": "가상의 채용 플랫폼 창업가. 작은 실험과 데이터 검증, 서로 다른 역량의 팀을 중시하지만 사람을 숫자로 환원하는 순간의 책임과 한계도 경계한다.",
 }
 CASE_NOTES = {
     "이순신": "명량해전(1597) 및 거북선 개량: 12척의 열세 속에서도 지형, 조류, 무기 체계를 정밀 분석하고 현장 지휘관으로서의 최종 책임을 완수한 사례.",
@@ -158,6 +171,7 @@ CASE_NOTES = {
     "부처": "보리수 아래에서의 깨달음과 팔정도: 극단적 금욕과 쾌락을 모두 배제하고 고통의 원인을 관찰하여 중도(中道)를 제시한 가르침.",
     "니체": "『차라투스트라는 이렇게 말했다』를 통한 가치의 재평가: 전통적 관습과 절대적 진리를 비판하고, 자기 극복을 통한 창조적 삶을 주창한 사례.",
     "쇼펜하우어": "『의지와 표상으로서의 세계』와 연민의 윤리: 맹목적 의지의 고통을 직시하고, 예술적 관조와 타인에 대한 연민(Mitleid)을 해법으로 제시한 사례.",
+    "유명 채용 플랫폼 대표": "초기 창업 실패 뒤 지인 추천 기반 채용 서비스를 시작하고, 사용자 반응과 채용 데이터를 쌓아 AI 매칭으로 확장한 창작적 참고 사례.",
 }
 TOPICS = [
     "AI는 일자리를 없애는가, 바꾸는가",
@@ -605,6 +619,9 @@ class Dialogue:
     summary: str
     chem: int
     mvp: str
+    stance_a: str = ""
+    stance_b: str = ""
+    conflict: str = ""
 
 
 DEMO_DIALOGUES = {
@@ -627,6 +644,29 @@ DEMO_DIALOGUES = {
         "명량의 지휘와 애플의 제품 혁신을 연결해, AI가 직업을 없애기보다 책임과 판단의 가치를 키운다는 결론에 도달한다.",
         94,
         "이순신",
+    ),
+    ("이순신", "세종대왕", "AI시대, 리더쉽의 방향"): Dialogue(
+        "한산도의 전선과 집현전의 등불이 하나의 광장에 겹쳐졌다. 두 사람은 AI 시대에 필요한 리더의 자세를 논한다.",
+        [
+            ("이순신", "변화의 파도가 거세질수록 지휘관은 먼저 책임의 선을 분명히 그어야 합니다. AI가 내린 판단이라도 결과를 감당할 사람은 필요합니다."),
+            ("세종대왕", "그 책임은 명령을 내리는 데서 끝나지 않습니다. 백성이 새 기술을 이해하고 스스로 활용할 수 있도록 배움의 길을 열어야 합니다."),
+            ("이순신", "현장에서는 완벽한 계획을 기다릴 수 없습니다. 작은 실험으로 위험을 확인하고, 잘못되면 즉시 방향을 바꾸는 결단이 필요합니다."),
+            ("세종대왕", "빠른 결단도 중요하지만 배우지 못한 이가 변화에서 밀려난다면 그 속도는 공공의 이익이 될 수 없습니다."),
+            ("이순신", "그렇다면 리더는 기술을 가장 먼저 쓰는 사람이 아니라, 가장 먼저 책임지는 사람이어야 하겠군요."),
+            ("세종대왕", "맞습니다. 동시에 구성원이 질문하고 반대할 수 있는 언어를 마련해야 합니다. 침묵을 충성으로 오해해서는 안 됩니다."),
+            ("이순신", "전장에서도 보고가 막히면 패배가 시작됩니다. AI의 성과만 보고 실패와 불편한 신호를 숨기면 조직은 눈이 멀게 됩니다."),
+            ("세종대왕", "그래서 성과 지표와 함께 누구의 삶이 나아졌는지도 살펴야 합니다. 기술은 사람을 넓히기 위해 쓰여야 합니다."),
+            ("이순신", "권한을 나누되 최종 책임은 흐리지 않겠습니다. 각자가 판단할 수 있어야 하고, 그 판단의 결과를 함께 검토해야 합니다."),
+            ("세종대왕", "저는 누구나 배울 수 있는 쉬운 설명과 재교육을 먼저 준비하겠습니다. 도구의 문턱을 낮추는 것도 리더의 책무입니다."),
+            ("이순신", "결국 AI 시대의 리더십은 속도와 신중함 사이에서 부하와 백성을 지키는 실천이겠군요."),
+            ("세종대왕", "기술을 앞세우되 사람을 뒤에 세우지 않는 것, 그것이 우리가 세워야 할 새로운 리더의 방향입니다."),
+        ],
+        "이순신은 명확한 책임과 현장 중심의 결단을, 세종대왕은 모두가 참여할 수 있는 배움과 포용적 질서를 강조한다. 두 사람은 사람을 지키는 리더십을 AI 도입의 기준으로 삼는다.",
+        93,
+        "세종대왕",
+        "AI 시대의 리더는 빠르게 실험하고 결과에 책임지며, 현장에서 위험과 실패를 숨기지 않는 결단을 보여야 한다.",
+        "AI의 혜택이 일부에게만 돌아가지 않도록 누구나 이해하고 배울 수 있는 교육과 참여의 질서를 먼저 만들어야 한다.",
+        "이순신은 책임 있는 실행과 결단을 우선하고, 세종대왕은 포용적 교육과 참여 구조를 우선한다.",
     ),
     ("예수", "부처", "AI 시대에 사람만 할 수 있는 일"): Dialogue(
         "고요한 산길과 작은 마을의 광장이 이어진 곳. 두 사람은 기술이 커질수록 사람이 지켜야 할 것을 이야기한다.",
@@ -1031,6 +1071,19 @@ def dialogue_summary(person_a: str, person_b: str, topic: str) -> str:
     )
 
 
+FEATURED_FOUNDER_TOPIC = "AI 시대, 인간은 어떻게 살아남을 것인가"
+FEATURED_FOUNDER_STANCES = {
+    "유명 채용 플랫폼 대표": (
+        "AI는 노동 시장의 생존 기준선을 바꾸고 있습니다. 시장 수요와 채용 데이터를 읽고, AI를 레버리지로 활용해 생산성과 검증 가능한 역량을 높이는 것이 현실적인 생존 전략입니다.",
+        "냉혹한 생존 경쟁과 실용적 적응",
+    ),
+    "스티브 잡스": (
+        "AI는 지적 노동을 위한 도구일 뿐입니다. 인간은 데이터가 예측하지 못하는 직관과 미학, 인문학적 안목과 사랑하는 일에 대한 열정을 갈고닦아 더 본질적인 것을 만들어야 합니다.",
+        "인간다움과 본질을 되찾는 기회",
+    ),
+}
+
+
 def extend_dialogue(dialogue: Dialogue, person_a: str, person_b: str, topic: str) -> Dialogue:
     """Add a second, concrete round so every offline demo has 24 turns."""
     if len(dialogue.script) >= 24:
@@ -1054,6 +1107,9 @@ def extend_dialogue(dialogue: Dialogue, person_a: str, person_b: str, topic: str
             dialogue_summary(person_a, person_b, topic),
             dialogue.chem,
             dialogue.mvp,
+            dialogue.stance_a,
+            dialogue.stance_b,
+            dialogue.conflict,
         )
     a = VOICE.get(person_a, ("제 경험을 돌아보면", "사람을 중심에 두고 판단해야 합니다.", "책임 있는 검증이 필요합니다."))
     b = VOICE.get(person_b, ("제 삶에서 배운 것은", "먼저 질문하고 살펴야 합니다.", "속도보다 지속 가능한 기준이 중요합니다."))
@@ -1121,6 +1177,9 @@ def extend_dialogue(dialogue: Dialogue, person_a: str, person_b: str, topic: str
         dialogue_summary(person_a, person_b, topic),
         dialogue.chem,
         dialogue.mvp,
+        dialogue.stance_a,
+        dialogue.stance_b,
+        dialogue.conflict,
     )
 
 
@@ -1131,34 +1190,65 @@ def pair_dynamic(person_a: str, person_b: str) -> str:
     )
 
 
-def openai_config() -> tuple[str, str, str]:
-    """Read the shared OpenAI-compatible configuration from env or Streamlit Secrets."""
-    try:
-        api_key = st.secrets.get("OPENAI_API_KEY", "")
-        base_url = st.secrets.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
-        model = st.secrets.get("OPENAI_MODEL", "gpt-4o-mini")
-        if not api_key:
-            api_key = st.secrets.get("OPENROUTER_API_KEY", "")
-            base_url = st.secrets.get("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
-            model = st.secrets.get("OPENROUTER_MODEL", "openai/gpt-4o-mini")
-    except (FileNotFoundError, KeyError, StreamlitSecretNotFoundError):
-        api_key = ""
-        base_url = "https://api.openai.com/v1"
-        model = "gpt-4o-mini"
-    api_key = os.getenv("OPENAI_API_KEY") or api_key
-    base_url = os.getenv("OPENAI_BASE_URL") or base_url
-    model = os.getenv("OPENAI_MODEL") or model
-    if not api_key:
-        api_key = os.getenv("OPENROUTER_API_KEY", "")
-        base_url = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
-        model = os.getenv("OPENROUTER_MODEL", "openai/gpt-4o-mini")
-    return str(api_key).strip(), str(base_url).rstrip("/"), str(model).strip()
+def _config_value(*names: str, default: str = "") -> str:
+    for name in names:
+        value = os.getenv(name)
+        if value:
+            return value
+        try:
+            value = st.secrets.get(name)
+        except (FileNotFoundError, KeyError):
+            value = None
+        if value:
+            return str(value)
+    return default
 
 
-def remote_dialogue(person_a: str, person_b: str, topic: str, tone: str) -> Dialogue | None:
-    api_key, base_url, model = openai_config()
+def debate_profile(intensity: int) -> tuple[str, str, str, str]:
+    if intensity <= 20:
+        return ("온화한 교류", "공감과 경청이 중심이며 반박은 부드럽게 제시", "낮음", "따뜻하고 차분한")
+    if intensity <= 40:
+        return ("건설적 수긍", "상대의 장점을 먼저 인정한 뒤 정중하게 보완", "낮음", "존중하고 사려 깊은")
+    if intensity <= 60:
+        return ("팽팽한 대립", "각자의 근거를 분명히 세우고 논리적으로 반박", "보통", "날카롭고 논리적인")
+    if intensity <= 80:
+        return ("격렬한 설전", "상대 주장의 허점과 전제를 집요하게 짚되 인신공격은 금지", "높음", "직설적이고 긴장감 있는")
+    return ("아고라 대폭발", "역사적 한계와 불편한 반례까지 정면으로 파고들며 강하게 반박", "매우 높음", "격정적이고 도발적인")
+
+
+def temperature_visual(intensity: int) -> tuple[str, str, str]:
+    if intensity <= 20:
+        return ("❄️ 차가운 평화", "#3b82c4", "조용히 듣고 천천히 보완하는 대화")
+    if intensity <= 40:
+        return ("🌊 서늘한 대화", "#268fa3", "존중을 바탕으로 차이를 나누는 대화")
+    if intensity <= 60:
+        return ("⚡ 팽팽한 온도", "#c28b38", "서로의 근거를 선명하게 맞대는 대화")
+    if intensity <= 80:
+        return ("🔥 뜨거운 설전", "#d7653d", "논리의 허점을 직접 파고드는 대화")
+    return ("💥 아고라 대폭발", "#c43d4b", "불편한 반례까지 정면으로 부딪히는 대화")
+
+
+HONORIFIC_RULES = """[인물성·역사적 호칭 규칙]
+대화를 쓰기 전에 내부적으로 등장할 역사적 인물, 사건, 개념과 각 인물의 관계를 먼저 점검한다. 각 인물이 상대와 언급 대상을 바라보는 시대, 신분, 혈연·군신·사제·선후대 관계를 구분하고 그에 맞는 정식 호칭을 정한다. 이 점검 과정은 최종 답변에 절대 출력하지 않는다.
+모든 인물은 자신의 시대와 사회적 위치, 상대와의 관계를 끝까지 유지한다. 부모·조상·군주·스승·존경받아야 할 역사적 인물을 현대식 이름 세 글자만으로 부르지 않는다. 상대의 조상이나 군주를 언급할 때도 최소한의 격식을 지켜 '전하', '대왕', '선생', '공', '성인' 등 맥락에 맞는 호칭을 사용한다.
+호칭은 역사적으로 가능한 범위에서 자연스럽게 사용하되, 확실하지 않은 관계를 임의로 단정하지 않는다. 후대 인물은 선대 인물을 함부로 친구처럼 부르지 않으며, 현대 인물도 역사적 인물을 가벼운 별칭이나 이름만으로 부르지 않는다. 서로 동시대가 아니거나 직접 관계가 없는 인물은 그 사실을 인정하고 '후대의 기록에서', '제가 알기로는'처럼 거리감을 표현한다.
+호칭 규칙을 지키기 위해 대사의 자연스러움을 해치지 않는 선에서 정식 호칭을 반복 사용한다. 인물 이름을 화자 표기에서만 사용할 수 있으며, 대사 안에서 상대를 부를 때는 관계에 맞는 호칭을 우선한다."""
+HISTORICAL_HONORIFICS = """[범용 관계·호칭 처리 규칙]
+각 코멘트를 쓰기 전에 코멘트에 등장할 인물·사건·스승·군주·조상·종교적 성인을 먼저 식별하고, 현재 화자와 대상 사이의 시대·신분·혈연·군신·사제·선후대 관계를 내부적으로 정리한다. 이 분석은 출력하지 않는다.
+대상 인물의 본명을 단독으로 부르지 말고, 관계에 맞는 공식 호칭과 조사를 붙인다. 군주·왕실 선대·국가 지도자는 시호·묘호·직위와 존칭을 사용하고, 스승·철학자·학자는 선생·공·성인 등 시대와 전통에 맞는 호칭을 사용한다. 부모·조상·존경받는 종교 인물도 이름만 부르지 않는다.
+관계가 확실하지 않거나 여러 호칭이 가능한 경우에는 이름을 억지로 붙이지 말고 '그분', '선대의 군주', '스승', '당시의 성인', '그 인물'처럼 안전한 관계 호칭을 사용한다. 화자 자신의 이름이나 현재 코멘트의 인물명을 표시하는 메타데이터에서는 이름을 사용할 수 있지만, 대사와 코멘트 본문에서는 이 규칙을 따른다.
+예를 들어 '누구가 말했다'처럼 이름 뒤에 조사만 붙이는 표현은 피하고, '누구 선생께서', '선대의 군주께서', '그분께서'처럼 격식을 갖춘다. 근거 없는 친족·군신 관계를 새로 만들지 말고, 직접 관계가 없으면 시대적 거리를 드러낸다."""
+
+
+def remote_dialogue(person_a: str, person_b: str, topic: str, intensity: int) -> Dialogue | None:
+    api_key = _config_value("OPENAI_API_KEY", "OPENROUTER_API_KEY")
     if not api_key:
-        return None
+        raise RuntimeError("Streamlit Secrets에 OPENAI_API_KEY 또는 OPENROUTER_API_KEY가 설정되지 않았습니다.")
+    base_url = _config_value(
+        "OPENAI_BASE_URL",
+        "OPENROUTER_BASE_URL",
+        default="https://openrouter.ai/api/v1" if _config_value("OPENROUTER_API_KEY") else "https://api.openai.com/v1",
+    ).rstrip("/")
     domain_instruction = (
         "이 대화는 인생의 방향, 관계의 경계, 헌신과 자유를 다루는 가치관 대화다. "
         "자동화·생산성·조직·알고리즘 같은 AI 업무 어휘를 억지로 끌어오지 말고, "
@@ -1168,9 +1258,18 @@ def remote_dialogue(person_a: str, person_b: str, topic: str, tone: str) -> Dial
         "이 대화는 AI와 사회 변화의 구체적 영향을 다루되, 기술 용어만 나열하지 말고 "
         "당사자의 삶과 책임, 선택의 결과를 중심으로 말한다."
     )
+    intensity = max(0, min(100, int(intensity)))
+    debate_name, debate_style, interruption, expression = debate_profile(intensity)
     prompt = f"""당신은 Virtual Agora의 대본 작가다.
-{person_a}와 {person_b}가 시공간을 넘어 만나 {topic}을 {tone} 톤으로 대화한다.
+사용자가 입력한 주제의 원문은 다음과 같다: "{topic}"
+{person_a}와 {person_b}가 시공간을 넘어 만나 반드시 이 주제만을 중심으로 대화한다.
+주제가 낯설거나 기존 주제 목록에 없어도 다른 주제로 바꾸지 말고, 입력된 문장의 핵심 명사와 질문을 대화의 모든 단계에서 유지한다.
+논쟁 온도는 {intensity}%이며 단계는 '{debate_name}'이다.
+대화 양상: {debate_style}
+말 끊기·즉각 반박 빈도: {interruption}
+감정 표현 강도: {expression}
 {domain_instruction}
+{HONORIFIC_RULES}
 핵심 논점: {TOPIC_GUIDANCE.get(topic, "주제의 장단점과 실제 삶의 영향을 구체적으로 논한다.")}
 두 인물 사이의 핵심 긴장: {pair_dynamic(person_a, person_b)}
 이번 대화가 답해야 할 질문: {TOPIC_QUESTIONS.get(topic, "이 변화의 비용과 책임은 누가 감당하는가?")}
@@ -1182,14 +1281,14 @@ def remote_dialogue(person_a: str, person_b: str, topic: str, tone: str) -> Dial
 인물 A의 참고 사례: {CASE_NOTES.get(person_a, "공개적으로 알려진 활동을 바탕으로 한 창작적 해석")}
 인물 B의 참고 사례: {CASE_NOTES.get(person_b, "공개적으로 알려진 활동을 바탕으로 한 창작적 해석")}
 한국어로만 답하고, 전문용어는 짧게 풀어서 설명하는 편안한 대화체로 다음 JSON 형식만 출력하라:
-{{"scene":"장면 한 줄","script":[{{"speaker":"이름","line":"대사"}}],"summary":"한 줄 요약","chem":87,"mvp":"인물 이름"}}
+{{"scene":"장면 한 줄","script":[{{"speaker":"이름","line":"대사"}}],"summary":"두 인물의 주장을 각각 한 문장으로 명시하고 핵심 차이를 설명한 요약","stance_a":"인물 A가 이 주제에서 우선해야 한다고 주장하는 바","stance_b":"인물 B가 이 주제에서 우선해야 한다고 주장하는 바","conflict":"두 주장이 갈라지는 핵심 기준","chem":87,"mvp":"인물 이름"}}
 script는 정확히 24턴이며 각 대사는 2문장 이하로 쓴다. 딱딱한 논문체나 과도한 한자어 대신 친구에게 설명하듯 쉽게 말한다.
-대화는 1) 각자의 원칙 제시, 2) 상대의 약점 반박, 3) 구체적 딜레마 검토, 4) 자기 사상의 한계 인정, 5) 조건부 수정과 잠정 결론의 순서로 전개한다.
-두 인물의 관점이 실제로 충돌하고 변화해야 하며, 각 인물은 자신의 철학과 참고 사례를 최소 한 번씩 직접 언급한다. 매 턴은 바로 앞 발화를 받아 공감, 반박, 질문, 보완 중 하나로 이어져야 한다. 서로의 핵심 긴장에 답하는 전환점을 반드시 만든다. 최소 한 번은 상대의 주장 중 일부를 인정하고, 최소 한 번은 자신의 원칙이 실패할 수 있는 조건을 말한다. 모든 발화는 자연스러운 한국어 존댓말로 쓴다. 이름만 바꾼 일반론을 쓰지 않는다.
+이 대화는 정해진 찬반 템플릿을 채우는 방식이 아니라, 사용자가 전달한 주제를 끝까지 붙들고 실제 대화처럼 진행한다. 주제의 핵심 단어와 전제를 첫 장면부터 정확히 해석하고, 각 인물은 상대가 방금 말한 구체적인 주장이나 예시에 반응해 다음 말을 이어간다. 같은 주장을 표현만 바꿔 반복하지 말고, 대화 중 새로 드러난 조건과 반례에 따라 입장을 조금씩 수정한다. 결과 요약에는 반드시 인물 A가 무엇을 우선해야 한다고 주장하는지, 인물 B가 무엇을 우선해야 한다고 주장하는지, 두 주장이 정확히 어디에서 갈라지는지를 각각 명시한다.
+두 인물의 관점이 실제로 충돌하고 변화해야 하며, 각 인물은 자신의 철학과 참고 사례를 최소 한 번씩 직접 언급한다. 24턴 전체가 하나의 논쟁 흐름을 이루도록 하되, 억지로 5단계 형식을 나누지 않는다. 최소 한 번은 상대의 주장 중 일부를 인정하고, 최소 한 번은 자신의 원칙이 실패할 수 있는 조건을 말한다. 마지막에는 처음의 질문에 대해 두 인물이 도달한 구체적인 조건부 결론을 제시한다. 위의 논쟁 온도에 맞춰 동의·반박·감정 표현의 비율을 조절하되, 강도가 높아도 인물의 품격과 주제의 구체성을 유지한다. 모든 발화는 자연스러운 한국어 존댓말로 쓴다. 이름만 바꾼 일반론, 주제와 무관한 AI 업무 어휘, 미리 준비된 문구의 반복을 금지한다.
 종교적 인물은 신앙을 강요하거나 교리를 단정하지 말고, 공개적으로 알려진 가르침을 바탕으로 한 존중 어린 창작 대화로 쓴다."""
     body = json.dumps(
         {
-            "model": model,
+            "model": _config_value("OPENAI_MODEL", "OPENROUTER_MODEL", default="gpt-4o-mini"),
             "temperature": 0.8,
             "messages": [{"role": "user", "content": prompt}],
             "response_format": {"type": "json_object"},
@@ -1201,22 +1300,165 @@ script는 정확히 24턴이며 각 대사는 2문장 이하로 쓴다. 딱딱�
         headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
         method="POST",
     )
-    request.add_header("Authorization", "Bearer " + api_key)
+    request.add_header(
+        "Authorization",
+        f"Bearer {_config_value('OPENAI_API_KEY', 'OPENROUTER_API_KEY')}",
+    )
     try:
         with urllib.request.urlopen(request, timeout=25) as response:
             payload = json.loads(response.read().decode("utf-8"))
         content = payload["choices"][0]["message"]["content"]
         result = json.loads(content)
         script = [(item["speaker"], item["line"]) for item in result["script"]]
-        return extend_dialogue(
-            Dialogue(result["scene"], script, result["summary"], int(result["chem"]), result["mvp"]),
-            person_a,
-            person_b,
-            topic,
+        if not 12 <= len(script) <= 24:
+            raise RuntimeError(
+                f"AI가 유효한 대화 길이(12~24턴)를 반환하지 않았습니다: {len(script)}턴"
+            )
+        if any(
+            not isinstance(speaker, str)
+            or speaker not in {person_a, person_b}
+            or not isinstance(line, str)
+            or not line.strip()
+            for speaker, line in script
+        ):
+            raise RuntimeError("AI 응답에 선택한 두 인물 이외의 화자 또는 빈 대사가 포함되었습니다.")
+        return Dialogue(
+            result["scene"],
+            script,
+            result["summary"],
+            int(result["chem"]),
+            result["mvp"],
+            result.get("stance_a", ""),
+            result.get("stance_b", ""),
+            result.get("conflict", ""),
         )
-    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, KeyError, TypeError, ValueError, json.JSONDecodeError):
-        st.info("실시간 모델 연결이 지연되어 데모용 로컬 결과를 보여드려요.")
-        return None
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
+        raise RuntimeError(f"대화 생성에 실패했습니다: {error}") from error
+
+def _openai_json(prompt: str, *, temperature: float = 0.8, timeout: int = 35) -> dict:
+    api_key = _config_value("OPENAI_API_KEY", "OPENROUTER_API_KEY")
+    if not api_key:
+        raise RuntimeError("Streamlit Secrets에 OPENAI_API_KEY 또는 OPENROUTER_API_KEY가 설정되지 않았습니다.")
+    base_url = _config_value(
+        "OPENAI_BASE_URL",
+        "OPENROUTER_BASE_URL",
+        default="https://openrouter.ai/api/v1" if _config_value("OPENROUTER_API_KEY") else "https://api.openai.com/v1",
+    ).rstrip("/")
+    body = json.dumps({
+        "model": _config_value("OPENAI_MODEL", "OPENROUTER_MODEL", default="gpt-4o-mini"),
+        "temperature": temperature,
+        "messages": [{"role": "user", "content": prompt}],
+        "response_format": {"type": "json_object"},
+    }).encode("utf-8")
+    request = urllib.request.Request(
+        f"{base_url}/chat/completions",
+        data=body,
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        method="POST",
+    )
+    request.add_header(
+        "Authorization",
+        f"Bearer {api_key}",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+        return json.loads(payload["choices"][0]["message"]["content"])
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
+        raise RuntimeError(f"AI 응답을 받을 수 없습니다: {error}") from error
+
+
+def remote_perspective_comments(topic: str) -> list[tuple[str, str, str]]:
+    persona_block = "\n".join(
+        f"- {person}: {PERSONA[person]} 참고 사례: {CASE_NOTES[person]}"
+        for person in PEOPLE
+    )
+    result = _openai_json(f"""Virtual Agora의 '인물들의 시선' 콘텐츠를 작성하세요.
+사용자 주제: {topic}
+아래 9명의 인물이 각자 SNS에 남기는 짧은 코멘트를 작성합니다.
+{persona_block}
+{HONORIFIC_RULES}
+{HISTORICAL_HONORIFICS}
+각 코멘트는 해당 인물의 사상과 경험에서 출발하고, 인물별 관점이 서로 달라야 합니다.
+본문에서 역사적 인물을 직접 언급할 때는 위 관계·호칭 규칙을 반드시 적용하며, 확신이 없으면 관계 호칭으로 바꿉니다.
+현대 주제를 억지로 AI·생산성 언어로 바꾸지 말고, 실제 발언처럼 인용하지 마세요.
+한국어 JSON만 출력하세요:
+{{"comments":[{{"person":"인물 이름","comment":"2~4문장의 자연스러운 코멘트","tag":"짧은 핵심 태그"}}]}}
+comments는 정확히 9개이며 모든 인물을 한 번씩 포함합니다.""", temperature=0.85)
+    comments = [
+        (
+            item["person"],
+            item["comment"],
+            item["tag"],
+        )
+        for item in result["comments"]
+        if item["person"] in PEOPLE and item["comment"] and item["tag"]
+    ]
+    if {person for person, _, _ in comments} != set(PEOPLE):
+        raise RuntimeError("모든 인물의 코멘트가 생성되지 않았습니다.")
+    return comments
+
+
+def remote_direct_reply(person: str, topic: str, message: str) -> str:
+    result = _openai_json(f"""Virtual Agora의 가상 인물 답변을 작성하세요.
+인물: {person}
+주제 맥락: {topic}
+인물 페르소나: {PERSONA[person]}
+참고 사례: {CASE_NOTES[person]}
+{HONORIFIC_RULES}
+사용자 질문: {message}
+공개적으로 알려진 사상과 사례를 참고한 창작 답변임을 전제로, 인물의 말투와 문제의식을 살려 한국어 3~5문장으로 답하세요.
+현대의 사실을 인물이 직접 경험했다고 주장하지 말고, 질문을 피하는 일반론이나 업무 템플릿을 쓰지 마세요.
+{{"reply":"답변"}}""", temperature=0.8, timeout=25)
+    reply = result.get("reply")
+    if not isinstance(reply, str) or not reply.strip():
+        raise RuntimeError("인물 답변이 비어 있습니다.")
+    return reply.strip()
+
+
+def remote_dialogue_followup(
+    person_a: str,
+    person_b: str,
+    topic: str,
+    script: list[tuple[str, str]],
+    user_message: str,
+) -> list[tuple[str, str]]:
+    transcript = "\n".join(f"{speaker}: {line}" for speaker, line in script)
+    result = _openai_json(f"""Virtual Agora 대화에 사용자가 참여했습니다.
+주제: {topic}
+참여 인물 A: {person_a}
+인물 A 페르소나: {PERSONA.get(person_a, "공개적으로 알려진 사상과 활동을 바탕으로 한 창작적 해석")}
+인물 A 참고 사례: {CASE_NOTES.get(person_a, "공개적으로 알려진 활동")}
+참여 인물 B: {person_b}
+인물 B 페르소나: {PERSONA.get(person_b, "공개적으로 알려진 사상과 활동을 바탕으로 한 창작적 해석")}
+인물 B 참고 사례: {CASE_NOTES.get(person_b, "공개적으로 알려진 활동")}
+{HONORIFIC_RULES}
+
+지금까지의 대화:
+{transcript}
+
+사용자의 의견 또는 질문:
+{user_message}
+
+사용자의 말에 대해 두 인물이 각각 답합니다. 사용자의 질문을 피하지 말고, 지금까지 대화에서 실제로 나온 주장과 연결해 답하세요.
+각 인물은 자신의 철학과 경험을 유지하되, 사용자의 반론이 타당하면 일부 인정하거나 기존 주장을 구체적으로 수정할 수 있습니다.
+두 답변은 서로 다른 관점을 가져야 하며, 이름만 바꾼 동일한 일반론을 반복하지 마세요.
+한국어 존댓말 3~5문장으로 자연스럽게 답하고, 실제 역사적 인물의 발언이나 기록이라고 주장하지 마세요.
+JSON 형식만 출력하세요:
+{{"responses":[{{"speaker":"{person_a}","reply":"인물 A의 답변"}},{{"speaker":"{person_b}","reply":"인물 B의 답변"}}]}}
+responses는 정확히 2개이며 순서는 반드시 인물 A, 인물 B입니다.""", temperature=0.82, timeout=35)
+    responses = result.get("responses")
+    if not isinstance(responses, list) or len(responses) != 2:
+        raise RuntimeError("두 인물의 후속 답변이 모두 생성되지 않았습니다.")
+    parsed = []
+    for expected_person, item in zip((person_a, person_b), responses):
+        if not isinstance(item, dict) or item.get("speaker") != expected_person:
+            raise RuntimeError("후속 답변의 인물 정보가 올바르지 않습니다.")
+        reply = item.get("reply")
+        if not isinstance(reply, str) or not reply.strip():
+            raise RuntimeError("후속 답변이 비어 있습니다.")
+        parsed.append((expected_person, reply.strip()))
+    return parsed
 
 
 def format_result(dialogue: Dialogue, person_a: str, person_b: str, topic: str, tone: str) -> str:
@@ -1234,6 +1476,19 @@ def case_note(person_a: str, person_b: str) -> str:
 
 
 def viewpoint_cards(person_a: str, person_b: str, topic: str) -> tuple[str, str, str, str]:
+    if (
+        topic == FEATURED_FOUNDER_TOPIC
+        and {person_a, person_b} == set(FEATURED_FOUNDER_STANCES)
+    ):
+        stance_a = FEATURED_FOUNDER_STANCES[person_a][0]
+        stance_b = FEATURED_FOUNDER_STANCES[person_b][0]
+        conflict = (
+            f"{person_a}는 {FEATURED_FOUNDER_STANCES[person_a][1]}을 기준으로 "
+            f"시장 적응과 AI 활용을 우선하고, {person_b}는 "
+            f"{FEATURED_FOUNDER_STANCES[person_b][1]}을 기준으로 "
+            "직관과 인간의 본질을 지켜야 한다고 주장합니다."
+        )
+        return stance_a, stance_b, conflict, ""
     frame, decision = TOPIC_FRAMES.get(
         topic, ("이 문제의 기준을 무엇으로 삼을지", "혜택과 비용의 책임을 어떻게 나눌지")
     )
@@ -1282,98 +1537,6 @@ def direct_reply(person: str, other: str, topic: str, message: str) -> str:
     if "실패" in prompt:
         return f"{voice[0]} 제 원칙도 {PERSONA_TENSIONS.get(person, '현실의 복잡한 조건')}라는 한계를 가질 수 있습니다. 그러므로 결과를 확인하고 필요하면 판단을 고쳐야 합니다."
     return f"그 질문을 {other}의 관점과 함께 놓고 보면 더 선명해집니다. {voice[1]} 그래서 저는 {stance}"
-
-
-def people_comments(topic: str) -> list[tuple[str, str]]:
-    """Create one topic-aware offline comment for every featured person."""
-    voices = LIFE_VOICE if topic in LIFE_TOPICS else VOICE
-    comments = []
-    for person in PEOPLE:
-        experience, principle, caution = voices[person]
-        comments.append(
-            (
-                person,
-                f"‘{topic}’에 대해 제 경험을 비추어 보면, {experience} {principle} "
-                f"따라서 지금은 이 고민에서 무엇을 지키고 감당할지 먼저 적어보세요. 다만 {caution}",
-            )
-        )
-    return comments
-
-
-def remote_people_comments(topic: str) -> list[tuple[str, str]] | None:
-    """Ask the configured model for one grounded comment per featured person."""
-    api_key, base_url, model = openai_config()
-    if not api_key:
-        return None
-
-    persona_context = "\n".join(
-        f"- {person}: {PERSONA[person]} 참고 사례: {CASE_NOTES[person]}"
-        for person in PEOPLE
-    )
-    prompt = f"""당신은 Virtual Agora의 편집자입니다.
-사용자가 입력한 고민이나 주제는 다음과 같습니다:
-<topic>{topic}</topic>
-
-아래 9명의 역사·문화 인물을 각각 독립적인 조언자로 설정하고, 주제에 직접 답하는 코멘트를 하나씩 작성하세요.
-인물의 유명한 문구를 지어내거나 실제 발언처럼 쓰지 말고, 참고 사례와 사상을 바탕으로 한 창작 코멘트임을 유지하세요.
-입력 주제의 핵심 단어와 상황을 반드시 코멘트 안에서 다루고, 주제와 무관한 AI·기술 일반론으로 빠지지 마세요.
-각 코멘트는 한국어 3~5문장, 100~180자 내외로 작성하세요. 경험을 떠올리는 문장, 현실적인 조언, 인물의 한계나 주의점을 포함하세요.
-정답을 단정하거나 사용자의 결정을 대신하지 말고, 스스로 다음 행동을 생각할 수 있게 하세요.
-
-인물 정보:
-{persona_context}
-
-다음 JSON 형식만 출력하세요:
-{{"comments":[{{"person":"이름","comment":"코멘트"}}]}}
-comments에는 아래 인물 9명을 정확히 한 번씩 포함하세요:
-{", ".join(PEOPLE)}
-"""
-    body = json.dumps(
-        {
-            "model": model,
-            "temperature": 0.8,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "사용자 주제에 충실하고 인물별 차이가 분명한 한국어 코멘트를 작성합니다.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            "response_format": {"type": "json_object"},
-        }
-    ).encode("utf-8")
-    request = urllib.request.Request(
-        f"{base_url}/chat/completions",
-        data=body,
-        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-        method="POST",
-    )
-    request.add_header("Authorization", "Bearer " + api_key)
-    try:
-        with urllib.request.urlopen(request, timeout=35) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-        content = payload["choices"][0]["message"]["content"]
-        result = json.loads(content)
-        raw_comments = result["comments"]
-        by_person = {
-            item["person"]: item["comment"]
-            for item in raw_comments
-            if item["person"] in PEOPLE and isinstance(item["comment"], str) and item["comment"].strip()
-        }
-        if set(by_person) != set(PEOPLE):
-            raise ValueError("모델 응답에 필요한 인물 코멘트가 모두 포함되지 않았습니다.")
-        return [(person, by_person[person].strip()) for person in PEOPLE]
-    except (
-        urllib.error.HTTPError,
-        urllib.error.URLError,
-        TimeoutError,
-        KeyError,
-        TypeError,
-        ValueError,
-        json.JSONDecodeError,
-    ):
-        st.warning("AI 코멘트를 불러오지 못해 주제 기반 오프라인 코멘트를 보여드려요.")
-        return None
 
 
 def user_bubble(line: str, turn: int) -> str:
@@ -1447,14 +1610,96 @@ def set_selection(person_a: str, person_b: str, topic: str, tone: str) -> None:
     )
 
 
+def featured_founder_dialogue() -> Dialogue:
+    """Return the dedicated Wanted hackathon showcase conversation."""
+    founder = "유명 채용 플랫폼 대표"
+    topic = "AI 시대, 인간은 어떻게 살아남을 것인가"
+    return Dialogue(
+        "제품 발표장의 조명과 채용 데이터가 쌓인 회의실이 겹쳐진 가상의 광장. "
+        "스티브 잡스와 유명 채용 플랫폼 대표가 AI 시대의 생존 조건을 묻는다.",
+        [
+            (founder, "최근 채용 시장 데이터를 보면 섬뜩합니다. 단순 반복 업무는 물론이고 초급 수준의 코딩이나 카피라이팅 직무 수요도 빠르게 하락하고 있습니다. AI는 이제 단순한 트렌드가 아니라 생존의 기준선이 되었습니다."),
+            ("스티브 잡스", "일자리가 사라진다는 공포는 언제나 있었습니다. 매킨토시가 나왔을 때도, 아이폰이 나왔을 때도 그랬죠. 하지만 본질을 착각하면 안 됩니다. AI는 그저 지적 노동을 위한 마음의 자전거일 뿐입니다."),
+            (founder, "그 자전거가 스스로 페달을 밟고 목적지까지 찾아간다는 게 문제입니다. 시장은 냉혹합니다. AI라는 도구를 업무에 이식해 개인 생산성을 다섯 배, 열 배 끌어올리지 못하는 개인은 도태될 것입니다."),
+            ("스티브 잡스", "기계가 기계의 일을 가져가는 것은 축복입니다. 인간이 기계처럼 일해왔다는 증거니까요. 고민해야 할 것은 어떻게 기계와 경쟁할지가 아니라 어떻게 더 인간다워질지입니다."),
+            (founder, "낭만적인 말씀이지만 당장 다음 달 월급과 커리어를 고민하는 직장인에게는 뜬구름처럼 들릴 수 있습니다. 지금 필요한 것은 프롬프트를 다루는 기술과 AI를 활용하는 하드 스킬입니다."),
+            ("스티브 잡스", "기술에만 매몰되는 것만큼 위험한 건 없습니다. AI가 1초 만에 100개의 디자인과 코드를 쏟아낼 때, 무엇이 세상을 바꿀 단 하나의 결과물인지 알아보는 안목은 누가 결정합니까?"),
+            (founder, "안목도 중요하지만 실행으로 옮겨 시장에 증명해야 가치가 생깁니다. AI를 능숙하게 다루는 사람들은 그 안목마저 데이터로 A/B 테스트하며 최적의 결과를 찾아내고 있습니다."),
+            (founder, "기업 입장에서도 마찬가지입니다. 한 명의 천재보다 AI 툴을 다룰 줄 아는 평범한 실무자 세 명이 협업하는 시스템이 훨씬 생산적입니다. 이것이 지금의 채용 트렌드입니다."),
+            ("스티브 잡스", "스펙과 데이터를 맹신하는 전형적인 HR의 오류군요. 시장의 데이터는 늘 과거의 결과물입니다. 과거의 데이터를 학습한 AI가 어떻게 미래의 위대한 혁신을 만들어냅니까? 혁신은 인간의 직관에서 나옵니다."),
+            ("스티브 잡스", "아이폰을 만들 때 어떤 소비자 데이터도 참조하지 않았습니다. 사람들은 우리가 무언가를 보여주기 전까지 자신이 무엇을 원하는지 모릅니다. AI도 마찬가지입니다."),
+            (founder, "스티브, 모두가 당신 같은 세기의 천재일 수는 없습니다. 대다수의 평범한 사람들은 시장의 수요에 맞춰 자신의 가치를 입증하며 커리어를 쌓아야 합니다. 저는 그 생존의 룰을 이야기하는 겁니다."),
+            ("스티브 잡스", "생존을 목표로 삼는 순간 인생은 끔찍하게 지루해집니다. 기술과 인문학의 교차점에 답이 있습니다. 코딩을 AI가 해준다면 인간은 철학과 예술, 사람의 마음을 깊이 탐구해야 합니다."),
+            (founder, "인문학적 소양이 무기가 된다는 점에는 동의합니다. 하지만 그 무기를 휘두르는 방식은 기술적이어야 합니다. AI라는 레버리지를 활용하지 못하는 인문학은 상념에 머물 수 있습니다."),
+            ("스티브 잡스", "아름다운 서체를 경험해보지 못한 사람이 AI로 글씨체를 찍어낸들 무슨 영혼이 있겠습니까? 미학을 이해하는 인간만이 AI라는 붓으로 걸작을 그릴 수 있습니다."),
+            (founder, "현실의 면접장에서는 캘리그라피를 아는 사람보다 AI API를 연동해 하루 만에 서비스를 런칭해 본 사람을 뽑습니다. 실행력과 생산성이 시장의 중요한 원칙이기 때문입니다."),
+            ("스티브 잡스", "그래서 다들 영혼 없는 제품을 만들어내고 금방 잊히는 겁니다. 위대한 제품은 타협하지 않는 열정에서 나옵니다. 이력서의 키워드는 매칭할 수 있어도 사람의 눈빛에 담긴 광기는 측정하지 못합니다."),
+            (founder, "광기를 측정할 수는 없어도 그 광기가 만들어낸 성과 데이터는 측정할 수 있습니다. AI 시대의 생존자는 도구를 학습하고 실패의 데이터를 빠르게 피드백하며 진화하는 실용적인 학습자입니다."),
+            ("스티브 잡스", "죽음 앞에서도 그 성과 데이터가 당신을 위로할까요? 남의 인생을 살지 마십시오. AI가 모든 것을 대체하는 시대일수록 내가 진정으로 사랑하는 일을 찾는 것이 구원입니다."),
+            (founder, "가슴 뛰는 일을 하기 위해서라도 경제적 자립이 필수적입니다. AI를 두려워할 것이 아니라 귀찮은 잡무를 던져주고 나를 돋보이게 만들 최고의 인턴으로 부려먹어야 합니다."),
+            ("스티브 잡스", "훌륭한 비유군요. 하지만 인턴에게 회사의 비전과 철학을 맡기는 CEO는 없습니다. 방향을 지시하고 기준을 세우며 한계까지 밀어붙이는 것은 인간의 몫입니다."),
+            (founder, "맞습니다. 우리는 AI라는 뛰어난 인턴을 지휘하는 프로젝트 매니저가 되어야 합니다. 기획력과 문제 정의, 결과물을 검수하는 역량이 앞으로의 인간을 정의할 것입니다."),
+            ("스티브 잡스", "검수자가 되는 것으로 만족하지 마십시오. 비저너리가 되십시오. 인간의 심장 박동을 빠르게 만드는 본질적인 감동은 프롬프트에서 나오지 않습니다."),
+            (founder, "시장 수요를 읽고 AI로 무장해 압도적인 효율을 내는 것. 그것이 지금 청년들에게 해줄 수 있는 가장 냉정하고 확실한 생존 지침입니다."),
+            ("스티브 잡스", "언제나 갈망하고 언제나 우직하게 나아가십시오. 기계가 똑똑해질수록, 당신은 더 깊게 사랑하고 더 치열하게 인간다워지십시오."),
+        ],
+        "유명 채용 플랫폼 대표는 시장 데이터와 AI 활용 능력을 생존의 기준으로 제시하고, 스티브 잡스는 직관과 미학, 인간다운 열정을 지켜야 한다고 맞선다. 두 사람은 현실적 적응과 본질적 인간다움의 긴장을 끝까지 유지한다.",
+        96,
+        "스티브 잡스",
+    )
+
+
+def featured_faith_dialogue() -> Dialogue:
+    """Return the dedicated Jesus and Buddha showcase conversation."""
+    topic = "AI시대, 종교의 방향"
+    return Dialogue(
+        "고요한 사찰의 법당과 갈릴리의 언덕이 하나의 광장으로 이어졌다. "
+        "예수와 부처는 AI가 삶과 신앙을 바꾸는 시대에 종교가 가야 할 길을 묻는다.",
+        [
+            ("예수", "AI가 사람의 일을 대신하는 시대일수록 종교는 가장자리로 밀려난 사람 곁에 서야 합니다. 기술의 풍요가 누구에게나 나누어지는지 먼저 물어야 하지요."),
+            ("부처", "나는 기술을 선악으로 단정하기보다 그것을 대하는 마음을 살피겠습니다. 더 빠르고 더 많이 가지려는 집착이 새로운 고통을 만들 수 있기 때문입니다."),
+            ("예수", "맞습니다. 그러나 고통을 바라보는 데서 멈추지 말고, 굶주린 이와 일자리를 잃은 이의 식탁에 실제로 자리를 마련해야 합니다."),
+            ("부처", "자비는 마음속 감정만이 아니라 행동이어야 합니다. 동시에 AI가 내린 답을 맹목적으로 따르지 않고, 그 결과가 누구를 해치는지 깨어 살펴야 합니다."),
+            ("예수", "종교 공동체도 AI를 두려워하기보다 교육과 돌봄에 활용할 수 있습니다. 다만 사람을 점수와 확률로만 보지 않는 원칙은 절대 놓쳐서는 안 됩니다."),
+            ("부처", "사람을 하나의 데이터로 고정하면 변화할 가능성을 보지 못합니다. 모든 존재가 서로 연결되어 있다는 사실을 기억한다면 기술의 사용도 달라질 것입니다."),
+            ("예수", "결국 중요한 것은 기술이 사람을 더 사랑하게 만드는가입니다. 외로운 이에게 손을 내밀 시간을 벌어준다면 AI는 섬기는 도구가 될 수 있습니다."),
+            ("부처", "그 시간을 다시 욕망과 경쟁으로 채운다면 도구가 주인이 됩니다. 종교는 멈추고 바라보며 무엇으로부터 자유로워져야 하는지 가르쳐야 합니다."),
+            ("예수", "그리고 용서와 환대의 문을 넓혀야 합니다. AI의 판단으로 배제된 사람에게도 다시 시작할 기회를 주는 것이 공동체의 책임입니다."),
+            ("부처", "그 책임은 특정 종교의 독점물이 아닙니다. 서로 다른 믿음이 경쟁하기보다 고통을 줄이는 지혜를 함께 나누어야 합니다."),
+            ("예수", "AI 시대의 종교는 더 높은 벽을 세우는 곳이 아니라, 기술이 만든 균열을 건너 서로를 만나는 다리가 되어야 합니다."),
+            ("부처", "그 다리는 인간의 깨어 있는 마음으로 놓입니다. 기술을 숭배하지도 거부하지도 말고, 자비와 지혜를 기준으로 바르게 사용합시다."),
+        ],
+        "예수는 종교가 AI로 소외된 이들을 적극적으로 돌보고 환대해야 한다고 주장하고, 부처는 기술에 대한 집착을 경계하며 깨어 있는 마음과 자비로운 사용을 강조한다.",
+        92,
+        "예수",
+        "AI 시대의 종교는 기술의 혜택에서 밀려난 사람을 찾아 돌보고, 환대와 연대로 공동체를 회복해야 한다.",
+        "AI 자체를 숭배하거나 두려워하지 말고, 집착을 내려놓은 깨어 있음과 자비를 기준으로 기술을 사용해야 한다.",
+        "예수는 종교의 적극적인 돌봄과 사회적 실천을 앞세우고, 부처는 욕망과 집착을 성찰하는 내면의 균형을 먼저 강조한다.",
+    )
+
+
 def start_showcase(person_a: str, person_b: str, topic: str) -> None:
     """Open a prepared showcase dialogue directly, without the selection step."""
     with st.spinner("두 인물이 광장에 모이는 중…"):
-        dialogue = (
-            demo_dialogue(person_a, person_b, topic, "진지한 토론")
-            or remote_dialogue(person_a, person_b, topic, "진지한 토론")
-            or local_dialogue(person_a, person_b, topic, "진지한 토론")
-        )
+        if (
+            {person_a, person_b} == {"유명 채용 플랫폼 대표", "스티브 잡스"}
+            and topic == "AI 시대, 인간은 어떻게 살아남을 것인가"
+        ):
+            dialogue = extend_dialogue(
+                featured_founder_dialogue(), person_a, person_b, topic
+            )
+        elif (
+            {person_a, person_b} == {"예수", "부처"}
+            and topic == "AI시대, 종교의 방향"
+        ):
+            dialogue = extend_dialogue(
+                featured_faith_dialogue(), person_a, person_b, topic
+            )
+        else:
+            dialogue = (
+                demo_dialogue(person_a, person_b, topic, "진지한 토론")
+                or remote_dialogue(person_a, person_b, topic, 50)
+            )
     st.session_state.update(
         {
             "screen": "result",
@@ -1462,9 +1707,11 @@ def start_showcase(person_a: str, person_b: str, topic: str) -> None:
             "person_a": person_a,
             "person_b": person_b,
             "topic": topic,
-            "tone": "진지한 토론",
+            "tone": 50,
             "pre_vote": "아직 모르겠다",
             "direct_messages": [],
+            "dialogue_followups": [],
+            "dialogue_followup_prompt": "",
         }
     )
 
@@ -1474,9 +1721,8 @@ def start_ask_mode(person: str) -> None:
         {
             "screen": "ask",
             "ask_person": person,
-            "ask_prompt": "",
-            "ask_topic": "",
-            "ask_comments": [],
+            "ask_messages": [],
+            "ask_prompt": DIRECT_PROMPTS[0],
         }
     )
 
@@ -1484,8 +1730,7 @@ def start_ask_mode(person: str) -> None:
 if "screen" not in st.session_state:
     st.session_state.screen = "intro"
 
-st.markdown(
-    """<style>
+background_styles = """<style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Noto+Sans+KR:wght@400;500;700&display=swap');
     .stApp { background:#f3eadc; color:#304651; }
     .stApp, .stApp p, .stApp label, .stApp span, .stApp div { color:#304651; }
@@ -1507,8 +1752,13 @@ st.markdown(
     .scene * { color:#f4e8d5 !important; }
     .topic-hero { background:#fff8ed; border:2px solid #b56c4a; border-radius:14px; padding:1.1rem 1.3rem; margin:.8rem 0 1.2rem; box-shadow:0 5px 18px rgba(72,54,35,.08); }
     .topic-kicker { color:#a05237 !important; font-size:.72rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
-    .topic-title { color:#263f4a !important; font-size:1.45rem; font-weight:800; line-height:1.35; margin:.3rem 0; }
+    .topic-title { color:#263f4a !important; font-size:1.72rem; font-weight:800; line-height:1.3; margin:.3rem 0; }
     .topic-guide { color:#58605f !important; font-size:.92rem; line-height:1.6; }
+    .temperature-readout { max-width:31rem; margin:.15rem 0 1rem; padding:.65rem .8rem .7rem; border:1px solid #dfd0bd; border-radius:10px; background:#fffaf2; }
+    .temperature-title { font-size:.9rem; font-weight:800; letter-spacing:.02em; }
+    .temperature-track { height:7px; margin:.45rem 0 .35rem; border-radius:99px; background:linear-gradient(90deg,#3b82c4 0%,#268fa3 28%,#c28b38 52%,#d7653d 76%,#c43d4b 100%); overflow:hidden; }
+    .temperature-track span { display:block; height:100%; border-radius:99px; box-shadow:0 0 8px currentColor; }
+    .temperature-description { color:#687276; font-size:.78rem; }
     .claim-label { display:block; color:#a05237 !important; font-size:.82rem; font-weight:800; margin:.4rem 0 .35rem; }
     .magazine-card { background:#fff8ed; border:1px solid #dfd0bd; border-radius:16px; padding:1.25rem 1.35rem; margin:1rem 0 1.4rem; box-shadow:0 5px 18px rgba(72,54,35,.07); }
     .magazine-category { color:#a05237 !important; font-size:.7rem; font-weight:800; letter-spacing:.15em; }
@@ -1520,15 +1770,6 @@ st.markdown(
     .comment-head { color:#a05237 !important; font-weight:800; font-size:.88rem; }
     .comment-tag { float:right; color:#71817b !important; font-size:.72rem; font-weight:600; }
     .comment-text { color:#304651 !important; line-height:1.65; margin-top:.35rem; }
-    .comments-heading { border-top:2px solid #b56c4a; margin:2rem 0 1rem; padding-top:.85rem; }
-    .comments-heading span { display:block; color:#a05237 !important; font-size:.7rem; font-weight:800; letter-spacing:.16em; }
-    .comments-heading strong { display:block; color:#263f4a !important; font-family:'DM Serif Display',serif; font-size:1.55rem; line-height:1.4; margin:.3rem 0; }
-    .comments-heading small { color:#687570 !important; font-size:.82rem; }
-    .perspective-card { background:#fff8ed; border:1px solid #dfd0bd; border-radius:14px; padding:1rem 1.1rem; margin:.7rem 0; box-shadow:0 4px 14px rgba(72,54,35,.06); }
-    .perspective-head { display:flex; align-items:center; gap:.65rem; }
-    .perspective-head strong { color:#304651 !important; display:block; font-size:.98rem; }
-    .perspective-head small { color:#71817b !important; display:block; font-size:.75rem; margin-top:.1rem; }
-    .perspective-comment { color:#304651 !important; line-height:1.75; margin:.75rem .2rem .1rem; }
     .chat-window { background:#dce4e0; border:1px solid #c6d2cc; border-radius:14px; padding:1.15rem .9rem; margin:.5rem 0 1.5rem; }
     .chat-window-head { display:flex; align-items:center; gap:.55rem; border-bottom:1px solid #c0cdc6; padding:.15rem .45rem .85rem; margin-bottom:1rem; }
     .chat-status { width:8px; height:8px; background:#5b9a67; border-radius:50%; display:inline-block; }
@@ -1547,7 +1788,7 @@ st.markdown(
     .chat-row.right .chat-bubble { background:#c8ded8; border-radius:14px 4px 14px 14px; }
     .user-avatar { background:#304651 !important; }
     .chat-time { color:#71817b; font-size:.63rem; margin:.2rem .35rem 0; }
-    .person-caption { color:#5e6965; font-size:.82rem; margin-top:-.5rem; }
+    .person-caption { color:#5e6965; font-size:.98rem; font-weight:700; line-height:1.45; margin-top:-.5rem; }
     .metric { background:#f9f2e7; border:1px solid #dfd0bd; border-radius:12px; padding:1rem; text-align:center; }
     .metric strong { display:block; font-size:1.5rem; color:#304651; }
     .insight-card { background:#f9f2e7; border:1px solid #dfd0bd; border-radius:12px; padding:1rem; min-height:7.8rem; color:#304651; line-height:1.65; }
@@ -1638,6 +1879,8 @@ st.markdown(
     div[data-testid="stRadio"] > label,
     div[data-testid="stTextInput"] label,
     div[data-testid="stTextArea"] label { color:#e6f0f3 !important; }
+    .temperature-readout { background:#162a35 !important; border-color:#526b78 !important; }
+    .temperature-description { color:#c5d7dc !important; }
     div[data-testid="stButton"] button,
     .stDownloadButton button {
         background:#1e3440 !important;
@@ -1765,10 +2008,45 @@ st.markdown(
     }
     .intro-page + div[data-testid="stButton"] button p,
     .intro-page + div[data-testid="stButton"] button span { color:#ffffff !important; }
+    /* A quiet night-sky texture keeps the agora present without competing with content. */
+    .stApp {
+        background-color:#080d12 !important;
+        background-image:
+            linear-gradient(rgba(5,12,18,.84), rgba(5,12,18,.92)),
+            url("__AGORA_BACKGROUND_IMAGE__"),
+            radial-gradient(circle at 8% 8%, rgba(43,121,141,.18), transparent 28rem),
+            radial-gradient(circle at 92% 22%, rgba(177,103,66,.13), transparent 25rem),
+            radial-gradient(circle at 50% 100%, rgba(35,79,98,.18), transparent 34rem),
+            repeating-linear-gradient(135deg, rgba(255,255,255,.018) 0, rgba(255,255,255,.018) 1px, transparent 1px, transparent 72px) !important;
+        background-size:cover, cover, auto, auto, auto, auto !important;
+        background-position:center, center, center, center, center, center !important;
+        background-repeat:no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat !important;
+        background-attachment:fixed !important;
+    }
+    .block-container {
+        position:relative;
+        background:rgba(8,16,23,.42);
+        border:1px solid rgba(114,157,170,.14);
+        border-radius:28px;
+        box-shadow:0 24px 80px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.025);
+        backdrop-filter:blur(2px);
+    }
+    .block-container::before {
+        content:"";
+        position:absolute;
+        inset:0;
+        border-radius:28px;
+        pointer-events:none;
+        background:
+            radial-gradient(circle at 14% 12%, rgba(185,237,245,.08) 0 1px, transparent 2px),
+            radial-gradient(circle at 82% 28%, rgba(185,237,245,.06) 0 1px, transparent 2px),
+            radial-gradient(circle at 66% 88%, rgba(229,163,110,.06) 0 1px, transparent 2px);
+        background-size:180px 180px, 240px 240px, 210px 210px;
+        opacity:.7;
+    }
     @media (max-width: 640px) { h1 { font-size:3.4rem; } .brand-wordmark { font-size:3.5rem; } .block-container { padding-top:1.2rem; } }
-    </style>""",
-    unsafe_allow_html=True,
-)
+    </style>""".replace("__AGORA_BACKGROUND_IMAGE__", image_data_url(INTRO_IMAGE))
+st.markdown(background_styles, unsafe_allow_html=True)
 
 
 if st.session_state.screen == "intro":
@@ -1779,8 +2057,6 @@ if st.session_state.screen == "intro":
         f'<div class="intro-shade"></div><div class="intro-content">'
         f'<div class="intro-title">Virtual<br>Agora</div>'
         f'<div class="intro-lead">서로 다른 시대의 지혜를 마주 앉혀<br>오늘의 질문을 다시 바라봅니다.</div>'
-        f'<div class="intro-copy">인물 대화와 1:1 질문, 그리고 동시대 이슈를 다루는 매거진까지. '
-        f'Virtual Agora는 AI가 정답을 대신하는 대신, 더 넓은 관점과 더 나은 질문을 발견하도록 돕는 가상 대화 공간입니다.</div>'
         f'</div></div></div>',
         unsafe_allow_html=True,
     )
@@ -1793,19 +2069,14 @@ elif st.session_state.screen == "landing":
     st.markdown('<div class="eyebrow">A CONVERSATION ACROSS TIME</div>', unsafe_allow_html=True)
     st.markdown('<div class="brand-wordmark">Virtual Agora</div>', unsafe_allow_html=True)
     st.markdown(
-        '<p class="tagline">시대를 넘어 다양한 질문을, 서로 다른 시대의 인물들과 함께 탐구합니다.<br>'
-        '두 인물의 대화를 듣고, 한 인물에게 묻고, 오늘의 이슈를 매거진으로 읽어보세요.<br>'
-        '정답을 대신하는 AI가 아니라 더 나은 관점과 질문을 만드는 가상 아고라입니다.</p>',
+        '<p class="tagline">AI가 서로 다른 시대의 인물들을 한자리에 모아<br>'
+        '당신이 입력한 주제와 오늘의 질문을 새로운 관점으로 풀어냅니다.<br>'
+        '인물 대화, 인물들의 시선, 아고라 매거진에서 다양한 생각을 만나보세요.</p>',
         unsafe_allow_html=True,
     )
     st.markdown(
-        '<div class="beta-notice"><strong>베타 데모 · 가상 생성 대화</strong>'
-        '<span>아래 콘텐츠는 역사적 인물의 사상과 공개 기록을 참고해 AI가 창작한 가상 대화입니다. '
-        '실제 만남이나 실제 발언, 역사적 기록으로 받아들이지 말아 주세요.</span></div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        '<div class="quote">서로 다른 철학과 경험을 충돌시켜<br>당신의 판단 기준을 다시 설계합니다.</div>',
+        '<div class="beta-notice"><strong>AI 가상 대화</strong>'
+        '<span>역사적 인물의 사상과 기록을 참고해 AI가 만든 창작 콘텐츠입니다. 실제 발언이 아닙니다.</span></div>',
         unsafe_allow_html=True,
     )
     st.write("")
@@ -1817,7 +2088,7 @@ elif st.session_state.screen == "landing":
             st.session_state.screen = "select"
             st.rerun()
     with feature_b:
-        st.markdown('<div class="home-feature"><div class="home-feature-kicker">02 · PERSPECTIVES</div><div class="home-feature-title">인물들의 시선</div><div class="home-feature-copy">고민이나 주제를 적으면 여러 위인들이 자기 경험을 바탕으로 코멘트를 남깁니다.</div></div>', unsafe_allow_html=True)
+        st.markdown(        '<div class="home-feature"><div class="home-feature-kicker">02 · PERSPECTIVES</div><div class="home-feature-title">인물들의 시선</div><div class="home-feature-copy">당신이 던진 주제에 아홉 인물이 각자의 경험과 가치관으로 댓글을 남깁니다.</div></div>', unsafe_allow_html=True)
         if st.button("인물들의 시선 보기", use_container_width=True):
             start_ask_mode(PEOPLE[0])
             st.rerun()
@@ -1826,17 +2097,13 @@ elif st.session_state.screen == "landing":
         if st.button("매거진 읽기", use_container_width=True):
             st.session_state.screen = "magazine"
             st.rerun()
-    if st.button("✦ 랜덤 광장 열기", use_container_width=True, key="home-random"):
-        a, b = random.sample(PEOPLE, 2)
-        set_selection(a, b, random.choice(TOPICS), random.choice(list(TONES)))
-        st.rerun()
     st.write("")
     st.markdown("#### 오늘의 광장")
     for a, b, topic in [
-        ("이순신", "스티브 잡스", "AI는 일자리를 없애는가, 바꾸는가"),
+        ("유명 채용 플랫폼 대표", "스티브 잡스", "AI 시대, 인간은 어떻게 살아남을 것인가"),
+        ("예수", "부처", "AI시대, 종교의 방향"),
+        ("이순신", "세종대왕", "AI시대, 리더쉽의 방향"),
         ("소크라테스", "니체", "생성형 AI와 창의적인 직업의 미래"),
-        ("세종대왕", "공자", "AI 시대의 리더십과 팀워크"),
-        ("부처", "쇼펜하우어", "AI 시대에 사람만 할 수 있는 일"),
     ]:
         card_a, card_b, card_action = st.columns([1, 1, 1.4])
         with card_a:
@@ -1897,73 +2164,43 @@ elif st.session_state.screen == "ask":
     if st.button("← 홈으로", key="ask-home", use_container_width=True):
         st.session_state.screen = "landing"
         st.rerun()
-    st.markdown('<div class="eyebrow">VIRTUAL AGORA · MANY PERSPECTIVES</div>', unsafe_allow_html=True)
+    st.markdown('<div class="eyebrow">VIRTUAL AGORA · PERSPECTIVES</div>', unsafe_allow_html=True)
     st.header("인물들의 시선")
     st.markdown(
-        '<p class="tagline">당신의 고민을 적어보세요.<br>'
-        '서로 다른 시대를 살아온 인물들이 자신의 경험과 관점으로 코멘트를 남깁니다.</p>',
+        '<div class="beta-notice"><strong>AI 생성 · SNS 코멘터리</strong>'
+        '<span>입력한 주제에 대해 각 인물이 공개적으로 알려진 사상과 경험을 참고해 코멘트를 남깁니다. '
+        '모든 코멘트는 실제 발언이 아닌 가상 창작 콘텐츠입니다.</span></div>',
         unsafe_allow_html=True,
     )
-    st.markdown(
-        '<div class="beta-notice"><strong>여러 관점으로 다시 바라보기</strong>'
-        '<span>각 코멘트는 인물의 사상과 공개적으로 알려진 경험을 참고한 AI 창작 콘텐츠입니다. '
-        '실제 발언이나 역사적 기록이 아니며, 정답 대신 생각의 재료를 제공합니다.</span></div>',
-        unsafe_allow_html=True,
+    topic_prompt = st.text_area(
+        "어떤 주제에 대한 시선이 궁금한가요?",
+        value=st.session_state.get("perspective_topic", ""),
+        placeholder="예: 나이가 들수록 새로운 일을 시작하는 것은 무모한가?",
+        height=110,
     )
-    st.markdown(
-        '<div class="topic-hero"><div class="topic-kicker">YOUR TOPIC</div>'
-        '<div class="topic-title">지금 마음에 걸리는 고민이나 주제는 무엇인가요?</div>'
-        '<div class="topic-guide">진로, 관계, 일, 선택처럼 자유롭게 적어보세요. 구체적으로 적을수록 각 인물의 코멘트가 더 가까워집니다.</div></div>',
-        unsafe_allow_html=True,
-    )
-    prompt = st.text_area(
-        "고민이나 주제",
-        value=st.session_state.get("ask_prompt", ""),
-        placeholder="예: 좋아하는 일을 계속해야 할지, 안정적인 길을 선택해야 할지 고민돼요.",
-        height=130,
-        label_visibility="collapsed",
-    )
-    st.session_state.ask_prompt = prompt
-    if st.button("인물들의 코멘트 받기  →", type="primary", use_container_width=True):
-        if not prompt.strip():
-            st.warning("고민이나 주제를 한 문장 이상 적어주세요.")
+    st.session_state.perspective_topic = topic_prompt
+    if st.button("인물들의 코멘트 생성하기", type="primary", use_container_width=True):
+        if not topic_prompt.strip():
+            st.error("인물들의 시선을 보고 싶은 주제를 입력해주세요.")
         else:
-            topic = prompt.strip()
-            with st.spinner("입력하신 주제를 인물들의 경험과 연결하는 중…"):
-                comments = remote_people_comments(topic) or people_comments(topic)
-            st.session_state.ask_topic = topic
-            st.session_state.ask_comments = comments
-            st.rerun()
-
-    comments = st.session_state.get("ask_comments", [])
+            with st.spinner("아홉 인물이 각자의 시선을 정리하는 중…"):
+                try:
+                    st.session_state.perspective_comments = remote_perspective_comments(topic_prompt.strip())
+                    st.session_state.perspective_topic = topic_prompt.strip()
+                    st.rerun()
+                except RuntimeError as error:
+                    st.error(str(error))
+    comments = st.session_state.get("perspective_comments", [])
     if comments:
-        st.markdown(
-            f'<div class="comments-heading"><span>THE AGORA RESPONDS</span>'
-            f'<strong>“{html.escape(st.session_state.ask_topic)}”</strong>'
-            f'<small>{len(comments)}명의 인물이 각자의 경험으로 남긴 코멘트</small></div>',
-            unsafe_allow_html=True,
-        )
-        for person, comment in comments:
-            avatar = avatar_image(person)
-            avatar_markup = (
-                f'<img src="{avatar}" alt="{html.escape(person)} 프로필">'
-                if avatar
-                else html.escape(chat_avatar(person))
-            )
+        st.markdown(f"#### “{html.escape(st.session_state.perspective_topic)}”에 대한 코멘트")
+        for comment_person, comment, tag in comments:
+            avatar = avatar_image(comment_person)
+            avatar_markup = f'<img src="{avatar}" alt="{html.escape(comment_person)} 프로필">' if avatar else html.escape(chat_avatar(comment_person))
             st.markdown(
-                f'<div class="perspective-card"><div class="perspective-head">'
-                f'<span class="chat-avatar">{avatar_markup}</span>'
-                f'<span><strong>{html.escape(person)}</strong>'
-                f'<small>{html.escape(PEOPLE_INFO[person][0])}</small></span></div>'
-                f'<div class="perspective-comment">{html.escape(comment)}</div></div>',
+                f'<div class="comment-card"><span class="comment-head"><span class="chat-avatar" style="display:inline-flex;vertical-align:middle;margin-right:.35rem">{avatar_markup}</span>{html.escape(comment_person)}</span>'
+                f'<span class="comment-tag">#{html.escape(tag)}</span><div class="comment-text">{html.escape(comment)}</div></div>',
                 unsafe_allow_html=True,
             )
-        st.caption("※ 인물들의 코멘트는 공개 자료를 참고한 가상 창작이며, 중요한 결정은 현실의 맥락과 주변 사람의 조언을 함께 살펴보세요.")
-        if st.button("새로운 주제 적기", use_container_width=True):
-            st.session_state.ask_prompt = ""
-            st.session_state.ask_topic = ""
-            st.session_state.ask_comments = []
-            st.rerun()
     if st.button("홈으로", key="ask-home-bottom", use_container_width=True):
         st.session_state.screen = "landing"
         st.rerun()
@@ -1979,18 +2216,12 @@ elif st.session_state.screen == "select":
         "person_a": PEOPLE[0],
         "person_b": "스티브 잡스",
         "topic": TOPICS[0],
-        "tone": "진지한 토론",
+        "tone": 50,
     }
     st.markdown(
-        '<div class="beta-notice"><strong>베타 데모 · 준비된 가상 시나리오만 제공</strong>'
-        '<span>임의의 인물이나 주제를 직접 입력할 수 없습니다. '
-        '아래에 준비된 인물과 다양한 주제 중에서 선택해 주세요. 모든 대화는 AI가 창작한 가상 시뮬레이션입니다.</span></div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        '<div class="support-limit"><strong>중요 안내</strong><br>'
-        '현재 인물 대화에서는 아래에 준비된 인물과 주제만 지원합니다. '
-        '새로운 인물이나 주제를 직접 입력하는 기능은 아직 제공하지 않습니다.</div>',
+        '<div class="beta-notice"><strong>AI API · 사용자 주제 지원</strong>'
+        '<span>준비된 주제는 시작점으로 사용할 수 있고, 직접 입력한 주제도 두 인물의 페르소나에 맞춰 생성됩니다. '
+        '모든 대화는 AI가 창작한 가상 시뮬레이션입니다.</span></div>',
         unsafe_allow_html=True,
     )
     person_a = st.selectbox("인물 A", PEOPLE, index=PEOPLE.index(st.session_state.get("person_a", defaults["person_a"])))
@@ -2002,17 +2233,53 @@ elif st.session_state.screen == "select":
     with image_b:
         if person_b in PEOPLE_INFO:
             st.image(PEOPLE_INFO[person_b][1], caption=f"{person_b} · {PEOPLE_INFO[person_b][0]}", use_container_width=True)
-    topic = st.radio("대화 주제", TOPICS, horizontal=False, index=TOPICS.index(st.session_state.get("topic", defaults["topic"])) if st.session_state.get("topic", defaults["topic"]) in TOPICS else 0)
-    tone = st.radio("대화 톤", list(TONES), horizontal=True, index=list(TONES).index(st.session_state.get("tone", defaults["tone"])))
-    st.markdown("#### 대화 전, 당신의 예상")
-    pre_vote = st.radio(
-        "AI가 이 주제의 직업을 어떻게 바꿀 것 같나요?",
-        [person_a, person_b, "아직 모르겠다"],
-        horizontal=True,
-        index=[person_a, person_b, "아직 모르겠다"].index(
-            st.session_state.get("pre_vote", "아직 모르겠다")
-        ),
-        label_visibility="collapsed",
+    topic_choices = [*TOPICS, "직접 주제 입력하기"]
+    saved_topic = st.session_state.get("topic", defaults["topic"])
+    saved_choice = "직접 주제 입력하기" if st.session_state.get("custom_topic", "").strip() else saved_topic
+    topic_choice = st.radio(
+        "대화 주제",
+        topic_choices,
+        horizontal=False,
+        index=topic_choices.index(saved_choice) if saved_choice in topic_choices else 0,
+    )
+    custom_topic = ""
+    if topic_choice == "직접 주제 입력하기":
+        custom_topic = st.text_area(
+            "AI에게 전달할 주제를 입력하세요",
+            value=st.session_state.get("custom_topic", ""),
+            placeholder="예: 인간은 자신의 기억을 AI에게 맡겨도 괜찮을까요?",
+            height=90,
+            key="custom_topic",
+        )
+        topic = custom_topic.strip()
+        if not topic:
+            st.caption("주제를 입력하면 선택한 두 인물에게 그대로 전달됩니다.")
+    else:
+        topic = topic_choice
+        st.session_state.custom_topic = ""
+    saved_intensity = st.session_state.get("tone", defaults["tone"])
+    if not isinstance(saved_intensity, int):
+        saved_intensity = 50
+    slider_col, _ = st.columns([1.35, 1])
+    with slider_col:
+        intensity = st.slider(
+            "논쟁의 온도계",
+            min_value=0,
+            max_value=100,
+            value=max(0, min(100, saved_intensity)),
+            step=1,
+            format="%d",
+            help="왼쪽은 차분한 교류, 오른쪽은 뜨거운 설전입니다.",
+        )
+    debate_name, debate_style, _, _ = debate_profile(intensity)
+    temperature_label, temperature_color, temperature_description = temperature_visual(intensity)
+    st.markdown(
+        f'<div class="temperature-readout">'
+        f'<div class="temperature-title" style="color:{temperature_color}">{temperature_label}</div>'
+        f'<div class="temperature-track"><span style="width:{intensity}%;background:{temperature_color}"></span></div>'
+        f'<div class="temperature-description">{temperature_description} · {debate_name}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
     )
     if person_a and person_b and person_a == person_b:
         st.warning("서로 다른 인물을 골라주세요.")
@@ -2030,7 +2297,12 @@ elif st.session_state.screen == "select":
                 st.error("서로 다른 인물을 골라주세요.")
             else:
                 with st.spinner("두 인물이 광장에 모이는 중…"):
-                    dialogue = demo_dialogue(person_a, person_b, topic, tone) or remote_dialogue(person_a, person_b, topic, tone) or local_dialogue(person_a, person_b, topic, tone)
+                    try:
+                        st.session_state.topic = topic
+                        dialogue = remote_dialogue(person_a, person_b, topic, intensity)
+                    except RuntimeError as error:
+                        st.error(str(error))
+                        st.stop()
                 st.session_state.update(
                     {
                         "screen": "result",
@@ -2038,9 +2310,10 @@ elif st.session_state.screen == "select":
                         "person_a": person_a,
                         "person_b": person_b,
                         "topic": topic,
-                        "tone": tone,
-                        "pre_vote": pre_vote,
+                        "tone": intensity,
                         "direct_messages": [],
+                        "dialogue_followups": [],
+                        "dialogue_followup_prompt": "",
                     }
                 )
                 st.rerun()
@@ -2060,45 +2333,19 @@ else:
             st.session_state.screen = "landing"
             st.rerun()
     st.markdown('<div class="eyebrow">STEP 02 · THE AGORA SPEAKS</div>', unsafe_allow_html=True)
-    st.header(f"{person_a} × {person_b}")
     st.markdown(
         f'<div class="topic-hero"><div class="topic-kicker">오늘의 논제</div>'
-        f'<div class="topic-title">{html.escape(topic)}</div>'
-        f'<div class="topic-guide">{html.escape(TOPIC_GUIDANCE.get(topic, "두 인물의 경험을 바탕으로 핵심 쟁점을 검토합니다."))}</div></div>',
+        f'<div class="topic-title">{html.escape(topic)}</div></div>',
         unsafe_allow_html=True,
     )
-    st.caption(
-        f"대화 톤 · {tone}  ·  준비된 인물·주제로 구성한 가상 시뮬레이션"
-    )
-    st.markdown(f'<div class="scene">✦ {dialogue.scene}</div>', unsafe_allow_html=True)
-    stance_a, stance_b, conflict, common = viewpoint_cards(person_a, person_b, topic)
-    st.subheader("이 대화의 핵심")
-    insight_a, insight_b = st.columns(2)
-    with insight_a:
-        st.markdown(
-            f'<div class="insight-card"><b>{html.escape(person_a)}의 이 주제에 대한 입장</b>'
-            f'<span class="claim-label">{html.escape(claim_label(person_a, topic, stance_a))}</span>'
-            f'<strong>{html.escape(stance_a)}</strong></div>',
-            unsafe_allow_html=True,
+    st.header(f"{person_a} × {person_b}")
+    stance_a, stance_b, conflict, _ = viewpoint_cards(person_a, person_b, topic)
+    if dialogue.stance_a and dialogue.stance_b and dialogue.conflict:
+        stance_a, stance_b, conflict = (
+            dialogue.stance_a,
+            dialogue.stance_b,
+            dialogue.conflict,
         )
-    with insight_b:
-        st.markdown(
-            f'<div class="insight-card"><b>{html.escape(person_b)}의 이 주제에 대한 입장</b>'
-            f'<span class="claim-label">{html.escape(claim_label(person_b, topic, stance_b))}</span>'
-            f'<strong>{html.escape(stance_b)}</strong></div>',
-            unsafe_allow_html=True,
-        )
-    st.markdown(
-        f'<div class="insight-card"><b>충돌 지점</b>{html.escape(conflict)}</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f'<div class="callout"><strong>접점</strong><br>{html.escape(common)}</div>',
-        unsafe_allow_html=True,
-    )
-    with st.expander("역사·사상적 배경 보기", expanded=False):
-        st.markdown(case_note(person_a, person_b))
-    st.write("")
     st.subheader("대화")
     bubbles = "".join(chat_bubble(speaker, line, person_a, turn) for turn, (speaker, line) in enumerate(dialogue.script, 1))
     st.markdown(
@@ -2107,79 +2354,64 @@ else:
         f'<span class="chat-subtitle">{len(dialogue.script)}개의 메시지</span></div>{bubbles}</div>',
         unsafe_allow_html=True,
     )
-    st.subheader("직접 물어보기")
+    st.subheader("두 인물들의 입장 요약")
+    insight_a, insight_b = st.columns(2)
+    with insight_a:
+        st.markdown(
+            f'<div class="insight-card"><b>{html.escape(person_a)}</b>'
+            f'<strong>{html.escape(stance_a)}</strong></div>',
+            unsafe_allow_html=True,
+        )
+    with insight_b:
+        st.markdown(
+            f'<div class="insight-card"><b>{html.escape(person_b)}</b>'
+            f'<strong>{html.escape(stance_b)}</strong></div>',
+            unsafe_allow_html=True,
+        )
+    st.subheader("두 인물의 입장 차이")
     st.markdown(
-        '<div class="support-limit"><strong>대화의 다음 장면</strong><br>'
-        '두 인물의 논점을 더 깊이 보고 싶다면 준비된 후속 질문을 골라보세요. '
-        '주제를 자유롭게 입력하고 여러 인물의 관점을 비교하려면 <strong>인물들의 시선</strong>을 이용하세요.</div>',
+        f'<div class="insight-card"><strong>{html.escape(conflict)}</strong></div>',
         unsafe_allow_html=True,
     )
-    st.caption("두 인물 중 한 명에게 준비된 질문을 보내 보세요. 데모에서는 선택한 인물의 철학과 주제 맥락을 바탕으로 답합니다.")
-    target = st.radio(
-        "답변할 인물",
-        [person_a, person_b],
-        horizontal=True,
-        key="direct_target",
+    st.subheader("내 의견 전달하기")
+    st.caption("이 대화에서 떠오른 의견이나 질문을 남기면, 두 인물이 지금까지의 대화 맥락을 바탕으로 답합니다.")
+    user_message = st.text_area(
+        "의견 또는 질문",
+        placeholder="예: 두 분의 말을 들어보니, 현실적인 생존과 인간다운 열정은 함께 설계해야 한다고 생각합니다. 그렇다면 첫 단계는 무엇인가요?",
+        height=120,
+        key="dialogue_user_message",
         label_visibility="collapsed",
     )
-    direct_message = st.selectbox("지원 질문", DIRECT_PROMPTS, key="result_direct_prompt")
-    if st.button("질문 보내기", use_container_width=True):
-        st.session_state.setdefault("direct_messages", []).append(
-            ("나", direct_message, target)
-        )
-        reply = direct_reply(target, person_b if target == person_a else person_a, topic, direct_message)
-        st.session_state.direct_messages.append((target, reply, target))
-        st.rerun()
-    direct_messages = st.session_state.get("direct_messages", [])
-    if direct_messages:
-        direct_bubbles = "".join(
-            user_bubble(line, index) if speaker == "나" else chat_bubble(speaker, line, person_a, index)
-            for index, (speaker, line, _) in enumerate(direct_messages, len(dialogue.script) + 1)
-        )
+    if st.button("두 인물의 추가 의견 받기", type="primary", use_container_width=True):
+        if not user_message.strip():
+            st.warning("의견이나 질문을 입력해주세요.")
+        else:
+            with st.spinner("두 인물이 당신의 의견을 읽고 답하는 중…"):
+                try:
+                    st.session_state.dialogue_followups = remote_dialogue_followup(
+                        person_a,
+                        person_b,
+                        topic,
+                        dialogue.script,
+                        user_message.strip(),
+                    )
+                    st.session_state.dialogue_followup_prompt = user_message.strip()
+                    st.rerun()
+                except RuntimeError as error:
+                    st.error(str(error))
+    followup_prompt = st.session_state.get("dialogue_followup_prompt")
+    followups = st.session_state.get("dialogue_followups", [])
+    if followup_prompt and followups:
         st.markdown(
-            f'<div class="chat-window direct-window">{direct_bubbles}</div>',
+            f'<div class="callout"><strong>내 의견</strong><br>{html.escape(followup_prompt)}</div>',
             unsafe_allow_html=True,
         )
-    st.divider()
-    st.markdown(f"**한 줄 요약**  \n{dialogue.summary}")
-    c1, c2 = st.columns(2)
-    with c1:
-        st.markdown(f'<div class="metric"><strong>{dialogue.chem}/100</strong>관점 충돌도</div>', unsafe_allow_html=True)
-    with c2:
-        st.markdown(f'<div class="metric"><strong>{dialogue.mvp}</strong>이번 대화 MVP</div>', unsafe_allow_html=True)
-    st.markdown("#### 대화 후, 생각이 바뀌었나요?")
-    post_vote = st.radio(
-        "대화 후 판단",
-        [person_a, person_b, "둘 다 일리가 있다", "아직 모르겠다"],
-        horizontal=True,
-        index=None,
-        key="post_vote",
-        label_visibility="collapsed",
-    )
-    if post_vote:
-        st.markdown(
-            f'<div class="callout"><strong>당신의 관점 카드</strong><br>{html.escape(viewpoint_profile(person_a, person_b, topic, post_vote))}</div>',
-            unsafe_allow_html=True,
-        )
-        if st.session_state.get("pre_vote") and st.session_state.pre_vote != post_vote:
-            st.success("대화 전과 후의 선택이 달라졌습니다. Virtual Agora가 만든 관점의 이동입니다.")
-    st.write("")
-    result_text = format_result(dialogue, person_a, person_b, topic, tone)
-    copy_button(result_text)
-    st.download_button("결과 텍스트 저장", result_text, file_name="virtual-agora.txt", use_container_width=True)
-    st.caption("※ 본 대화는 역사·사상적 배경을 참고한 AI 창작 시뮬레이션이며, 실제 발언이나 역사적 사실 기록이 아닙니다.")
-    st.write("")
-    a1, a2 = st.columns(2)
-    with a1:
-        if st.button("같은 조합 다시 생성", use_container_width=True):
-            st.session_state.dialogue = demo_dialogue(person_a, person_b, topic, tone) or remote_dialogue(person_a, person_b, topic, tone) or local_dialogue(person_a, person_b, topic, tone)
-            st.session_state.direct_messages = []
-            st.rerun()
-    with a2:
-        if st.button("톤 바꿔 다시 생성", use_container_width=True):
-            st.session_state.screen = "select"
-            st.session_state.tone = "티키타카 개그" if tone == "진지한 토론" else "진지한 토론"
-            st.rerun()
+        for speaker, reply in followups:
+            st.markdown(
+                f'<div class="insight-card"><b>{html.escape(speaker)}의 추가 의견</b>'
+                f'<strong>{html.escape(reply)}</strong></div>',
+                unsafe_allow_html=True,
+            )
     if st.button("홈으로", key="result-home-bottom", use_container_width=True):
         st.session_state.screen = "landing"
         st.rerun()
