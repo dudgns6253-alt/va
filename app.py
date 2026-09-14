@@ -3,6 +3,7 @@ import json
 import os
 import random
 import base64
+import re
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -31,6 +32,22 @@ PEOPLE = [
     "니체",
     "쇼펜하우어",
 ]
+HISTORICAL_DATES = {
+    "이순신": (1545, 1598),
+    "세종대왕": (1397, 1450),
+    "소크라테스": (-470, -399),
+    "스티브 잡스": (1955, 2011),
+    "공자": (-551, -479),
+    "예수": (-4, 30),
+    "부처": (-563, -483),
+    "니체": (1844, 1900),
+    "쇼펜하우어": (1788, 1860),
+    "이성계": (1335, 1408),
+    "태조": (1335, 1408),
+    "정약용": (1762, 1836),
+    "퇴계 이황": (1501, 1570),
+    "율곡 이이": (1536, 1584),
+}
 ASSET_DIR = Path(__file__).parent / "assets"
 INTRO_IMAGE = ASSET_DIR / "intro-agora.jpg"
 CEO_IMAGE = ASSET_DIR / "ceo.png"
@@ -1238,9 +1255,110 @@ HISTORICAL_HONORIFICS = """[범용 관계·호칭 처리 규칙]
 대상 인물의 본명을 단독으로 부르지 말고, 관계에 맞는 공식 호칭과 조사를 붙인다. 군주·왕실 선대·국가 지도자는 시호·묘호·직위와 존칭을 사용하고, 스승·철학자·학자는 선생·공·성인 등 시대와 전통에 맞는 호칭을 사용한다. 부모·조상·존경받는 종교 인물도 이름만 부르지 않는다.
 관계가 확실하지 않거나 여러 호칭이 가능한 경우에는 이름을 억지로 붙이지 말고 '그분', '선대의 군주', '스승', '당시의 성인', '그 인물'처럼 안전한 관계 호칭을 사용한다. 화자 자신의 이름이나 현재 코멘트의 인물명을 표시하는 메타데이터에서는 이름을 사용할 수 있지만, 대사와 코멘트 본문에서는 이 규칙을 따른다.
 예를 들어 '누구가 말했다'처럼 이름 뒤에 조사만 붙이는 표현은 피하고, '누구 선생께서', '선대의 군주께서', '그분께서'처럼 격식을 갖춘다. 근거 없는 친족·군신 관계를 새로 만들지 말고, 직접 관계가 없으면 시대적 거리를 드러낸다."""
+PERSPECTIVE_REFERENCE_RULES = """[인물들의 시선: 언급 대상의 범위]
+각 화자는 자기 자신을 어떤 경우에도 존경·존중·스승·영향을 준 인물로 선택하거나 언급하지 않는다.
+역사적으로 언급할 수 있는 대상이라면 추상적인 표현으로 얼버무리지 말고 실명과 정식 호칭을 명확히 표기한다. 이름을 쓸 때는 대표 업적·가르침·사건을 함께 설명해 왜 그 인물을 언급하는지 분명히 한다.
+화자가 다른 인물을 언급할 때는 다음 네 조건을 모두 만족해야 한다.
+1. 화자와 같은 국가·문화권의 인물이어야 한다.
+2. 같은 국가·문화권이 아니라면 역사적으로 가까운 이웃 국가·문화권의 인물이어야 한다.
+3. 언급 대상은 화자보다 후대가 아니라, 화자와 동시대이거나 화자보다 앞선 시대의 인물이어야 한다.
+4. 화자가 실제로 그 인물을 알 수 있었던 경로가 있어야 한다. 직접 만남·동시대 기록·교육 전통·지역적 전승·당시 널리 알려진 사건처럼 구체적인 연관성을 설명할 수 있어야 하며, 단순히 현대의 유명 인물이라는 이유만으로 선택하지 않는다.
+이 네 조건을 확인할 수 없으면 근거 없는 이름을 만들지 말고 해당 대상을 언급하지 않는다. 조건을 만족하는 인물을 언급할 때는 '세종대왕의 훈민정음 창제', '공자의 정명 사상'처럼 이름과 업적·사상을 함께 표기한다. 후대 인물, 먼 지역의 인물, 근거 없는 친구·스승·존경 관계를 절대 만들어내지 않는다."""
 
 
-def remote_dialogue(person_a: str, person_b: str, topic: str, intensity: int) -> Dialogue | None:
+PERSPECTIVE_CONTEXT = {
+    "이순신": "조선의 무관. 조선 왕조와 한반도 주변 동아시아 인물 가운데 생존 시기가 겹치거나 조선의 선대·인접권 전통으로 실제 알 수 있었던 대상만 허용.",
+    "세종대왕": "조선의 국왕. 조선 왕실·유학 전통과 한반도 및 가까운 동아시아의 선대·동시대 인물 가운데 실제 기록·교육·정치적 연관성이 있는 대상만 허용.",
+    "소크라테스": "고대 아테네의 철학자. 고대 그리스 도시국가와 가까운 지중해권의 선대·동시대 인물 가운데 당시 전승이나 공적 담론으로 알 수 있었던 대상만 허용.",
+    "스티브 잡스": "20~21세기 미국의 기업가. 미국·유럽 등 가까운 서구권의 선대·동시대 인물 가운데 실제 저작·공적 기록·업계 영향으로 알 수 있었던 대상만 허용.",
+    "공자": "춘추시대 노나라의 사상가. 중국의 선대·동시대 인물과 가까운 동아시아권의 당시 전승·정치·교육으로 알 수 있었던 대상만 허용.",
+    "예수": "1세기 유대 지역의 종교적 스승. 당시 유대·갈릴리·시리아 등 인접 지역의 선대·동시대 인물 가운데 당시 전승과 종교적 담론으로 알 수 있었던 대상만 허용.",
+    "부처": "고대 인도 북부의 수행자. 당시 인도 아대륙과 가까운 주변 지역의 선대·동시대 인물 가운데 수행 전통·구전·논쟁으로 알 수 있었던 대상만 허용.",
+    "니체": "19세기 독일의 철학자. 독일어권과 가까운 유럽권의 선대·동시대 인물 가운데 저작·교육·공적 논쟁으로 알 수 있었던 대상만 허용.",
+    "쇼펜하우어": "19세기 독일의 철학자. 독일어권과 가까운 유럽권의 선대·동시대 인물 가운데 저작·교육·공적 논쟁으로 알 수 있었던 대상만 허용.",
+}
+PERSPECTIVE_EXTERNAL_EXAMPLES = {
+    "이순신": "권율 도원수의 임진왜란 지휘와 육전 경험, 류성룡의 전란 기록과 인재 등용",
+    "세종대왕": "정도전의 조선 건국 설계와 제도 개혁, 최만리의 정책 논쟁",
+    "소크라테스": "솔론의 아테네 법제 개혁, 피타고라스의 수학·철학 전통",
+    "스티브 잡스": "레오나르도 다 빈치의 예술·과학 융합, 알렉산더 그레이엄 벨의 통신 발명",
+    "공자": "주공 단의 예악·제도 정비, 관중의 제도 개혁과 정치적 경륜",
+    "예수": "이사야의 약자와 정의에 관한 예언 전통, 세례 요한의 회개와 공동체 갱신",
+    "부처": "마하비라의 자이나교 수행 전통, 우다카 라마풋타의 수행 가르침",
+    "니체": "괴테의 문학·예술적 인간상, 헤라클레이토스의 생성과 변화에 관한 사유",
+    "쇼펜하우어": "칸트의 인식론과 윤리 철학, 에피쿠로스의 욕망 절제와 평정의 가르침",
+}
+
+
+def chronology_violation(
+    person_a: str, person_b: str, script: list[tuple[str, str]]
+) -> str | None:
+    """Reject explicit references to figures born after the speaker died."""
+    speakers = {person_a, person_b}
+    for speaker, line in script:
+        speaker_dates = HISTORICAL_DATES.get(speaker)
+        if not speaker_dates:
+            continue
+        for mentioned, (birth, _) in HISTORICAL_DATES.items():
+            if mentioned in speakers or mentioned not in line:
+                continue
+            if birth > speaker_dates[1]:
+                return (
+                    f"{speaker}의 대사에서 사후에 태어난 인물 '{mentioned}'을 "
+                    "동시대 인물처럼 언급했습니다."
+                )
+    return None
+
+
+def validate_dialogue_with_judge(
+    person_a: str, person_b: str, topic: str, dialogue: Dialogue
+) -> dict:
+    transcript = "\n".join(
+        f"{speaker}: {line}" for speaker, line in dialogue.script
+    )
+    return _openai_json(
+        f"""당신은 Virtual Agora의 역사 고증 및 페르소나 검수관입니다.
+아래 AI 생성 대화를 유저에게 보여줘도 되는지 엄격하게 판정하세요.
+검사 대상 인물: {person_a}, {person_b}
+주제: {topic}
+인물 A 페르소나: {PERSONA.get(person_a, "")}
+인물 B 페르소나: {PERSONA.get(person_b, "")}
+인물 A 참고 사례: {CASE_NOTES.get(person_a, "")}
+인물 B 참고 사례: {CASE_NOTES.get(person_b, "")}
+{HONORIFIC_RULES}
+{HISTORICAL_HONORIFICS}
+
+대화:
+{transcript}
+
+검사 항목:
+1. 시대상 오류: 화자가 자신의 생존 시기 이후에 등장한 인물을 동시대처럼 알고 말하는가.
+2. 관계·호칭 오류: 군주, 조상, 스승, 선대 인물, 종교적 성인을 이름만 부르거나 관계에 맞지 않게 대하는가.
+3. 페르소나 붕괴: 인물의 알려진 사상·경험과 정면으로 모순되는 주장을 하는가.
+4. 주제 이탈: 대화가 입력된 주제를 벗어나 다른 고정 주제로 바뀌었는가.
+실제 발언인지 여부가 아니라, 가상 대화로서 역사적 맥락과 페르소나를 지키는지를 판정합니다.
+JSON만 출력하세요:
+{{"is_valid":true,"violation_code":"NONE","reason":"","correction_guide":""}}
+is_valid가 false이면 가장 중요한 오류의 수정 지침을 구체적으로 적으세요.""",
+        temperature=0.1,
+        timeout=35,
+model=_config_value(
+    "OPENAI_VALIDATOR_MODEL",
+    "OPENROUTER_VALIDATOR_MODEL",
+    "OPENAI_MODEL",
+    "OPENROUTER_MODEL",
+    default="gpt-4o-mini",
+),
+    )
+
+
+def _generate_dialogue_once(
+    person_a: str,
+    person_b: str,
+    topic: str,
+    intensity: int,
+    feedback: str = "",
+) -> Dialogue:
     api_key = _config_value("OPENAI_API_KEY", "OPENROUTER_API_KEY")
     if not api_key:
         raise RuntimeError("Streamlit Secrets에 OPENAI_API_KEY 또는 OPENROUTER_API_KEY가 설정되지 않았습니다.")
@@ -1270,6 +1388,9 @@ def remote_dialogue(person_a: str, person_b: str, topic: str, intensity: int) ->
 감정 표현 강도: {expression}
 {domain_instruction}
 {HONORIFIC_RULES}
+{HISTORICAL_HONORIFICS}
+이전 검수에서 수정이 필요하다고 판단한 내용:
+{feedback or "없음"}
 핵심 논점: {TOPIC_GUIDANCE.get(topic, "주제의 장단점과 실제 삶의 영향을 구체적으로 논한다.")}
 두 인물 사이의 핵심 긴장: {pair_dynamic(person_a, person_b)}
 이번 대화가 답해야 할 질문: {TOPIC_QUESTIONS.get(topic, "이 변화의 비용과 책임은 누가 감당하는가?")}
@@ -1335,7 +1456,42 @@ script는 정확히 24턴이며 각 대사는 2문장 이하로 쓴다. 딱딱�
     except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
         raise RuntimeError(f"대화 생성에 실패했습니다: {error}") from error
 
-def _openai_json(prompt: str, *, temperature: float = 0.8, timeout: int = 35) -> dict:
+def remote_dialogue(person_a: str, person_b: str, topic: str, intensity: int) -> Dialogue:
+    feedback = ""
+    for _ in range(3):
+        try:
+            dialogue = _generate_dialogue_once(
+                person_a, person_b, topic, intensity, feedback
+            )
+            chronology_error = chronology_violation(
+                person_a, person_b, dialogue.script
+            )
+            if chronology_error:
+                feedback = f"연대 검증 실패: {chronology_error}"
+                continue
+            judgment = validate_dialogue_with_judge(
+                person_a, person_b, topic, dialogue
+            )
+            if judgment.get("is_valid") is True:
+                return dialogue
+            feedback = (
+                f"{judgment.get('violation_code', 'UNKNOWN')}: "
+                f"{judgment.get('correction_guide') or judgment.get('reason', '')}"
+            )
+        except RuntimeError as error:
+            feedback = f"생성 또는 형식 검증 오류: {error}"
+    raise RuntimeError(
+        f"AI 대화가 3회 검증을 통과하지 못했습니다. 마지막 검수 의견: {feedback}"
+    )
+
+
+def _openai_json(
+    prompt: str,
+    *,
+    temperature: float = 0.8,
+    timeout: int = 35,
+    model: str = "",
+) -> dict:
     api_key = _config_value("OPENAI_API_KEY", "OPENROUTER_API_KEY")
     if not api_key:
         raise RuntimeError("Streamlit Secrets에 OPENAI_API_KEY 또는 OPENROUTER_API_KEY가 설정되지 않았습니다.")
@@ -1345,7 +1501,9 @@ def _openai_json(prompt: str, *, temperature: float = 0.8, timeout: int = 35) ->
         default="https://openrouter.ai/api/v1" if _config_value("OPENROUTER_API_KEY") else "https://api.openai.com/v1",
     ).rstrip("/")
     body = json.dumps({
-        "model": _config_value("OPENAI_MODEL", "OPENROUTER_MODEL", default="gpt-4o-mini"),
+        "model": model or _config_value(
+            "OPENAI_MODEL", "OPENROUTER_MODEL", default="gpt-4o-mini"
+        ),
         "temperature": temperature,
         "messages": [{"role": "user", "content": prompt}],
         "response_format": {"type": "json_object"},
@@ -1368,9 +1526,11 @@ def _openai_json(prompt: str, *, temperature: float = 0.8, timeout: int = 35) ->
         raise RuntimeError(f"AI 응답을 받을 수 없습니다: {error}") from error
 
 
-def remote_perspective_comments(topic: str) -> list[tuple[str, str, str]]:
+def remote_perspective_comments(topic: str, _feedback: str = "") -> list[tuple[str, str, str]]:
     persona_block = "\n".join(
-        f"- {person}: {PERSONA[person]} 참고 사례: {CASE_NOTES[person]}"
+        f"- {person} ({HISTORICAL_DATES.get(person, ('연대 미상', '연대 미상'))[0]}~"
+        f"{HISTORICAL_DATES.get(person, ('연대 미상', '연대 미상'))[1]}): "
+        f"{PERSONA[person]} 참고 사례: {CASE_NOTES[person]}"
         for person in PEOPLE
     )
     result = _openai_json(f"""Virtual Agora의 '인물들의 시선' 콘텐츠를 작성하세요.
@@ -1379,23 +1539,79 @@ def remote_perspective_comments(topic: str) -> list[tuple[str, str, str]]:
 {persona_block}
 {HONORIFIC_RULES}
 {HISTORICAL_HONORIFICS}
+{PERSPECTIVE_REFERENCE_RULES}
 각 코멘트는 해당 인물의 사상과 경험에서 출발하고, 인물별 관점이 서로 달라야 합니다.
-본문에서 역사적 인물을 직접 언급할 때는 위 관계·호칭 규칙을 반드시 적용하며, 확신이 없으면 관계 호칭으로 바꿉니다.
+본문에서 역사적 인물을 직접 언급할 때는 위 관계·호칭 규칙을 반드시 적용하며, 허용되는 대상이면 이름·정식 호칭·대표 업적을 함께 적습니다.
+각 인물의 허용되는 역사적 인맥 범위:
+{chr(10).join(f"- {person}: {PERSPECTIVE_CONTEXT[person]}" for person in PEOPLE)}
+각 화자가 선택할 수 있는 목록 밖 인물 예시:
+{chr(10).join(f"- {person}: {PERSPECTIVE_EXTERNAL_EXAMPLES[person]}" for person in PEOPLE)}
+인물별 생몰연도를 반드시 고려합니다. 화자와 언급 대상이 서로 생존 시기가 겹치지 않거나 직접 만날 수 없는 관계라면, 화자가 직접 알고 지냈거나 직접 존경했다고 쓰지 않습니다.
+그 경우에는 '후대의 기록을 통해', '그분의 가르침을 접한다면', '역사적으로 전해진 모습에 비추어'처럼 간접적이고 시대에 맞는 표현을 사용합니다. '내가 존경하는 인물은 누구이다', '그와 함께했다', '그에게 배웠다'처럼 직접 만남을 전제하는 표현은 실제 동시대 관계일 때만 허용합니다.
+코멘트는 질문에 답하되 다른 인물을 무조건 칭찬하는 형식으로 반복하지 말고, 화자의 가치관과 시대적 위치에서 존중·비판·거리감을 구체적으로 표현합니다.
+이 질문이 존경·존중하는 인물을 묻는 내용이라면, 각 화자는 자기 자신을 답으로 선택할 수 없습니다. 허용되는 역사적 인물을 실명으로 답하고 대표 업적이나 가르침을 함께 설명합니다. '나는 나 자신을 존경한다'는 답은 금지합니다.
+특히 존경 대상을 묻는 질문에서는 현재 서비스의 인물 목록({", ".join(PEOPLE)})에 포함된 인물을 선택하지 않습니다. 이 목록의 인물끼리 서로 존경한다고 답하는 것도 금지합니다. 반드시 목록 밖의 역사적 인물을 실명으로 선택하고 대표 업적·가르침·사건을 함께 설명합니다.
+이전 응답의 수정 요청:
+{_feedback or "없음"}
+JSON의 person 필드는 반드시 아래 목록의 이름을 글자 그대로 사용하고 존칭이나 직함을 붙이지 않습니다: {", ".join(PEOPLE)}
 현대 주제를 억지로 AI·생산성 언어로 바꾸지 말고, 실제 발언처럼 인용하지 마세요.
 한국어 JSON만 출력하세요:
 {{"comments":[{{"person":"인물 이름","comment":"2~4문장의 자연스러운 코멘트","tag":"짧은 핵심 태그"}}]}}
 comments는 정확히 9개이며 모든 인물을 한 번씩 포함합니다.""", temperature=0.85)
-    comments = [
-        (
-            item["person"],
-            item["comment"],
-            item["tag"],
-        )
-        for item in result["comments"]
-        if item["person"] in PEOPLE and item["comment"] and item["tag"]
+    raw_comments = result.get("comments")
+    if not isinstance(raw_comments, list):
+        raise RuntimeError("AI 응답에 comments 목록이 없습니다.")
+    comments_by_person: dict[str, tuple[str, str, str]] = {}
+    invalid_entries = 0
+    for item in raw_comments:
+        if not isinstance(item, dict):
+            invalid_entries += 1
+            continue
+        person = item.get("person")
+        comment = item.get("comment")
+        tag = item.get("tag")
+        if (
+            isinstance(person, str)
+            and person in PEOPLE
+            and isinstance(comment, str)
+            and comment.strip()
+            and isinstance(tag, str)
+            and tag.strip()
+            and person not in comments_by_person
+        ):
+            comments_by_person[person] = (person, comment.strip(), tag.strip())
+        else:
+            invalid_entries += 1
+    missing = [person for person in PEOPLE if person not in comments_by_person]
+    if missing:
+        detail = f" 누락: {', '.join(missing)}."
+        if invalid_entries:
+            detail += f" 형식이 맞지 않거나 중복된 항목: {invalid_entries}개."
+        raise RuntimeError(f"모든 인물의 코멘트가 생성되지 않았습니다.{detail}")
+    comments = [comments_by_person[person] for person in PEOPLE]
+    respect_question = any(
+        keyword in topic for keyword in ("존경", "존중", "롤모델", "본받고")
+    )
+    prohibited_people = PEOPLE if respect_question else []
+    prohibited_mentions = [
+        person
+        for person, comment, _ in comments
+        for person in prohibited_people
+        if person in comment
     ]
-    if {person for person, _, _ in comments} != set(PEOPLE):
-        raise RuntimeError("모든 인물의 코멘트가 생성되지 않았습니다.")
+    if prohibited_mentions:
+        unique_mentions = list(dict.fromkeys(prohibited_mentions))
+        if not _feedback:
+            return remote_perspective_comments(
+                topic,
+                "존경 질문의 답에 서비스 인물 목록이 포함되었습니다: "
+                + ", ".join(unique_mentions)
+                + ". 목록 밖 역사적 인물을 실명으로 선택하고 대표 업적·가르침을 함께 설명하세요. 화자 자신이나 목록의 다른 인물을 존경한다고 쓰지 마세요.",
+            )
+        raise RuntimeError(
+            "존경 질문에 서비스 인물 목록의 이름이 포함되었습니다: "
+            + ", ".join(unique_mentions)
+        )
     return comments
 
 
