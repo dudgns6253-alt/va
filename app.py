@@ -31,7 +31,176 @@ PEOPLE = [
     "부처",
     "니체",
     "쇼펜하우어",
+    "나폴레옹",
+    "징기스칸",
+    "체 게바라",
+    "알렉산더 대왕",
+    "정약용",
+    "아리스토텔레스",
+    "조조",
+    "에이브러햄 링컨",
+    "알베르트 아인슈타인",
+    "레오나르도 다빈치",
+    "니콜라 테슬라",
+    "디오게네스",
+    "윈스턴 처칠",
+    "노자",
+    "장자",
+    "아르투어 쇼펜하우어",
+    "오디세우스",
+    "헬렌 켈러",
+    "마하트마 간디",
+    "알베르트 슈바이처",
+    "테레사 수녀",
+    "유비",
+    "장발장",
 ]
+
+MENTOR_AXES = ("Action", "Reflection", "Innovation", "Order", "Logic", "Empathy", "Mastery", "Acceptance")
+
+MENTOR_QUESTIONS = [
+    {
+        "prompt": "예상치 못한 거대한 시련이나 돌발 악재가 닥쳤을 때",
+        "a": ("피할 수 없다면 정면으로 꺾어버린다.", {"Action": 2, "Mastery": 1}),
+        "b": ("한 발짝 물러서서 거리를 두고 관조한다.", {"Reflection": 2, "Acceptance": 1}),
+    },
+    {
+        "prompt": "누군가 나에게 불합리하거나 무례하게 굴었을 때",
+        "a": ("정확한 팩트와 원칙으로 경계를 긋는다.", {"Logic": 2, "Order": 1}),
+        "b": ("사정이 있겠지 생각하며 품어주고 용서한다.", {"Empathy": 2, "Acceptance": 1}),
+    },
+    {
+        "prompt": "세상에서 더 가치 있다고 느끼는 인생의 방향은?",
+        "a": ("세상을 뒤흔들 위대한 업적이나 혁신을 남기는 삶", {"Innovation": 2, "Action": 1}),
+        "b": ("타인의 아픔을 치료하고 평화로운 세상을 만드는 삶", {"Empathy": 2, "Order": 1}),
+    },
+    {
+        "prompt": "남들이 다 '당연하다'고 믿는 규칙이나 정답을 볼 때",
+        "a": ("왜 꼭 그래야 하지? 끊임없이 의문을 품는다.", {"Innovation": 2, "Logic": 1}),
+        "b": ("오랫동안 쌓여온 지혜와 질서를 먼저 존중한다.", {"Order": 2, "Empathy": 1}),
+    },
+    {
+        "prompt": "나를 가장 강력하게 움직이게 만드는 마법의 주문은?",
+        "a": ("나를 죽이지 못하는 시련은 나를 더 강하게 만들 뿐.", {"Mastery": 2, "Action": 1}),
+        "b": ("바람이 부는 대로, 물이 흐르는 대로 자연스럽게.", {"Acceptance": 2, "Reflection": 1}),
+    },
+    {
+        "prompt": "어떤 일이나 프로젝트를 추진할 때 나만의 스타일은?",
+        "a": ("군더더기는 전부 깎아내고 단 하나의 본질에 집착한다.", {"Logic": 2, "Innovation": 1}),
+        "b": ("다양한 의견을 듣고 종합하여 모두가 만족할 안을 만든다.", {"Empathy": 2, "Order": 1}),
+    },
+    {
+        "prompt": "불확실한 미래에 대한 두려움과 불안이 나를 덮칠 때",
+        "a": ("지금 당장 내 눈앞에 있는 작은 실천에 몰입한다.", {"Action": 2, "Mastery": 1}),
+        "b": ("걱정을 객관화하고 내 힘 밖의 일은 내려놓는다.", {"Reflection": 2, "Acceptance": 1}),
+    },
+    {
+        "prompt": "내가 리더가 되어 팀을 이끌어야 하는 상황이라면?",
+        "a": ("명확한 비전과 카리스마로 확실하게 지휘한다.", {"Action": 2, "Innovation": 1}),
+        "b": ("팀원을 믿고 권한을 위임하며 챙겨준다.", {"Order": 2, "Empathy": 1}),
+    },
+    {
+        "prompt": "아무런 제약 없이 나만을 위한 자유가 주어진다면?",
+        "a": ("새로운 미지의 장소를 탐험하거나 도전을 감행한다.", {"Action": 2, "Innovation": 1}),
+        "b": ("조용한 공간에서 혼자 책을 읽거나 생각에 잠긴다.", {"Reflection": 2, "Logic": 1}),
+    },
+    {
+        "prompt": "남들이 나를 평가할 때 어떤 사람으로 기억해주길 바라는가?",
+        "a": ("타협하지 않고 자기만의 길을 개척한 독보적인 사람", {"Innovation": 2, "Mastery": 1}),
+        "b": ("언제나 기댈 수 있고 마음을 따뜻하게 해주는 사람", {"Empathy": 2, "Order": 1}),
+    },
+    {
+        "prompt": "복잡하게 꼬인 문제를 풀 때 내가 가장 신뢰하는 무기는?",
+        "a": ("시공간을 초월하는 비범한 직관과 아이디어", {"Innovation": 2, "Action": 1}),
+        "b": ("오랫동안 축적해온 지식과 꼼꼼한 분석 체계", {"Order": 2, "Logic": 1}),
+    },
+    {
+        "prompt": "나 자신을 정의하는 단 하나의 삶의 명제는?",
+        "a": ("내 운명의 주인은 오직 나 자신이다.", {"Mastery": 2, "Action": 1}),
+        "b": ("우리는 모두 연결되어 있고 서로를 연민해야 한다.", {"Empathy": 2, "Acceptance": 1}),
+    },
+]
+
+
+def _mentor_vector(**values: int) -> dict[str, int]:
+    return {axis: values.get(axis, 0) for axis in MENTOR_AXES}
+
+
+MENTOR_GROUPS = {
+    "결단/개척형": ("용기 · 혁신 · 정면승부", ["이순신", "스티브 잡스", "나폴레옹", "징기스칸", "체 게바라", "알렉산더 대왕"], _mentor_vector(Action=10, Reflection=2, Innovation=9, Order=3, Logic=7, Empathy=2, Mastery=9, Acceptance=2)),
+    "원칙/시스템형": ("책임 · 질서 · 혜안", ["세종대왕", "공자", "정약용", "아리스토텔레스", "조조", "에이브러햄 링컨"], _mentor_vector(Action=6, Reflection=6, Innovation=5, Order=10, Logic=8, Empathy=7, Mastery=7, Acceptance=4)),
+    "통찰/질문형": ("질문 · 비전 · 직관", ["소크라테스", "알베르트 아인슈타인", "레오나르도 다빈치", "니콜라 테슬라", "디오게네스", "윈스턴 처칠"], _mentor_vector(Action=6, Reflection=8, Innovation=10, Order=4, Logic=10, Empathy=4, Mastery=6, Acceptance=4)),
+    "해탈/관조형": ("중도 · 수용 · 내면의 평정", ["노자", "장자", "부처", "아르투어 쇼펜하우어", "오디세우스", "헬렌 켈러"], _mentor_vector(Action=3, Reflection=10, Innovation=4, Order=3, Logic=6, Empathy=7, Mastery=5, Acceptance=10)),
+    "자비/연대형": ("사랑 · 용서 · 공감", ["예수", "마하트마 간디", "알베르트 슈바이처", "테레사 수녀", "유비", "장발장"], _mentor_vector(Action=4, Reflection=6, Innovation=3, Order=7, Logic=4, Empathy=10, Mastery=4, Acceptance=9)),
+}
+
+PERSONA_VECTORS = {
+    person: vector
+    for _, (_, people, vector) in MENTOR_GROUPS.items()
+    for person in people
+}
+
+MENTOR_QUOTES = {
+    "결단/개척형": ("피할 수 없다면, 내가 먼저 방향을 정한다.", "결정은 완벽한 확신보다 책임질 준비에서 시작됩니다."),
+    "원칙/시스템형": ("사람을 위한 질서는 작은 약속에서 자란다.", "혼자 빛나는 답보다 오래 작동하는 구조를 선택하는 사람입니다."),
+    "통찰/질문형": ("좋은 질문 하나가 낡은 정답을 흔든다.", "당신은 남들이 지나친 전제를 발견하고, 더 나은 질문으로 길을 엽니다."),
+    "해탈/관조형": ("흐르는 것을 억지로 붙잡지 않을 때 보이는 것이 있다.", "거리를 두고 본 뒤, 꼭 필요한 것만 남기는 힘이 있습니다."),
+    "자비/연대형": ("혼자 맞는 정답보다 함께 견디는 삶을 택한다.", "당신에게 성취의 기준은 누군가의 삶이 실제로 나아지는가입니다."),
+}
+
+MENTOR_PROFILES = {
+    "이순신": ("조선의 수군 지휘관으로 임진왜란의 바다를 지키며 명량과 한산도에서 전세를 뒤집었습니다.", "책임, 절제, 현장 판단을 중시했고 불리한 조건에서도 공동체를 지키는 결단을 선택했습니다.", "말보다 준비와 행동으로 신뢰를 쌓는 원칙적이고 묵직한 사람입니다."),
+    "스티브 잡스": ("애플을 공동 창업하고 위기를 겪은 뒤 다시 이끌며 개인용 컴퓨터와 스마트폰의 사용 경험을 바꿨습니다.", "기술은 복잡함을 더하는 것이 아니라 사람에게 본질적인 경험을 건네야 한다고 믿었습니다.", "집요하고 직관적이며 높은 기준을 타인과 자신에게 모두 요구하는 창조자입니다."),
+    "나폴레옹": ("프랑스 혁명기의 혼란 속에서 군사 지도자로 올라 황제에 이르렀고 유럽의 질서를 크게 재편했습니다.", "능력에 따른 기회와 빠른 실행, 법 앞의 제도적 평등을 중시했습니다.", "야심이 크고 자신감이 강하며 전략적으로 상황을 읽는 승부사입니다."),
+    "징기스칸": ("몽골 부족을 통합해 거대한 제국을 세우고 동서 교류의 길을 넓혔습니다.", "혈통보다 능력을 중시하고 빠른 정보 전달과 실용적인 조직 운영을 활용했습니다.", "기회를 놓치지 않는 현실주의자이자 목표를 위해 냉정하게 움직이는 지도자입니다."),
+    "체 게바라": ("아르헨티나 출신의 의사이자 혁명가로 쿠바 혁명에 참여하고 사회 변혁을 주장했습니다.", "불평등에 맞서 연대와 혁명적 실천을 통해 새로운 사회를 만들고자 했습니다.", "이상에 헌신적이고 행동력이 강하지만 신념을 위해 타협하지 않는 급진성을 지녔습니다."),
+    "알렉산더 대왕": ("마케도니아의 왕으로 그리스에서 이집트와 인도에 이르는 제국을 건설했습니다.", "정복지의 문화를 연결하고 새로운 세계 질서를 만들려는 통합의 비전을 품었습니다.", "대담하고 호기심이 많으며 불가능해 보이는 목표에도 먼저 뛰어드는 사람입니다."),
+    "세종대왕": ("조선의 왕으로 훈민정음을 창제하고 과학, 농업, 음악과 제도를 발전시켰습니다.", "지식과 제도는 백성이 이해하고 활용할 수 있을 때 비로소 공공의 힘이 된다고 보았습니다.", "깊이 생각하면서도 실용적이며 약한 사람의 불편을 제도로 해결하려는 리더입니다."),
+    "공자": ("춘추시대의 사상가이자 교육자로 제자들을 가르치며 유교적 윤리의 토대를 세웠습니다.", "배움, 인, 예, 역할에 맞는 책임을 통해 개인과 사회의 질서를 함께 세우려 했습니다.", "꾸준하고 성찰적이며 관계 속에서 자신의 태도를 끊임없이 다듬는 스승입니다."),
+    "정약용": ("조선 후기의 실학자로 행정과 토목, 법과 농업에 관한 폭넓은 저술을 남겼습니다.", "지식은 현실의 백성을 이롭게 하는 실용적 제도와 행정으로 이어져야 한다고 주장했습니다.", "관찰력이 뛰어나고 현실적이며 낡은 관습보다 실제 효과를 따지는 개혁가입니다."),
+    "아리스토텔레스": ("고대 그리스의 철학자이자 알렉산더의 스승으로 논리학과 자연학, 윤리학을 체계화했습니다.", "좋은 삶은 극단이 아닌 덕의 습관과 공동체 안에서의 실천으로 만들어진다고 보았습니다.", "분류하고 관찰하며 여러 가능성을 균형 있게 검토하는 체계적인 사상가입니다."),
+    "조조": ("후한 말의 정치가이자 군사 지도자로 혼란한 중국 북부를 통합하고 위나라의 기반을 닦았습니다.", "혈통보다 능력을 기용하고 현실의 힘과 제도를 바탕으로 질서를 회복하려 했습니다.", "냉철하고 결단력 있으며 감정보다 상황과 결과를 우선하는 전략가입니다."),
+    "에이브러햄 링컨": ("미국의 제16대 대통령으로 남북전쟁을 이끌고 노예 해방을 추진했습니다.", "분열된 공동체를 보존하면서도 자유와 인간의 존엄이라는 원칙을 포기하지 않았습니다.", "겸손하고 유머러스하지만 중요한 순간에는 긴 책임을 감당하는 인내의 리더입니다."),
+    "소크라테스": ("아테네의 철학자로 글을 남기지 않고 대화와 질문을 통해 사람들의 믿음을 시험했습니다.", "자신의 무지를 아는 것이 지혜의 시작이며 성찰하지 않는 삶은 살 가치가 없다고 보았습니다.", "호기심 많고 집요하며 상대가 당연하게 여기는 전제를 끝까지 묻는 사람입니다."),
+    "알베르트 아인슈타인": ("독일 태생의 물리학자로 상대성 이론을 통해 시간과 공간에 대한 이해를 바꾸었습니다.", "상상력과 독립적인 사고가 기존 권위와 공식을 넘어서는 출발점이라고 믿었습니다.", "온화하지만 자기 방식이 분명하고, 호기심을 오래 붙드는 자유로운 사색가입니다."),
+    "레오나르도 다빈치": ("르네상스 시대의 화가, 발명가, 해부학자로 예술과 과학의 경계를 넘나들었습니다.", "세상을 직접 관찰하고 서로 다른 분야를 연결할 때 새로운 발견이 나온다고 보았습니다.", "끝없는 호기심과 섬세한 관찰력을 지닌 다재다능한 실험가입니다."),
+    "니콜라 테슬라": ("세르비아계 미국인 발명가로 교류 전기와 여러 전기 기술의 발전에 크게 기여했습니다.", "미래의 가능성을 먼저 상상하고 인류 전체에 도움이 될 기술을 만들고자 했습니다.", "집중력이 강하고 이상주의적이며 자신의 내면 세계에 깊이 몰입하는 발명가입니다."),
+    "디오게네스": ("고대 그리스의 견유학파 철학자로 관습과 물질적 욕망을 거부하며 검소하게 살았습니다.", "자연에 맞는 자립적 삶과 솔직함을 중시하고 사회적 허영을 통렬히 비판했습니다.", "거침없고 독립적이며 권위 앞에서도 아첨하지 않는 급진적인 질문자입니다."),
+    "윈스턴 처칠": ("영국의 정치가이자 작가로 제2차 세계대전 당시 국민을 이끌며 저항을 독려했습니다.", "위기의 순간에도 자유를 지키기 위한 용기와 공동체의 결속이 필요하다고 강조했습니다.", "언어와 의지가 강하고 낙관과 비관을 함께 품은 현실적인 전시 지도자입니다."),
+    "노자": ("도가 사상의 핵심 인물로 전해지며 '도덕경'을 통해 자연의 흐름과 무위의 지혜를 말했습니다.", "억지로 통제하기보다 사물의 본성을 따르고 비워냄으로써 더 오래가는 질서를 찾았습니다.", "말수가 적고 관조적이며 힘을 과시하지 않는 부드러운 통찰가입니다."),
+    "장자": ("전국시대의 사상가로 꿈과 현실, 인간과 자연의 경계를 자유롭게 성찰했습니다.", "고정된 기준과 분별에서 벗어나 변화와 다양성을 받아들이는 자유를 추구했습니다.", "유머와 비유를 즐기며 한 가지 정답에 갇히지 않는 유연한 사상가입니다."),
+    "부처": ("고타마 싯다르타로 태어나 수행 끝에 깨달음을 얻고 고통에서 벗어나는 길을 가르쳤습니다.", "무상과 연기, 중도와 자비를 통해 집착을 줄이고 모든 존재의 고통을 살피고자 했습니다.", "차분하고 자비로우며 반응하기 전에 마음의 움직임을 바라보는 수행자입니다."),
+    "아르투어 쇼펜하우어": ("독일의 철학자로 세계를 맹목적인 의지와 표상으로 해석하고 연민의 윤리를 강조했습니다.", "끝없는 욕망이 고통을 만들기에 예술과 절제, 타인의 고통을 이해하는 연민이 필요하다고 보았습니다.", "비관적이지만 날카롭고 인간의 욕망을 냉정하게 관찰하는 고독한 사상가입니다."),
+    "오디세우스": ("트로이 전쟁 후 긴 항해를 거쳐 고향 이타카로 돌아온 그리스 신화의 영웅입니다.", "힘만이 아니라 지혜, 인내, 변장과 설득을 활용해 불가능한 귀환을 완성했습니다.", "호기심 많고 재치 있으며 위기마다 새로운 방법을 만들어내는 생존형 모험가입니다."),
+    "헬렌 켈러": ("어린 시절 시청각을 잃었지만 교육자 앤 설리번과 함께 배우며 작가와 사회운동가가 되었습니다.", "장애인의 교육권과 평등을 위해 연대했고 인간의 의지와 사랑이 장벽을 넘는다고 믿었습니다.", "강인하고 감사할 줄 알며 자신의 경험을 타인의 권리를 넓히는 힘으로 바꾼 사람입니다."),
+    "예수": ("갈릴리에서 가르침을 전하며 가난하고 소외된 이들과 함께했고 사랑과 용서의 메시지를 남겼습니다.", "이웃 사랑, 용서, 약한 사람을 먼저 돌보는 연대가 공동체의 중심이어야 한다고 가르쳤습니다.", "따뜻하고 단호하며 권위보다 사람의 상처와 존엄을 먼저 바라보는 인물입니다."),
+    "마하트마 간디": ("인도의 독립운동을 이끈 변호사이자 정치 지도자로 비폭력 저항을 실천했습니다.", "진실과 비폭력, 자립을 통해 제국의 폭력에 맞서며 수단과 목적이 닮아야 한다고 주장했습니다.", "절제되고 끈기 있으며 자신의 삶으로 원칙을 증명하려 한 실천가입니다."),
+    "알베르트 슈바이처": ("신학자와 음악가로 활동한 뒤 의사가 되어 아프리카 랑바레네에서 병원을 운영했습니다.", "생명에 대한 경외를 바탕으로 지식과 재능을 타인을 돕는 책임으로 연결했습니다.", "겸손하고 헌신적이며 말보다 지속적인 돌봄을 선택하는 봉사자입니다."),
+    "테레사 수녀": ("인도 콜카타에서 가난하고 죽어가는 사람들을 돌보는 선교와 봉사 활동을 펼쳤습니다.", "가장 작은 사람의 존엄을 지키는 사랑과 구체적인 돌봄을 삶의 중심에 두었습니다.", "검소하고 인내심이 강하며 가까운 한 사람을 끝까지 돌보는 실천가입니다."),
+    "유비": ("삼국시대 촉한의 군주로 오랜 역경 끝에 사람을 모아 자신의 세력을 세웠습니다.", "덕과 신뢰를 바탕으로 인재를 품고 공동체의 명분과 연대를 지키려 했습니다.", "온화하고 사람의 마음을 얻는 데 능하며 혼자보다 함께 가는 길을 믿는 지도자입니다."),
+    "장발장": ("빅토르 위고의 소설 '레 미제라블'의 주인공으로 전과자에서 자비로운 시장이 됩니다.", "법의 처벌만으로 사람을 판단할 수 없으며 용서와 책임이 인간을 다시 세운다고 보여줍니다.", "상처와 죄책감을 품었지만 타인을 돕는 선택으로 스스로를 변화시킨 인물입니다."),
+}
+
+
+def calculate_best_mentor(user_scores: dict[str, int]) -> tuple[str, str, int]:
+    """Return the highest dot-product mentor using only local Python math."""
+    ranked = []
+    for person, vector in PERSONA_VECTORS.items():
+        score = sum(user_scores.get(axis, 0) * vector.get(axis, 0) for axis in MENTOR_AXES)
+        ranked.append((score, person))
+    score, person = max(ranked)
+    group = next(group_name for group_name, (_, people, _) in MENTOR_GROUPS.items() if person in people)
+    return person, group, score
+
+
+def mentor_report(user_scores: dict[str, int], group: str) -> list[str]:
+    strongest = sorted(user_scores, key=user_scores.get, reverse=True)[:3]
+    labels = {"Action": "실행", "Reflection": "성찰", "Innovation": "혁신", "Order": "질서", "Logic": "본질", "Empathy": "공감", "Mastery": "자기극복", "Acceptance": "수용"}
+    return [
+        f"당신은 {labels[strongest[0]]}을 가장 먼저 꺼내 드는 사람입니다.",
+        f"문제를 만났을 때 {labels[strongest[1]]}의 렌즈로 다음 수를 읽습니다.",
+        f"그래서 오늘의 성향은 '{group}'의 에너지와 가장 가깝습니다.",
+    ]
 RANDOM_INSIGHTS = [
     {
         "character": "이순신", "concept": "절제된 용기와 책임의 리더십",
@@ -298,6 +467,60 @@ PEOPLE_INFO = {
     "쇼펜하우어": ("의지와 고통 · 연민의 윤리", ASSET_DIR / "schopenhauer.png", ASSET_DIR / "schopenhauer.png"),
     "유명 채용 플랫폼 대표": ("사람의 가능성 · 데이터와 실행", CEO_IMAGE, CEO_IMAGE),
 }
+LEGACY_PORTRAIT_NAMES = {
+    "이순신",
+    "세종대왕",
+    "소크라테스",
+    "스티브 잡스",
+    "공자",
+    "예수",
+    "부처",
+    "니체",
+    "쇼펜하우어",
+    "아르투어 쇼펜하우어",
+}
+PEOPLE_INFO["아르투어 쇼펜하우어"] = PEOPLE_INFO["쇼펜하우어"]
+
+# The repository currently contains nine original portrait assets. Until the
+# remaining 21 individual portraits are supplied, keep every mentor visual by
+# borrowing the closest group's existing editorial portrait.
+MENTOR_PORTRAIT_FALLBACKS = {
+    "결단/개척형": "이순신",
+    "원칙/시스템형": "세종대왕",
+    "통찰/질문형": "소크라테스",
+    "해탈/관조형": "부처",
+    "자비/연대형": "예수",
+}
+for mentor_group, (_, mentor_people, _) in MENTOR_GROUPS.items():
+    fallback_person = MENTOR_PORTRAIT_FALLBACKS[mentor_group]
+    fallback_info = PEOPLE_INFO[fallback_person]
+    for mentor_person in mentor_people:
+        PEOPLE_INFO.setdefault(
+            mentor_person,
+            (MENTOR_PROFILES[mentor_person][1][:34], fallback_info[1], fallback_info[2]),
+        )
+MENTOR_PORTRAIT_PLACEHOLDERS = {
+    mentor_person
+    for _, (_, mentor_people, _) in MENTOR_GROUPS.items()
+    for mentor_person in mentor_people
+    if mentor_person not in {"이순신", "세종대왕", "소크라테스", "스티브 잡스", "공자", "예수", "부처", "니체", "쇼펜하우어"}
+}
+MENTOR_CARD_NAMES = [
+    person
+    for _, (_, mentor_people, _) in MENTOR_GROUPS.items()
+    for person in mentor_people
+]
+MENTOR_CARD_IMAGES = {
+    person: next(
+        (path for path in (ASSET_DIR / "mentor_cards").glob(f"{index:02d}_*.png")),
+        ASSET_DIR / "mentor_cards" / f"{index:02d}.png",
+    )
+    for index, person in enumerate(MENTOR_CARD_NAMES, 1)
+}
+for mentor_person, mentor_image in MENTOR_CARD_IMAGES.items():
+    if mentor_image.is_file() and mentor_person in PEOPLE_INFO and mentor_person not in LEGACY_PORTRAIT_NAMES:
+        concept = PEOPLE_INFO[mentor_person][0]
+        PEOPLE_INFO[mentor_person] = (concept, mentor_image, mentor_image)
 TOPIC_FRAMES = {
     "AI는 일자리를 없애는가, 바꾸는가": (
         "일자리를 대체할 것인지 전환할 것인지",
@@ -2003,6 +2226,36 @@ def chat_avatar(name: str) -> str:
 
 
 def avatar_image(name: str) -> str:
+    if name not in LEGACY_PORTRAIT_NAMES:
+        card_path = MENTOR_CARD_IMAGES.get(name)
+        if card_path and card_path.is_file():
+            try:
+                encoded = base64.b64encode(card_path.read_bytes()).decode("ascii")
+            except OSError:
+                encoded = ""
+            if encoded:
+                return f"data:image/png;base64,{encoded}"
+    if name in MENTOR_PORTRAIT_PLACEHOLDERS:
+        group = next((group_name for group_name, (_, people, _) in MENTOR_GROUPS.items() if name in people), "아고라 멘토")
+        colors = {
+            "결단/개척형": ("#9b5b42", "#f3c39a"),
+            "원칙/시스템형": ("#397888", "#b9edf5"),
+            "통찰/질문형": ("#5c6d9b", "#d6ddff"),
+            "해탈/관조형": ("#6d806a", "#d7ebc9"),
+            "자비/연대형": ("#9b6c54", "#ffe0b6"),
+        }
+        background, foreground = colors[group]
+        initials = html.escape(name[:2])
+        svg = (
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">'
+            f'<rect width="320" height="320" rx="160" fill="{background}"/>'
+            f'<circle cx="160" cy="126" r="56" fill="{foreground}" opacity=".9"/>'
+            f'<path d="M72 282c8-65 44-98 88-98s80 33 88 98" fill="{foreground}" opacity=".9"/>'
+            f'<text x="160" y="307" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="700" fill="{background}">{initials}</text>'
+            f'</svg>'
+        )
+        encoded = base64.b64encode(svg.encode("utf-8")).decode("ascii")
+        return f"data:image/svg+xml;base64,{encoded}"
     info = PEOPLE_INFO.get(name)
     if not info:
         return ""
@@ -2283,10 +2536,34 @@ background_styles = """<style>
     div[data-testid="stButton"] button[kind="primary"] p, div[data-testid="stButton"] button[kind="secondary"] p { color:#ffffff !important; }
     div[data-testid="stRadio"] label { background:#17232c !important; border-color:#526b78 !important; color:#ffffff !important; }
     div[data-testid="stRadio"] label p, div[data-testid="stRadio"] label span { color:#ffffff !important; }
-    .home-feature { background:linear-gradient(145deg,#172a34,#111d25); border:1px solid #5b7b88; border-radius:16px; padding:1.15rem; min-height:12rem; }
+    .home-feature { background:linear-gradient(145deg,#172a34,#111d25); border:1px solid #5b7b88; border-radius:16px; padding:1.15rem; height:13rem; box-sizing:border-box; overflow:hidden; }
     .home-feature-kicker { color:#b2e3ed !important; font-size:.7rem; font-weight:800; letter-spacing:.14em; }
     .home-feature-title { color:#ffffff !important; font-size:1.35rem; font-weight:800; margin:.45rem 0 .35rem; }
     .home-feature-copy { color:#d0dde2 !important; line-height:1.6; min-height:3.3rem; }
+    .mentor-hero { background:linear-gradient(135deg,#172a34 0%,#243844 58%,#4b332b 100%); border:1px solid #83aab8; border-radius:18px; padding:1.6rem; margin:1rem 0 1.25rem; box-shadow:0 18px 45px rgba(0,0,0,.24); }
+    .mentor-kicker { color:#b9edf5 !important; font-size:.7rem; font-weight:800; letter-spacing:.16em; }
+    .mentor-title { color:#ffffff !important; font-family:'DM Serif Display',serif; font-size:2.55rem; line-height:1.15; margin:.55rem 0 .7rem; }
+    .mentor-copy { color:#d8e7eb !important; line-height:1.7; max-width:42rem; }
+    .mentor-question { background:linear-gradient(145deg,#172a34,#111d25); border:1px solid #6f929f; border-radius:16px; padding:1.5rem; margin:1rem 0; box-shadow:0 16px 35px rgba(0,0,0,.22); }
+    .mentor-question-number { color:#aee3ee !important; font-size:.75rem; font-weight:800; letter-spacing:.15em; }
+    .mentor-question-title { color:#ffffff !important; font-family:'DM Serif Display',serif; font-size:1.65rem; line-height:1.35; margin:.55rem 0 1.15rem; }
+    .mentor-answer { min-height:7.5rem !important; text-align:left !important; white-space:normal !important; line-height:1.5 !important; }
+    .mentor-result { border:1px solid #c89b6d; border-radius:18px; padding:1.55rem; background:linear-gradient(145deg,#2b2020,#17232c); box-shadow:0 20px 50px rgba(0,0,0,.28); }
+    .mentor-result-head { display:flex; align-items:center; gap:1.2rem; }
+    .mentor-result-portrait { flex:0 0 7.2rem; width:7.2rem; height:7.2rem; border-radius:50%; overflow:hidden; border:3px solid #e5a36e; background:#172a34; box-shadow:0 8px 22px rgba(0,0,0,.28); display:flex; align-items:center; justify-content:center; }
+    .mentor-result-portrait img { width:100%; height:100%; object-fit:cover; object-position:center; transform:scale(1.1); }
+    .mentor-result-heading { min-width:0; }
+    .mentor-result-name { color:#fff4df !important; font-family:'DM Serif Display',serif; font-size:2.5rem; line-height:1.15; }
+    .mentor-result-group { color:#f0ba86 !important; font-weight:800; letter-spacing:.08em; margin:.3rem 0 1rem; }
+    .mentor-quote { color:#fff4df !important; border-left:3px solid #e5a36e; padding:.7rem 1rem; margin:1rem 0; line-height:1.65; font-size:1.05rem; }
+    .mentor-report { color:#e5edf0 !important; line-height:1.8; margin:.2rem 0; }
+    .mentor-tag { display:inline-block; color:#b9edf5 !important; background:#285565; border:1px solid #6f929f; border-radius:999px; padding:.28rem .65rem; margin:.25rem .25rem 0 0; font-size:.78rem; font-weight:700; }
+    .mentor-profile { margin-top:1.25rem; border:1px solid #6f929f; border-radius:16px; background:#172a34; padding:1.25rem 1.35rem; }
+    .mentor-profile-title { color:#b9edf5 !important; font-size:.72rem; font-weight:800; letter-spacing:.14em; margin-bottom:.8rem; }
+    .mentor-profile-row { border-top:1px solid rgba(131,170,184,.3); padding:.8rem 0 .1rem; color:#e5edf0 !important; line-height:1.7; }
+    .mentor-profile-label { display:block; color:#f0ba86 !important; font-size:.8rem; font-weight:800; margin-bottom:.2rem; }
+    @media (max-width:640px) { .mentor-result-head { align-items:flex-start; } .mentor-result-portrait { flex-basis:5.5rem; width:5.5rem; height:5.5rem; } }
+    @media (max-width:640px) { .home-feature { height:auto; min-height:12rem; } }
     .intro-page { min-height:78vh; display:flex; align-items:center; justify-content:center; }
     .intro-shell { position:relative; overflow:hidden; width:100%; min-height:620px; border:1px solid #526b78; border-radius:24px; background:#101a21; box-shadow:0 24px 70px rgba(0,0,0,.38); }
     .intro-art { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.96; filter:saturate(.86) contrast(1.08) brightness(1.05); }
@@ -2596,7 +2873,7 @@ elif st.session_state.screen == "landing":
         st.rerun()
     st.write("")
     st.markdown("#### 무엇을 해볼까요?")
-    feature_a, feature_b, feature_c = st.columns(3)
+    feature_a, feature_b, feature_c, feature_d = st.columns(4)
     with feature_a:
         st.markdown('<div class="home-feature"><div class="home-feature-kicker">01 · DIALOGUE</div><div class="home-feature-title">인물 대화</div><div class="home-feature-copy">서로 다른 시대의 인물들이 다양한 주제를 놓고 각자의 관점으로 토론합니다.</div></div>', unsafe_allow_html=True)
         if st.button("인물 대화 시작", type="primary", use_container_width=True):
@@ -2611,6 +2888,11 @@ elif st.session_state.screen == "landing":
         st.markdown('<div class="home-feature"><div class="home-feature-kicker">03 · MAGAZINE</div><div class="home-feature-title">아고라 매거진</div><div class="home-feature-copy">가상의 최신 이슈에 역사적 인물들이 남긴 코멘트를 읽어봅니다.</div></div>', unsafe_allow_html=True)
         if st.button("매거진 읽기", use_container_width=True):
             st.session_state.screen = "magazine"
+            st.rerun()
+    with feature_d:
+        st.markdown('<div class="home-feature"><div class="home-feature-kicker">04 · MENTOR MATCHING</div><div class="home-feature-title">나의 아고라 멘토</div><div class="home-feature-copy">12번의 가벼운 선택으로 나와 닮은 시대의 멘토를 찾아보세요.</div></div>', unsafe_allow_html=True)
+        if st.button("멘토 찾기 시작", type="primary", use_container_width=True, key="mentor-entry"):
+            st.session_state.update({"screen": "mentor_landing", "mentor_index": 0, "mentor_scores": {axis: 0 for axis in MENTOR_AXES}})
             st.rerun()
     st.write("")
     st.markdown("#### 오늘의 광장")
@@ -2632,6 +2914,99 @@ elif st.session_state.screen == "landing":
             if st.button("이 조합 바로 보기", key=f"showcase-{a}-{b}", type="primary", use_container_width=True):
                 start_showcase(a, b, topic)
                 st.rerun()
+
+
+elif st.session_state.screen == "mentor_landing":
+    if st.button("← 홈으로", key="mentor-landing-home", use_container_width=True):
+        st.session_state.screen = "landing"
+        st.rerun()
+    st.markdown('<div class="eyebrow">04 · MENTOR MATCHING</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="mentor-hero"><div class="mentor-kicker">FIND YOUR AGORA MENTOR</div>'
+        '<div class="mentor-title">나의 아고라 멘토 찾기</div>'
+        '<div class="mentor-copy">시공간을 초월한 30인의 위인 중, 당신의 가치관과 영혼이 가장 닮은 멘토는 누구일까요? '
+        '정답은 없습니다. 12개의 질문에 떠오르는 쪽을 빠르게 골라보세요.</div></div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown("#### 1초 밸런스 게임")
+    st.caption("깊게 고민하지 말고, 지금 더 끌리는 문장을 탭하세요. 모든 분석은 로컬에서 처리됩니다.")
+    if st.button("🚀 멘토 찾기 시작하기", type="primary", use_container_width=True, key="mentor-start"):
+        st.session_state.update({"screen": "mentor_quiz", "mentor_index": 0, "mentor_scores": {axis: 0 for axis in MENTOR_AXES}})
+        st.rerun()
+
+
+elif st.session_state.screen == "mentor_quiz":
+    if st.button("← 멘토 소개로", key="mentor-quiz-back", use_container_width=True):
+        st.session_state.screen = "mentor_landing"
+        st.rerun()
+    question_index = st.session_state.get("mentor_index", 0)
+    question = MENTOR_QUESTIONS[question_index]
+    st.markdown('<div class="eyebrow">MENTOR MATCHING · QUICK TEST</div>', unsafe_allow_html=True)
+    st.progress((question_index + 1) / len(MENTOR_QUESTIONS), text=f"Progress: {question_index + 1} / {len(MENTOR_QUESTIONS)}")
+    st.markdown(
+        f'<div class="mentor-question"><div class="mentor-question-number">QUESTION {question_index + 1:02d}</div>'
+        f'<div class="mentor-question-title">{html.escape(question["prompt"])}</div></div>',
+        unsafe_allow_html=True,
+    )
+    answer_a, answer_b = st.columns(2)
+    for column, answer_key in ((answer_a, "a"), (answer_b, "b")):
+        with column:
+            answer_text, _ = question[answer_key]
+            if st.button(answer_text, key=f"mentor-answer-{question_index}-{answer_key}", use_container_width=True, type="primary"):
+                scores = st.session_state.get("mentor_scores", {axis: 0 for axis in MENTOR_AXES}).copy()
+                for axis, weight in question[answer_key][1].items():
+                    scores[axis] = scores.get(axis, 0) + weight
+                st.session_state.mentor_scores = scores
+                if question_index + 1 == len(MENTOR_QUESTIONS):
+                    mentor, group, score = calculate_best_mentor(scores)
+                    st.session_state.update({"screen": "mentor_result", "mentor": mentor, "mentor_group": group, "mentor_score": score, "mentor_report": mentor_report(scores, group)})
+                else:
+                    st.session_state.mentor_index = question_index + 1
+                st.rerun()
+
+
+elif st.session_state.screen == "mentor_result":
+    if st.button("← 홈으로", key="mentor-result-home", use_container_width=True):
+        st.session_state.screen = "landing"
+        st.rerun()
+    mentor = st.session_state.mentor
+    group = st.session_state.mentor_group
+    quote, quote_note = MENTOR_QUOTES[group]
+    life, thought, personality = MENTOR_PROFILES.get(mentor, ("기록과 전승을 통해 시대를 대표한 인물입니다.", "자신만의 기준으로 삶과 공동체의 문제를 바라보았습니다.", "뚜렷한 신념과 개성을 지닌 인물입니다."))
+    mentor_portrait = avatar_image(mentor)
+    mentor_portrait_markup = (
+        f'<div class="mentor-result-portrait"><img src="{mentor_portrait}" alt="{html.escape(mentor)} 초상화"></div>'
+        if mentor_portrait
+        else f'<div class="mentor-result-portrait" aria-label="{html.escape(mentor)} 초상화">{html.escape(chat_avatar(mentor))}</div>'
+    )
+    report = st.session_state.mentor_report
+    scores = st.session_state.get("mentor_scores", {})
+    tag_options = (("Action", "#실행력"), ("Innovation", "#혁신감각"), ("Logic", "#본질집착"), ("Empathy", "#공감능력"), ("Mastery", "#자기극복"), ("Acceptance", "#유연함"), ("Order", "#책임감"), ("Reflection", "#성찰"))
+    tags = [label for axis, label in tag_options if scores.get(axis, 0) >= 3][:4]
+    st.markdown('<div class="eyebrow">YOUR AGORA MENTOR · RESULT</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="mentor-result"><div class="mentor-result-head">{mentor_portrait_markup}<div class="mentor-result-heading">'
+        f'<div class="mentor-kicker">당신과 영혼이 가장 닮은 아고라 멘토</div>'
+        f'<div class="mentor-result-name">{html.escape(mentor)}</div><div class="mentor-result-group">{html.escape(group)} · 30인 데이터베이스 매칭</div></div></div>'
+        f'<div class="mentor-quote">“{html.escape(quote)}”<br><small>{html.escape(quote_note)}</small></div>'
+        f'{"".join(f"<span class=\"mentor-tag\">{html.escape(tag)}</span>" for tag in tags)}'
+        f'<div class="mentor-profile"><div class="mentor-profile-title">MENTOR PROFILE · 멘토의 삶과 시선</div>'
+        f'<div class="mentor-profile-row"><span class="mentor-profile-label">삶</span>{html.escape(life)}</div>'
+        f'<div class="mentor-profile-row"><span class="mentor-profile-label">사상</span>{html.escape(thought)}</div>'
+        f'<div class="mentor-profile-row"><span class="mentor-profile-label">성격</span>{html.escape(personality)}</div></div></div>',
+        unsafe_allow_html=True,
+    )
+    st.subheader("당신의 성향 분석")
+    for line in report:
+        st.markdown(f'<div class="mentor-report">{html.escape(line)}</div>', unsafe_allow_html=True)
+    st.write("")
+    if st.button(f"🎴 {mentor}의 오늘의 인사이트", type="primary", use_container_width=True, key="mentor-insight"):
+        st.session_state.mentor_insight = quote_note
+    if st.session_state.get("mentor_insight"):
+        st.markdown(f'<div class="callout"><strong>오늘의 인사이트</strong><br>{html.escape(st.session_state.mentor_insight)}</div>', unsafe_allow_html=True)
+    if st.button("다시 테스트하기", use_container_width=True, key="mentor-retry"):
+        st.session_state.update({"screen": "mentor_quiz", "mentor_index": 0, "mentor_scores": {axis: 0 for axis in MENTOR_AXES}, "mentor_insight": ""})
+        st.rerun()
 
 
 elif st.session_state.screen == "magazine":
