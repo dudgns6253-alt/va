@@ -52,7 +52,7 @@ MENTOR_PEOPLE = [
     "알베르트 슈바이처",
     "테레사 수녀",
     "유비",
-    "장발장",
+    "오디세우스",
 ]
 PEOPLE = MENTOR_PEOPLE[:9]
 
@@ -130,8 +130,8 @@ MENTOR_GROUPS = {
     "결단/개척형": ("용기 · 혁신 · 정면승부", ["이순신", "스티브 잡스", "나폴레옹", "징기스칸", "체 게바라", "알렉산더 대왕"], _mentor_vector(Action=10, Reflection=2, Innovation=9, Order=3, Logic=7, Empathy=2, Mastery=9, Acceptance=2)),
     "원칙/시스템형": ("책임 · 질서 · 혜안", ["세종대왕", "공자", "정약용", "아리스토텔레스", "조조", "에이브러햄 링컨"], _mentor_vector(Action=6, Reflection=6, Innovation=5, Order=10, Logic=8, Empathy=7, Mastery=7, Acceptance=4)),
     "통찰/질문형": ("질문 · 비전 · 직관", ["소크라테스", "알베르트 아인슈타인", "레오나르도 다빈치", "니콜라 테슬라", "디오게네스", "니체", "윈스턴 처칠"], _mentor_vector(Action=6, Reflection=8, Innovation=10, Order=4, Logic=10, Empathy=4, Mastery=6, Acceptance=4)),
-    "해탈/관조형": ("중도 · 수용 · 내면의 평정", ["노자", "장자", "부처", "아르투어 쇼펜하우어", "헬렌 켈러"], _mentor_vector(Action=3, Reflection=10, Innovation=4, Order=3, Logic=6, Empathy=7, Mastery=5, Acceptance=10)),
-    "자비/연대형": ("사랑 · 용서 · 공감", ["예수", "마하트마 간디", "알베르트 슈바이처", "테레사 수녀", "유비", "장발장"], _mentor_vector(Action=4, Reflection=6, Innovation=3, Order=7, Logic=4, Empathy=10, Mastery=4, Acceptance=9)),
+    "해탈/관조형": ("중도 · 수용 · 내면의 평정", ["노자", "장자", "부처", "아르투어 쇼펜하우어", "오디세우스", "헬렌 켈러"], _mentor_vector(Action=3, Reflection=10, Innovation=4, Order=3, Logic=6, Empathy=7, Mastery=5, Acceptance=10)),
+    "자비/연대형": ("사랑 · 용서 · 공감", ["예수", "마하트마 간디", "알베르트 슈바이처", "테레사 수녀", "유비"], _mentor_vector(Action=4, Reflection=6, Innovation=3, Order=7, Logic=4, Empathy=10, Mastery=4, Acceptance=9)),
 }
 
 PERSONA_SIGNATURES = {
@@ -164,7 +164,7 @@ PERSONA_SIGNATURES = {
     "알베르트 슈바이처": {"Reflection": 2, "Empathy": 2, "Logic": 1},
     "테레사 수녀": {"Empathy": 3, "Acceptance": 2, "Reflection": 1},
     "유비": {"Empathy": 3, "Order": 1, "Acceptance": 1},
-    "장발장": {"Empathy": 2, "Acceptance": 2, "Mastery": 1},
+    "오디세우스": {"Action": 2, "Innovation": 2, "Logic": 2},
 }
 
 
@@ -206,7 +206,6 @@ MENTOR_DETAILED_PROFILES = {
     "알베르트 슈바이처": {"mtype": "INTJ-사상가", "strengths": ["과학적 분석", " 침묵과 깊이", " 독립적 사고"], "blind_spot": "감정 억제와 고독", "era": "20세기 프랑스 (1913–2012)", "element": "불꽃"},
     "테레사 수녀": {"mtype": "ISFP-수호자", "strengths": ["자비로운 돌봄", " 영적 통찰", " 사랑스러운 헌신"], "blind_spot": "고통에 대한 회피와 불안", "era": "20세기 알바니아/인도 (1910–1997)", "element": "빛"},
     "유비": {"mtype": "ENFJ-지도자", "strengths": ["정의로운 사랑", " 배신과 용서", " 인간 관계"], "blind_spot": "과도한 신뢰와 비관주의", "era": "후한 말 (161–223)", "element": "불"},
-    "장발장": {"mtype": "ENFJ-투사자", "strengths": ["긍정적 희생", " 사랑과 성장", " 굳은 의지"], "blind_spot": "과도한 급진성과 불안정", "era": "19세기 프랑스 (1772–1841)", "element": "빛"},
 }
 
 MENTOR_QUOTES = {
@@ -249,7 +248,6 @@ MENTOR_ADVICE = {
     "알베르트 슈바이처": "당신의 지식과 재능이 가장 가까운 생명을 어떻게 살릴 수 있는지 묻고, 작지만 지속 가능한 돌봄으로 옮겨라.",
     "테레사 수녀": "거대한 문제를 한 번에 해결하려 하지 말고 지금 눈앞의 한 사람을 존엄하게 대하라. 돌봄은 감정이 아니라 반복되는 구체적 행동이다.",
     "유비": "혼자 옳으려 하기보다 신뢰할 사람의 마음을 얻고 함께 갈 명분을 세워라. 다만 선의를 믿는 것과 판단을 포기하는 것은 다르다.",
-    "장발장": "과거의 잘못이 현재의 선택을 영원히 결정하게 두지 마라. 용서를 받았다면 그것을 새로운 책임과 다른 사람을 살리는 행동으로 돌려주어라.",
 }
 
 
@@ -295,7 +293,6 @@ MENTOR_PROFILES = {
     "알베르트 슈바이처": ("신학자와 음악가로 활동한 뒤 의사가 되어 아프리카 랑바레네에서 병원을 운영했습니다.", "생명에 대한 경외를 바탕으로 지식과 재능을 타인을 돕는 책임으로 연결했습니다.", "겸손하고 헌신적이며 말보다 지속적인 돌봄을 선택하는 봉사자입니다."),
     "테레사 수녀": ("인도 콜카타에서 가난하고 죽어가는 사람들을 돌보는 선교와 봉사 활동을 펼쳤습니다.", "가장 작은 사람의 존엄을 지키는 사랑과 구체적인 돌봄을 삶의 중심에 두었습니다.", "검소하고 인내심이 강하며 가까운 한 사람을 끝까지 돌보는 실천가입니다."),
     "유비": ("삼국시대 촉한의 군주로 오랜 역경 끝에 사람을 모아 자신의 세력을 세웠습니다.", "덕과 신뢰를 바탕으로 인재를 품고 공동체의 명분과 연대를 지키려 했습니다.", "온화하고 사람의 마음을 얻는 데 능하며 혼자보다 함께 가는 길을 믿는 지도자입니다."),
-    "장발장": ("빅토르 위고의 소설 '레 미제라블'의 주인공으로 전과자에서 자비로운 시장이 됩니다.", "법의 처벌만으로 사람을 판단할 수 없으며 용서와 책임이 인간을 다시 세운다고 보여줍니다.", "상처와 죄책감을 품었지만 타인을 돕는 선택으로 스스로를 변화시킨 인물입니다."),
 }
 
 
@@ -632,13 +629,21 @@ MENTOR_CARD_NAMES = [
     for _, (_, mentor_people, _) in MENTOR_GROUPS.items()
     for person in mentor_people
 ]
-MENTOR_CARD_IMAGES = {
-    person: next(
-        (path for path in (ASSET_DIR / "mentor_cards").glob(f"{index:02d}_*.png")),
-        ASSET_DIR / "mentor_cards" / f"{index:02d}.png",
-    )
-    for index, person in enumerate(MENTOR_CARD_NAMES, 1)
+MENTOR_CARD_IMAGE_ALIASES = {
+    "니체": ASSET_DIR / "nietzsche.png",
+    "나폴레옹": ASSET_DIR / "mentor_cards" / "03_나폴레옹 보나파르트.png",
 }
+MENTOR_CARD_IMAGES = {}
+for mentor_person in MENTOR_CARD_NAMES:
+    if mentor_person in MENTOR_CARD_IMAGE_ALIASES:
+        MENTOR_CARD_IMAGES[mentor_person] = MENTOR_CARD_IMAGE_ALIASES[mentor_person]
+        continue
+    mentor_image = next(
+        (path for path in (ASSET_DIR / "mentor_cards").glob("*.png") if path.stem.split("_", 1)[-1] == mentor_person),
+        None,
+    )
+    if mentor_image is not None:
+        MENTOR_CARD_IMAGES[mentor_person] = mentor_image
 for mentor_person, mentor_image in MENTOR_CARD_IMAGES.items():
     if mentor_image.is_file() and mentor_person in PEOPLE_INFO and mentor_person not in LEGACY_PORTRAIT_NAMES:
         concept = PEOPLE_INFO[mentor_person][0]
