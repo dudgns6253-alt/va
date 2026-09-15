@@ -21,7 +21,7 @@ st.set_page_config(
 )
 
 
-PEOPLE = [
+MENTOR_PEOPLE = [
     "이순신",
     "세종대왕",
     "소크라테스",
@@ -55,6 +55,7 @@ PEOPLE = [
     "유비",
     "장발장",
 ]
+PEOPLE = MENTOR_PEOPLE[:9]
 
 MENTOR_AXES = ("Action", "Reflection", "Innovation", "Order", "Logic", "Empathy", "Mastery", "Acceptance")
 
