@@ -1984,8 +1984,8 @@ def _generate_dialogue_once(
 인물 B 페르소나: {PERSONA.get(person_b, "사용자가 입력한 인물의 알려진 특징을 과장하지 말고 창작적으로 해석한다.")}
 인물 A의 참고 사례: {CASE_NOTES.get(person_a, "공개적으로 알려진 활동을 바탕으로 한 창작적 해석")}
 인물 B의 참고 사례: {CASE_NOTES.get(person_b, "공개적으로 알려진 활동을 바탕으로 한 창작적 해석")}
-한국어로만 답하고, 전문용어는 짧게 풀어서 설명하는 편안한 대화체로 다음 JSON 형식만 출력하라:
-{{"scene":"장면 한 줄","script":[{{"speaker":"이름","line":"대사"}}],"summary":"두 인물의 주장을 각각 한 문장으로 명시하고 핵심 차이를 설명한 요약","stance_a":"인물 A가 이 주제에서 우선해야 한다고 주장하는 바","stance_b":"인물 B가 이 주제에서 우선해야 한다고 주장하는 바","conflict":"두 주장이 갈라지는 핵심 기준","chem":87,"mvp":"인물 이름"}}
+한국어로만 답하고, 전문용어는 짧게 풀어서 설명하는 편안한 대화체로 다음 JSON 형식만 출력하라. 아래 예시의 '인물 A'와 '인물 B'는 자리표시자이므로 그대로 출력하지 말고 반드시 실제 이름으로 바꿔 써라.
+{{"scene":"장면 한 줄","script":[{{"speaker":"{person_a} 또는 {person_b}","line":"대사"}}],"summary":"{person_a}와 {person_b}의 주장을 각각 한 문장으로 명시하고 핵심 차이를 설명한 요약","stance_a":"{person_a}가 이 주제에서 우선해야 한다고 주장하는 바","stance_b":"{person_b}가 이 주제에서 우선해야 한다고 주장하는 바","conflict":"두 주장이 갈라지는 핵심 기준","chem":87,"mvp":"{person_a} 또는 {person_b}"}}
 script는 정확히 24턴이며 각 대사는 2문장 이하로 쓴다. 딱딱한 논문체나 과도한 한자어 대신 친구에게 설명하듯 쉽게 말한다.
 이 대화는 정해진 찬반 템플릿을 채우는 방식이 아니라, 사용자가 전달한 주제를 끝까지 붙들고 실제 대화처럼 진행한다. 주제의 핵심 단어와 전제를 첫 장면부터 정확히 해석하고, 각 인물은 상대가 방금 말한 구체적인 주장이나 예시에 반응해 다음 말을 이어간다. 같은 주장을 표현만 바꿔 반복하지 말고, 대화 중 새로 드러난 조건과 반례에 따라 입장을 조금씩 수정한다. 결과 요약에는 반드시 인물 A가 무엇을 우선해야 한다고 주장하는지, 인물 B가 무엇을 우선해야 한다고 주장하는지, 두 주장이 정확히 어디에서 갈라지는지를 각각 명시한다.
 두 인물의 관점이 실제로 충돌하고 변화해야 하며, 각 인물은 자신의 철학과 참고 사례를 최소 한 번씩 직접 언급한다. 24턴 전체가 하나의 논쟁 흐름을 이루도록 하되, 억지로 5단계 형식을 나누지 않는다. 최소 한 번은 상대의 주장 중 일부를 인정하고, 최소 한 번은 자신의 원칙이 실패할 수 있는 조건을 말한다. 마지막에는 처음의 질문에 대해 두 인물이 도달한 구체적인 조건부 결론을 제시한다. 위의 논쟁 온도에 맞춰 동의·반박·감정 표현의 비율을 조절하되, 강도가 높아도 인물의 품격과 주제의 구체성을 유지한다. 모든 발화는 자연스러운 한국어 존댓말로 쓴다. 이름만 바꾼 일반론, 주제와 무관한 AI 업무 어휘, 미리 준비된 문구의 반복을 금지한다.
@@ -2013,6 +2013,23 @@ script는 정확히 24턴이며 각 대사는 2문장 이하로 쓴다. 딱딱�
             payload = json.loads(response.read().decode("utf-8"))
         content = payload["choices"][0]["message"]["content"]
         result = json.loads(content)
+        placeholder_replacements = {
+            "인물 A": person_a,
+            "인물A": person_a,
+            "인물 B": person_b,
+            "인물B": person_b,
+        }
+
+        def replace_placeholders(value: object) -> object:
+            if not isinstance(value, str):
+                return value
+            for placeholder, name in placeholder_replacements.items():
+                value = value.replace(placeholder, name)
+            return value
+
+        for field in ("scene", "summary", "stance_a", "stance_b", "conflict", "mvp"):
+            if field in result:
+                result[field] = replace_placeholders(result[field])
         script = [(item["speaker"], item["line"]) for item in result["script"]]
         if not 12 <= len(script) <= 24:
             raise RuntimeError(
