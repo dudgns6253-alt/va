@@ -54,7 +54,17 @@ MENTOR_PEOPLE = [
     "유비",
     "오디세우스",
 ]
-PEOPLE = MENTOR_PEOPLE[:9]
+PEOPLE = [
+    "이순신",
+    "세종대왕",
+    "소크라테스",
+    "스티브 잡스",
+    "공자",
+    "예수",
+    "부처",
+    "니체",
+    "아르투어 쇼펜하우어",
+]
 
 MENTOR_AXES = ("Action", "Reflection", "Innovation", "Order", "Logic", "Empathy", "Mastery", "Acceptance")
 
