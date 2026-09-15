@@ -3067,7 +3067,7 @@ elif st.session_state.screen == "landing":
                 당신이 어떤 사람과 대화할 때 가장 깊은 통찰을 얻는지 발견하는 시작점입니다.
               </div>
               <div class="mentor-meta">
-                <span class="mentor-meta-badge">10문항</span>
+                <span class="mentor-meta-badge">12문항</span>
                 <span class="mentor-meta-badge">5분 내외</span>
                 <span class="mentor-meta-badge">개인 맞춤 추천</span>
               </div>
