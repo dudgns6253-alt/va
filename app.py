@@ -22,6 +22,61 @@ st.set_page_config(
 )
 
 
+def render_scroll_to_top() -> None:
+    components.html(
+        """
+        <script>
+          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+          document.body.scrollTop = 0;
+          document.documentElement.scrollTop = 0;
+        </script>
+        """,
+        height=0,
+    )
+
+
+def go_to_screen(screen_name: str, **kwargs) -> None:
+    previous_screen = st.session_state.get("screen")
+    history = st.session_state.get("screen_history", [])
+    if previous_screen and previous_screen != screen_name:
+        history.append(previous_screen)
+        if len(history) > 12:
+            history = history[-12:]
+    st.session_state.screen_history = history
+    st.session_state.screen = screen_name
+    for key, value in kwargs.items():
+        st.session_state[key] = value
+    st.rerun()
+
+
+def go_back_screen(default_screen: str = "landing") -> None:
+    history = st.session_state.get("screen_history", [])
+    if history:
+        previous_screen = history.pop()
+        st.session_state.screen_history = history
+        st.session_state.screen = previous_screen
+    else:
+        st.session_state.screen = default_screen
+    st.rerun()
+
+
+def reset_mentor_state() -> None:
+    st.session_state.update(
+        {
+            "mentor_index": 0,
+            "mentor_scores": {axis: 0 for axis in MENTOR_AXES},
+            "mentor_answer_history": [],
+            "mentor_insight": "",
+        }
+    )
+
+
+def go_home(default_screen: str = "landing") -> None:
+    st.session_state.screen_history = []
+    st.session_state.screen = default_screen
+    st.rerun()
+
+
 MENTOR_PEOPLE = [
     "이순신",
     "세종대왕",
@@ -134,6 +189,31 @@ MENTOR_QUESTIONS = [
 
 def _mentor_vector(**values: int) -> dict[str, int]:
     return {axis: values.get(axis, 0) for axis in MENTOR_AXES}
+
+
+# "잘 모르겠다"는 단순한 비답이 아니라, 판단을 미루고 불확실성을 인정하는 인식적 유연성을 의미합니다.
+# 심리학적으로는 인지적 유연성·지식의 한계 인식, 역사적으로는 소크라테스의 무지의 인식,
+# 철학적으로는 불교의 중도와 아리스토텔레스의 중용, 유교의 겸손과 반성에 가깝습니다.
+NEUTRAL_RESPONSE_WEIGHTS = {
+    "Reflection": 2,
+    "Acceptance": 2,
+    "Logic": 1,
+    "Empathy": 1,
+}
+
+
+def apply_question_response(current_scores: dict[str, int], question: dict[str, object], response: str) -> dict[str, int]:
+    """Apply a selected answer, including a neutral response that reflects humility and ambiguity tolerance."""
+    scores = dict(current_scores)
+    if response == "neutral":
+        for axis, weight in NEUTRAL_RESPONSE_WEIGHTS.items():
+            scores[axis] = scores.get(axis, 0) + weight
+        return scores
+    if response not in {"a", "b"}:
+        return scores
+    for axis, weight in question[response][1].items():
+        scores[axis] = scores.get(axis, 0) + weight
+    return scores
 
 
 MENTOR_GROUPS = {
@@ -313,22 +393,44 @@ def calculate_best_mentor(user_scores: dict[str, int]) -> tuple[str, str, float]
 
 
 def normalized_user_profile(user_scores: dict[str, int]) -> dict[str, float]:
-    """Map raw quiz totals to the same 0-10 scale used by mentor vectors."""
-    axis_max = {
-        axis: sum(max(answer[1].get(axis, 0), question["b"][1].get(axis, 0)) for question in MENTOR_QUESTIONS for answer in [question["a"]])
-        for axis in MENTOR_AXES
-    }
-    return {
-        axis: min(10.0, user_scores.get(axis, 0) / max(1, axis_max[axis]) * 10)
-        for axis in MENTOR_AXES
-    }
+    """Map raw quiz totals to the same 0-10 scale used by mentor vectors, with a stable 0-10 normalization."""
+    raw = {axis: max(0, user_scores.get(axis, 0)) for axis in MENTOR_AXES}
+    max_value = max(raw.values()) if any(raw.values()) else 1
+    return {axis: round(min(10.0, (value / max(1, max_value)) * 10), 2) for axis, value in raw.items()}
+
+
+def cosine_similarity(user_profile: dict[str, float], mentor_vector: dict[str, int]) -> float:
+    """Directional similarity using a standard cosine-based comparison."""
+    dot_product = sum(user_profile.get(axis, 0) * mentor_vector.get(axis, 0) for axis in MENTOR_AXES)
+    user_norm = (sum(value ** 2 for value in user_profile.values())) ** 0.5
+    mentor_norm = (sum(value ** 2 for value in mentor_vector.values())) ** 0.5
+    if user_norm == 0 or mentor_norm == 0:
+        return 0.0
+    return dot_product / (user_norm * mentor_norm)
+
+
+def distance_similarity(user_profile: dict[str, float], mentor_vector: dict[str, int]) -> float:
+    """Intensity-based similarity: lower average distance means higher compatibility."""
+    average_distance = sum(abs(user_profile.get(axis, 0) - mentor_vector.get(axis, 0)) for axis in MENTOR_AXES) / len(MENTOR_AXES)
+    return max(0.0, min(100.0, (1 - average_distance / 10) * 100))
 
 
 def mentor_similarity_percent(user_scores: dict[str, int], mentor_vector: dict[str, int]) -> float:
-    """Return closeness as 0-100 based on average distance across all axes."""
+    """Hybrid similarity score that blends directional overlap and intensity similarity."""
     user_profile = normalized_user_profile(user_scores)
-    average_distance = sum(abs(user_profile[axis] - mentor_vector.get(axis, 0)) for axis in MENTOR_AXES) / len(MENTOR_AXES)
-    return round(max(0.0, min(100.0, (1 - average_distance / 10) * 100)), 1)
+    cosine_score = cosine_similarity(user_profile, mentor_vector)
+    distance_score = distance_similarity(user_profile, mentor_vector)
+    combined = (0.65 * (cosine_score * 100)) + (0.35 * distance_score)
+    return round(max(0.0, min(100.0, combined)), 1)
+
+
+def mentor_match_confidence(user_scores: dict[str, int], neutral_count: int = 0) -> int:
+    """Estimate the confidence of the current recommendation based on response spread and uncertainty."""
+    active_axes = sum(1 for axis in MENTOR_AXES if user_scores.get(axis, 0) > 0)
+    spread = active_axes / len(MENTOR_AXES)
+    uncertainty_penalty = min(25, neutral_count * 5)
+    confidence = int(round((spread * 100) - uncertainty_penalty + 30))
+    return max(35, min(95, confidence))
 
 
 def _mentor_group_for(person: str) -> str:
@@ -364,7 +466,7 @@ def mentor_report(user_scores: dict[str, int], group: str) -> list[str]:
 
 
 def calculate_mentor_rankings(user_scores: dict[str, int]) -> list[tuple[str, str, float]]:
-    """Return all 30 mentors ranked by normalized axis closeness (0-100)."""
+    """Return all mentors ranked by hybrid similarity, which combines profile alignment and directional consistency."""
     ranked = []
     for person, vector in PERSONA_VECTORS.items():
         similarity = mentor_similarity_percent(user_scores, vector)
@@ -378,6 +480,18 @@ def conflicting_mentors(user_scores: dict[str, int]) -> list[tuple[str, str, flo
     """Return the 3 mentors whose vectors are *least* similar to the user (conflict / contrast)."""
     ranked = calculate_mentor_rankings(user_scores)
     return ranked[-3:][::-1]
+
+
+def mentor_match_summary(user_scores: dict[str, int], neutral_count: int = 0) -> dict[str, object]:
+    """Return a compact summary of the top matches and decision confidence for UI display."""
+    rankings = calculate_mentor_rankings(user_scores)
+    top_three = rankings[:3]
+    confidence = mentor_match_confidence(user_scores, neutral_count)
+    return {
+        "top_three": top_three,
+        "confidence": confidence,
+        "confidence_text": "판단이 비교적 분명합니다" if confidence >= 70 else "추가 질문을 통해 더 정교하게 맞출 수 있습니다" if confidence >= 55 else "현재 응답은 비교적 불확실한 편입니다",
+    }
 
 
 def enhanced_mentor_report(user_scores: dict[str, int], group: str) -> list[str]:
@@ -2585,10 +2699,21 @@ def start_ask_mode(person: str) -> None:
     )
 
 
-if "screen" not in st.session_state:
+valid_screens = {"intro", "landing", "mentor_landing", "mentor_quiz", "mentor_result", "magazine", "ask", "select"}
+if "screen" not in st.session_state or st.session_state.screen not in valid_screens:
     st.session_state.screen = "intro"
+if "screen_history" not in st.session_state:
+    st.session_state.screen_history = []
+if "mentor_answer_history" not in st.session_state:
+    st.session_state.mentor_answer_history = []
+if "mentor_scores" not in st.session_state or not isinstance(st.session_state.mentor_scores, dict):
+    st.session_state.mentor_scores = {axis: 0 for axis in MENTOR_AXES}
+if "mentor_index" not in st.session_state or not isinstance(st.session_state.mentor_index, int):
+    st.session_state.mentor_index = 0
 if "insight_index" not in st.session_state or not (0 <= st.session_state.insight_index < len(RANDOM_INSIGHTS)):
     st.session_state.insight_index = random.randrange(len(RANDOM_INSIGHTS))
+
+render_scroll_to_top()
 
 background_styles = """<style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Noto+Sans+KR:wght@400;500;700&display=swap');
@@ -3074,11 +3199,11 @@ if st.session_state.screen == "intro":
         f'<img class="intro-art" src="{intro_image}" alt="두 인물이 마주 앉아 대화하는 장면">'
         f'<div class="intro-shade"></div><div class="intro-content">'
         f'<div class="intro-title">Virtual<br>Agora</div>'
-        f'<div class="intro-lead">서로 다른 시대의 지혜를 마주 앉혀<br>오늘의 질문을 다시 바라봅니다.</div>'
+        f'<div class="intro-lead">여러 시대의 지혜를 마주하고,<br>오늘의 방향성을 더 정직하게 바라봅니다.</div>'
         f'</div></div></div>',
         unsafe_allow_html=True,
     )
-    if st.button("아고라 입장하기  →", type="primary", use_container_width=True, key="enter-agora"):
+    if st.button("입장하기  →", type="primary", use_container_width=True, key="enter-agora"):
         st.session_state.screen = "landing"
         st.rerun()
 
@@ -3094,20 +3219,20 @@ elif st.session_state.screen == "landing":
               <div class="mentor-kicker">FIND YOUR AGORA MENTOR</div>
               <div class="mentor-title">당신의 생각과 가장 잘 맞는 인물을 만나보세요.</div>
               <div class="mentor-copy">
-                당신의 가치관, 선택 습관, 리더십 스타일, 감정 반응을 12문항으로 읽고,
-                가장 잘 어울리는 역사 인물을 추천합니다. 이 서비스는 단순한 흥미를 넘어,
-                당신이 어떤 사람과 대화할 때 가장 깊은 통찰을 얻는지 발견하는 시작점입니다.
+                가치관, 행동 습관, 리더십 성향, 감정 반응을 12문항으로 살펴보고,
+                가장 가까운 사고 방식을 가진 인물을 추천합니다. 이 과정은 단순한 재미를 넘어,
+                지금 당신이 어떤 길에서 더 성숙하게 움직일 수 있는지를 가늠하는 시작점입니다.
               </div>
               <div class="mentor-meta">
                 <span class="mentor-meta-badge">12문항</span>
-                <span class="mentor-meta-badge">5분 내외</span>
-                <span class="mentor-meta-badge">개인 맞춤 추천</span>
+                <span class="mentor-meta-badge">개인 맞춤</span>
+                <span class="mentor-meta-badge">사고 구조 기반</span>
               </div>
             </div>
             <div class="mentor-glow-card">
               <div class="mini-label">MENTOR POOL</div>
               <div class="mini-score">30</div>
-              <div class="mini-copy">서로 다른 시대의 30명 인물 중, 당신과 가장 가까운 사고 구조를 찾아드립니다.</div>
+              <div class="mini-copy">서로 다른 시대의 30명 인물 중, 당신의 가치와 가장 유사한 인물을 찾습니다.</div>
             </div>
           </div>
         </div>
@@ -3119,12 +3244,12 @@ elif st.session_state.screen == "landing":
         st.rerun()
     st.write("")
     st.markdown(
-        '<p class="tagline">AI가 서로 다른 시대의 인물들을 한자리에 모아<br>'
-        '당신의 질문과 오늘의 고민을 새로운 관점으로 풀어냅니다.<br>'
-        '인물 대화, 인물들의 시선, 아고라 매거진에서 다양한 생각을 만나보세요.</p>',
+        '<p class="tagline">AI 시대, 인간으로서의 방향성을 찾아 떠나보자.<br>'
+        '여러 위인들의 페르소나를 깊이 반영한 가상의 대화와 의견을 통해<br>'
+        '나만의 길을 더 정직하게 살펴보는 공간입니다.</p>',
         unsafe_allow_html=True,
     )
-    st.markdown("#### 무엇을 해볼까요?")
+    st.markdown("#### 어떤 방향으로 살펴볼까요?")
     feature_a, feature_b, feature_c = st.columns(3)
     with feature_a:
         st.markdown('<div class="home-feature"><div class="home-feature-kicker">01 · DIALOGUE</div><div class="home-feature-title">인물 대화</div><div class="home-feature-copy">서로 다른 시대의 인물들이 다양한 주제를 놓고 각자의 관점으로 토론합니다.</div></div>', unsafe_allow_html=True)
@@ -3142,7 +3267,7 @@ elif st.session_state.screen == "landing":
             st.session_state.screen = "magazine"
             st.rerun()
     st.write("")
-    # === 오늘의 명언 ===
+    # === 오늘의 인물 조언 ===
     if "insight_index" not in st.session_state or not (0 <= st.session_state.insight_index < len(RANDOM_INSIGHTS)):
         st.session_state.insight_index = random.randrange(len(RANDOM_INSIGHTS))
     insight = RANDOM_INSIGHTS[st.session_state.insight_index]
@@ -3150,25 +3275,25 @@ elif st.session_state.screen == "landing":
     source_label = insight.get("source_type", "사상 기반 해석")
     st.markdown(
         f'<section class="insight-book">'
-        f'<div class="insight-page"><div class="insight-book-kicker">TODAY\'S INSIGHT · 오늘의 명언</div>'
+        f'<div class="insight-page"><div class="insight-book-kicker">TODAY\'S INSIGHT · 오늘의 인물 조언</div>'
         f'<div class="insight-author">{html.escape(insight["character"])}</div>'
         f'<div class="insight-concept">{html.escape(insight["concept"])} · {html.escape(source_label)}</div>'
         f'<div class="insight-quote"><span class="insight-quote-mark">“</span>{html.escape(insight["quote"])}<span class="insight-quote-mark">”</span></div>'
         f'<div class="insight-tags">{html.escape(insight_tags)}</div></div>'
         f'<div class="insight-page right"><div class="insight-book-kicker">AGORA NOTE</div>'
         f'<div class="insight-interpretation">{html.escape(insight["interpretation"])}</div>'
-        f'<div class="insight-action"><b>출처</b><br>{html.escape(insight.get("source_note", "사상과 전승을 바탕으로 한 해석입니다."))}</div>'
+        f'<div class="insight-action"><b>출처 기준</b><br>{html.escape(insight.get("source_note", "사상과 전승을 바탕으로 한 해석입니다."))}</div>'
         f'<div class="insight-action" style="margin-top:.7rem"><b>오늘의 작은 실천</b><br>{html.escape(insight["action"])}</div></div>'
         f'</section>',
         unsafe_allow_html=True,
     )
-    if st.button("새로운 명언 뽑기  ↻", use_container_width=True, key="new-insight"):
+    if st.button("다른 인물 조언 보기  ↻", use_container_width=True, key="new-insight"):
         current_index = st.session_state.insight_index
         candidates = [index for index in range(len(RANDOM_INSIGHTS)) if index != current_index]
         st.session_state.insight_index = random.choice(candidates)
         st.rerun()
     st.write("")
-    st.markdown("#### 오늘의 광장")
+    st.markdown("#### 오늘의 연결된 질문")
     for a, b, topic in [
         ("유명 채용 플랫폼 대표", "스티브 잡스", "AI 시대, 인간은 어떻게 살아남을 것인가"),
         ("예수", "부처", "AI시대, 종교의 방향"),
@@ -3190,9 +3315,9 @@ elif st.session_state.screen == "landing":
 
 
 elif st.session_state.screen == "mentor_landing":
+    render_scroll_to_top()
     if st.button("← 홈으로", key="mentor-landing-home", use_container_width=True):
-        st.session_state.screen = "landing"
-        st.rerun()
+        go_to_screen("landing")
     st.markdown('<div class="eyebrow">04 · MENTOR MATCHING</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="mentor-hero"><div class="mentor-kicker">FIND YOUR AGORA MENTOR</div>'
@@ -3208,14 +3333,15 @@ elif st.session_state.screen == "mentor_landing":
     )
     st.caption("깊게 고민하지 말고, 첫 번째로 떠오르는 답을 고르세요.")
     if st.button("나의 아고라 멘토 찾기", type="primary", use_container_width=True, key="mentor-start"):
-        st.session_state.update({"screen": "mentor_quiz", "mentor_index": 0, "mentor_scores": {axis: 0 for axis in MENTOR_AXES}})
+        reset_mentor_state()
+        st.session_state.screen = "mentor_quiz"
         st.rerun()
 
 
 elif st.session_state.screen == "mentor_quiz":
+    render_scroll_to_top()
     if st.button("← 멘토 소개로", key="mentor-quiz-back", use_container_width=True):
-        st.session_state.screen = "mentor_landing"
-        st.rerun()
+        go_back_screen(default_screen="mentor_landing")
     question_index = st.session_state.get("mentor_index", 0)
     question = MENTOR_QUESTIONS[question_index]
     st.markdown('<div class="eyebrow">MENTOR MATCHING · QUICK TEST</div>', unsafe_allow_html=True)
@@ -3225,14 +3351,24 @@ elif st.session_state.screen == "mentor_quiz":
         f'<div class="mentor-question-title">{html.escape(question["prompt"])}</div></div>',
         unsafe_allow_html=True,
     )
-    answer_a, answer_b = st.columns(2)
+    if st.session_state.get("mentor_answer_history") and question_index > 0:
+        if st.button("← 이전 선택지로", key="mentor-back-choice", use_container_width=True):
+            history = st.session_state.get("mentor_answer_history", [])
+            previous_state = history.pop()
+            st.session_state.mentor_answer_history = history
+            st.session_state.mentor_scores = previous_state.get("scores", {axis: 0 for axis in MENTOR_AXES})
+            st.session_state.mentor_index = previous_state.get("index", max(0, question_index - 1))
+            st.rerun()
+    answer_a, answer_b, answer_c = st.columns(3)
     for column, answer_key in ((answer_a, "a"), (answer_b, "b")):
         with column:
             answer_text, _ = question[answer_key]
             if st.button(answer_text, key=f"mentor-answer-{question_index}-{answer_key}", use_container_width=True, type="primary"):
                 scores = st.session_state.get("mentor_scores", {axis: 0 for axis in MENTOR_AXES}).copy()
-                for axis, weight in question[answer_key][1].items():
-                                                            scores[axis] = scores.get(axis, 0) + weight
+                history = st.session_state.get("mentor_answer_history", [])
+                history.append({"index": question_index, "scores": scores.copy(), "response": answer_key})
+                st.session_state.mentor_answer_history = history
+                scores = apply_question_response(scores, question, answer_key)
                 st.session_state.mentor_scores = scores
                 if question_index + 1 == len(MENTOR_QUESTIONS):
                     mentor, group, score = calculate_best_mentor(scores)
@@ -3250,12 +3386,36 @@ elif st.session_state.screen == "mentor_quiz":
                 else:
                     st.session_state.mentor_index = question_index + 1
                 st.rerun()
+    with answer_c:
+        if st.button("잘 모르겠다", key=f"mentor-answer-{question_index}-c", use_container_width=True):
+            scores = st.session_state.get("mentor_scores", {axis: 0 for axis in MENTOR_AXES}).copy()
+            history = st.session_state.get("mentor_answer_history", [])
+            history.append({"index": question_index, "scores": scores.copy(), "response": "neutral"})
+            st.session_state.mentor_answer_history = history
+            scores = apply_question_response(scores, question, "neutral")
+            st.session_state.mentor_scores = scores
+            if question_index + 1 == len(MENTOR_QUESTIONS):
+                mentor, group, score = calculate_best_mentor(scores)
+                rankings = calculate_mentor_rankings(scores)
+                conflicts = conflicting_mentors(scores)
+                st.session_state.update({
+                    "screen": "mentor_result",
+                    "mentor": mentor,
+                    "mentor_group": group,
+                    "mentor_score": score,
+                    "mentor_report": enhanced_mentor_report(scores, group),
+                    "mentor_rankings": rankings,
+                    "mentor_conflicts": conflicts,
+                })
+            else:
+                st.session_state.mentor_index = question_index + 1
+            st.rerun()
 
 
 elif st.session_state.screen == "mentor_result":
+    render_scroll_to_top()
     if st.button("← 홈으로", key="mentor-result-home", use_container_width=True):
-        st.session_state.screen = "landing"
-        st.rerun()
+        go_to_screen("landing")
     mentor = st.session_state.mentor
     group = st.session_state.mentor_group
     quote, quote_note = MENTOR_QUOTES[group]
@@ -3275,6 +3435,8 @@ elif st.session_state.screen == "mentor_result":
     match_score = max(0, min(100, match_score))
     tag_options = (("Action", "실행"), ("Innovation", "창의"), ("Logic", "논리"), ("Empathy", "공감"), ("Mastery", "집중"), ("Acceptance", "유연"), ("Order", "질서"), ("Reflection", "성찰"))
     tags = [label for axis, label in tag_options if scores.get(axis, 0) >= 3][:4]
+    neutral_count = sum(1 for state in st.session_state.get("mentor_answer_history", []) if state.get("response") == "neutral")
+    summary = mentor_match_summary(scores, neutral_count=neutral_count)
     mentor_advice = mentor_advice_for(mentor, scores)
     st.markdown('<div class="eyebrow">YOUR AGORA MENTOR · RESULT</div>', unsafe_allow_html=True)
     st.markdown(
@@ -3291,6 +3453,14 @@ elif st.session_state.screen == "mentor_result":
         unsafe_allow_html=True,
     )
     st.markdown(mentor_radar_chart(scores, mentor), unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="callout"><strong>추천 신뢰도</strong><br>{summary["confidence"]}% · {html.escape(summary["confidence_text"])}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f'<div class="callout"><strong>상위 매치</strong><br>{" · ".join(f"{name}({score}%)" for name, _, score in summary["top_three"][:3])}</div>',
+        unsafe_allow_html=True,
+    )
     st.markdown(
         f'<div class="callout"><strong>상반된 관점을 가진 인물</strong><br>{html.escape(conflict_person)}와의 차이를 통해, 당신이 놓치기 쉬운 반대편의 관점을 살펴볼 수 있습니다.</div>',
         unsafe_allow_html=True,
@@ -3309,8 +3479,12 @@ elif st.session_state.screen == "mentor_result":
     if st.session_state.get("mentor_insight"):
         st.markdown(f'<div class="callout"><strong>{mentor}와의 연결점</strong><br>{html.escape(st.session_state.mentor_insight)}</div>', unsafe_allow_html=True)
     if st.button("다시 테스트하기", use_container_width=True, key="mentor-retry"):
-        st.session_state.update({"screen": "mentor_quiz", "mentor_index": 0, "mentor_scores": {axis: 0 for axis in MENTOR_AXES}, "mentor_insight": ""})
+        reset_mentor_state()
+        st.session_state.screen = "mentor_quiz"
         st.rerun()
+    st.write("")
+    if st.button("🏠 홈으로", key="mentor-result-home-bottom", type="primary", use_container_width=True):
+        go_to_screen("landing")
 
 
 elif st.session_state.screen == "magazine":
