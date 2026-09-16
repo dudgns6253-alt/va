@@ -344,6 +344,53 @@ MENTOR_VIEWPOINTS = {
 }
 
 
+MENTOR_STORY_TAGLINES = {
+    "이순신": "불안해도 현장으로 먼저 나아가는 사람",
+    "세종대왕": "사람을 살리는 답을 끝까지 설계하는 사람",
+    "소크라테스": "정답보다 질문으로 판을 다시 짜는 사람",
+    "스티브 잡스": "남의 기준보다 자기 감각을 믿고 밀어붙이는 사람",
+    "공자": "작은 태도와 약속으로 오래가는 질서를 만드는 사람",
+    "예수": "가장 약한 사람의 자리에서 세상을 다시 보는 사람",
+    "부처": "붙잡을 것과 놓을 것을 조용히 가려내는 사람",
+    "니체": "주어진 운명에 머물지 않고 자기 길을 만드는 사람",
+    "쇼펜하우어": "세상의 소음에서 한 발 물러나 본질을 보는 사람",
+    "체 게바라": "계산만 하기보다 먼저 현실에 뛰어드는 사람",
+    "율리우스 카이사르": "막힌 판에서도 기회를 읽고 승부를 거는 사람",
+    "나폴레옹": "기회가 오기 전에 지형부터 바꾸는 사람",
+    "징기스칸": "경계를 넘고 사람을 연결해 길을 넓히는 사람",
+    "알렉산더 대왕": "익숙한 세계를 넘어 더 큰 지도를 그리는 사람",
+    "정약용": "좋은 뜻을 실제로 작동하는 구조로 바꾸는 사람",
+    "아리스토텔레스": "극단 사이에서 오래 갈 방법을 찾아내는 사람",
+    "레오나르도 다빈치": "서로 먼 것들을 연결해 새로운 가능성을 보는 사람",
+    "니콜라 테슬라": "아직 보이지 않는 미래를 먼저 상상하는 사람",
+    "디오게네스": "당연하다는 말 앞에서 멈추지 않고 따져 묻는 사람",
+    "윈스턴 처칠": "흔들리는 순간에도 다음 한 걸음을 말해주는 사람",
+    "노자": "힘을 덜어낼 때 오히려 길이 열린다는 걸 아는 사람",
+    "장자": "한 가지 기준에 갇히지 않고 시선을 바꾸는 사람",
+    "헬렌 켈러": "혼자가 아니라 연결의 힘으로 벽을 넘는 사람",
+    "마하트마 간디": "자신의 삶으로 변화를 설득하려는 사람",
+    "알베르트 아인슈타인": "남들이 당연하게 본 문제를 다른 각도에서 보는 사람",
+    "알베르트 슈바이처": "아는 것을 가장 가까운 생명을 돕는 데 쓰는 사람",
+    "테레사 수녀": "거대한 말보다 눈앞의 한 사람을 돌보는 사람",
+    "유비": "혼자 앞서기보다 함께 갈 사람의 마음을 얻는 사람",
+}
+
+MENTOR_STORY_ADVICE = {
+    "이순신": "두려움이 사라질 때까지 기다리지 말고, 지금 지킬 수 있는 한 사람과 한 가지 일부터 붙들어 보세요.",
+    "세종대왕": "당신의 생각을 혼자 증명하려 하기보다, 누군가가 실제로 쓸 수 있는 방식으로 바꾸어 보세요.",
+    "소크라테스": "답을 서둘러 고르기 전에, 지금 당연하다고 믿는 전제 하나부터 다시 물어보세요.",
+    "스티브 잡스": "모두를 만족시키려는 선택을 덜어내고, 정말 중요하다고 느끼는 하나에 힘을 몰아주세요.",
+    "공자": "거창한 선언보다 오늘 반복할 수 있는 작은 약속 하나가 당신의 기준을 만듭니다.",
+    "예수": "옳다는 것을 증명하기 전에, 당신 앞에 있는 사람이 무엇을 견디고 있는지 먼저 바라보세요.",
+    "부처": "이미 지나간 장면과 아직 오지 않은 걱정을 잠시 내려놓고, 지금 바꿀 수 있는 것만 바라보세요.",
+    "니체": "남이 정해준 안전한 답을 기다리지 말고, 당신이 감당할 수 있는 방식으로 자기 기준을 만들어 보세요.",
+    "쇼펜하우어": "문제를 더 크게 만드는 해석 하나를 내려놓고, 타인의 고통까지 보이는 거리에서 다시 바라보세요.",
+    "체 게바라": "생각이 너무 많아져 발이 묶일 때는, 함께 움직일 사람 한 명을 찾고 작더라도 현실을 흔드는 행동부터 시작하세요.",
+    "율리우스 카이사르": "승부를 걸되 모든 권한을 혼자 쥐려 하지는 마세요. 큰 판일수록 함께 결정할 여지가 오래가는 힘이 됩니다.",
+    "나폴레옹": "기회를 기다리기보다 내가 바꿀 수 있는 지형부터 정리하고, 결정한 뒤에는 책임 있게 밀고 가세요.",
+}
+
+
 def mentor_viewpoint_for(mentor: str, user_scores: dict[str, int]) -> str:
     """Return a perspective lens, with a persona-based fallback for future additions."""
     viewpoint = MENTOR_VIEWPOINTS.get(mentor)
@@ -354,6 +401,88 @@ def mentor_viewpoint_for(mentor: str, user_scores: dict[str, int]) -> str:
     vector = PERSONA_VECTORS.get(mentor, {})
     mentor_strength = max(MENTOR_AXES, key=lambda axis: vector.get(axis, 0))
     return f"{labels[mentor_strength]}을 중심에 두면 {labels[strongest[0]]}에 대한 당신의 기준이 더 선명해집니다. 동시에 {labels[strongest[1]]}을 잃지 않는지 함께 살펴보면 {mentor}의 관점이 당신의 선택을 다시 바라보는 렌즈가 됩니다."
+
+
+def mentor_story(mentor: str, user_scores: dict[str, int]) -> tuple[str, str, str]:
+    """Turn the matching result into a human-readable story instead of a score report."""
+    labels = {
+        "Action": "직관과 실행력",
+        "Reflection": "깊이 생각하는 힘",
+        "Innovation": "새로운 가능성을 보는 감각",
+        "Order": "질서와 책임감",
+        "Logic": "논리적으로 판단하는 힘",
+        "Empathy": "사람을 헤아리는 마음",
+        "Mastery": "한 가지를 끝까지 파고드는 집중력",
+        "Acceptance": "변화를 받아들이는 유연함",
+    }
+    strongest = sorted(MENTOR_AXES, key=lambda axis: user_scores.get(axis, 0), reverse=True)[:2]
+    first, second = (labels[axis] for axis in strongest)
+    tagline = MENTOR_STORY_TAGLINES.get(mentor, f"{first}으로 자기만의 길을 만드는 사람")
+    resemblance = (
+        f"당신은 안전한 정답을 그대로 따르기보다 {first}을(를) 믿고 선택하려는 쪽에 가깝습니다. "
+        f"동시에 {second}도 놓치지 않으려는 모습이 보여서, {mentor}가 걸어온 방식과 닮은 지점을 발견했습니다."
+    )
+    advice = MENTOR_STORY_ADVICE.get(mentor, mentor_viewpoint_for(mentor, user_scores))
+    return tagline, resemblance, advice
+
+
+def mentor_comparison_phrase(person: str, user_scores: dict[str, int], opposite: bool = False) -> str:
+    """Give a short human-readable reason for a nearby or contrasting mentor."""
+    labels = {
+        "Action": "실행",
+        "Reflection": "성찰",
+        "Innovation": "창의",
+        "Order": "질서",
+        "Logic": "논리",
+        "Empathy": "공감",
+        "Mastery": "집중",
+        "Acceptance": "유연함",
+    }
+    user_profile = normalized_user_profile(user_scores)
+    vector = PERSONA_VECTORS.get(person, {})
+    if opposite:
+        axis = max(MENTOR_AXES, key=lambda item: abs(user_profile.get(item, 0) - vector.get(item, 0)))
+        return f"{labels[axis]}을(를) 바라보는 방식이 가장 달라서, 당신의 익숙한 선택을 흔들어볼 인물입니다."
+    story_lines = {
+        "이순신": "불리한 조건에서도 책임을 피하지 않고, 준비한 것을 현장에서 끝까지 밀어붙이는 쪽입니다.",
+        "세종대왕": "당신의 생각을 혼자만의 성취로 끝내지 않고, 다른 사람이 쓸 수 있는 질서로 만들려는 쪽입니다.",
+        "소크라테스": "남들이 정답이라고 부르는 순간에도 한 번 더 묻고, 선택의 전제를 확인하려는 쪽입니다.",
+        "스티브 잡스": "많이 벌이기보다 본질 하나를 골라 집요하게 다듬고 싶은 마음이 닮아 있습니다.",
+        "공자": "큰 변화보다 매일 지킬 태도와 관계의 약속이 결국 사람을 만든다고 보는 쪽입니다.",
+        "예수": "승리보다 누군가가 덜 다치고 다시 일어서는지를 중요한 기준으로 삼는 쪽입니다.",
+        "부처": "더 세게 움켜쥐기보다 무엇을 내려놓아야 마음과 판단이 맑아지는지 살피는 쪽입니다.",
+        "니체": "남이 정해준 기준에 안주하기보다, 스스로 감당할 가치를 만들어보려는 쪽입니다.",
+        "쇼펜하우어": "사건 자체보다 그것을 해석하는 마음의 움직임을 한 발 떨어져 바라보려는 쪽입니다.",
+        "아르투어 쇼펜하우어": "사건 자체보다 그것을 해석하는 마음의 움직임을 한 발 떨어져 바라보려는 쪽입니다.",
+        "체 게바라": "생각만으로 안전한 결론을 기다리기보다, 불편한 현실에 직접 몸을 던져 바꾸려는 쪽입니다.",
+        "율리우스 카이사르": "판이 불리해도 사람과 지형을 읽고, 결정적인 순간에 먼저 판을 움직이려는 쪽입니다.",
+        "나폴레옹": "기회가 오기를 기다리기보다 자원과 순서를 재배치해 승산을 만드는 쪽입니다.",
+        "징기스칸": "출신보다 가능성을 보고 빠르게 사람을 연결해 새로운 길을 여는 쪽입니다.",
+        "알렉산더 대왕": "익숙한 경계 안에 머물기보다 더 넓은 세계를 직접 확인하고 싶은 쪽입니다.",
+        "정약용": "좋은 의도를 실제로 작동하는 제도와 도구로 바꾸어야 한다고 보는 쪽입니다.",
+        "아리스토텔레스": "감정적인 한 번의 결단보다 오래 반복할 수 있는 균형 잡힌 방법을 찾는 쪽입니다.",
+        "레오나르도 다빈치": "서로 상관없어 보이는 분야를 이어 붙여 새로운 가능성을 발견하는 쪽입니다.",
+        "니콜라 테슬라": "아직 아무도 보지 못한 가능성을 먼저 상상하고, 그것을 현실의 실험으로 옮기려는 쪽입니다.",
+        "디오게네스": "멋있어 보이는 답보다 정말 필요한 것이 무엇인지 끝까지 의심하는 쪽입니다.",
+        "윈스턴 처칠": "불안한 순간에도 사람을 움직일 수 있는 말과 다음 행동을 함께 찾는 쪽입니다.",
+        "노자": "더 많이 개입하기보다 힘을 빼고 흐름을 읽을 때 문제가 풀린다고 보는 쪽입니다.",
+        "장자": "하나의 답에 자신을 가두기보다 관점을 바꾸며 뜻밖의 출구를 찾는 쪽입니다.",
+        "헬렌 켈러": "혼자 버티는 영웅담보다 배움과 연대가 장벽을 실제로 낮춘다고 믿는 쪽입니다.",
+        "마하트마 간디": "상대를 꺾는 힘보다 자신의 삶으로 변화를 설득하는 힘을 더 믿는 쪽입니다.",
+        "알베르트 아인슈타인": "익숙한 공식에 맞추기보다 문제를 전혀 다른 각도에서 다시 바라보는 쪽입니다.",
+        "알베르트 슈바이처": "알고 있는 것에서 멈추지 않고, 가장 가까운 사람을 돕는 행동으로 이어가려는 쪽입니다.",
+        "테레사 수녀": "거대한 구호보다 지금 눈앞의 한 사람에게 건넬 수 있는 돌봄을 먼저 보는 쪽입니다.",
+        "유비": "혼자 가장 빠르게 가기보다 함께 오래 갈 사람의 마음과 신뢰를 중요하게 보는 쪽입니다.",
+    }
+    if person in story_lines:
+        return story_lines[person]
+    shared = sorted(
+        MENTOR_AXES,
+        key=lambda item: min(user_profile.get(item, 0), vector.get(item, 0)),
+        reverse=True,
+    )
+    shared = [axis for axis in shared if user_profile.get(axis, 0) >= 4 and vector.get(axis, 0) >= 4][:2]
+    return f"{'와 '.join(labels[axis] for axis in shared)} 쪽에서 당신과 닮은 결을 보입니다." if shared else "당신과 비슷한 선택의 방향을 보이는 인물입니다."
 
 MENTOR_PROFILES = {
     "이순신": ("조선의 수군 지휘관으로 임진왜란의 바다를 지키며 명량과 한산도에서 전세를 뒤집었습니다.", "책임, 절제, 현장 판단을 중시했고 불리한 조건에서도 공동체를 지키는 결단을 선택했습니다.", "말보다 준비와 행동으로 신뢰를 쌓는 원칙적이고 묵직한 사람입니다."),
@@ -1267,7 +1396,6 @@ LEGACY_PORTRAIT_NAMES = {
     "부처",
     "니체",
     "쇼펜하우어",
-    "아르투어 쇼펜하우어",
 }
 PEOPLE_INFO["아르투어 쇼펜하우어"] = PEOPLE_INFO["쇼펜하우어"]
 EXAMPLE_PORTRAITS = {
@@ -1317,6 +1445,7 @@ MENTOR_CARD_IMAGE_ALIASES = {
     "니체": PORTRAIT_DIR / "nietzsche.png",
     "나폴레옹": PORTRAIT_DIR / "03_나폴레옹 보나파르트.png",
     "율리우스 카이사르": PORTRAIT_DIR / "caesar.png",
+    "아르투어 쇼펜하우어": PORTRAIT_DIR / "schopenhauer.png",
 }
 MENTOR_CARD_IMAGES = {}
 MENTOR_CARD_IMAGE_DIR = PORTRAIT_DIR
@@ -3570,11 +3699,25 @@ background_styles = """<style>
     .mentor-answer { min-height:7.5rem !important; text-align:left !important; white-space:normal !important; line-height:1.5 !important; }
     .mentor-result { border:1px solid #c89b6d; border-radius:18px; padding:1.55rem; background:linear-gradient(145deg,#2b2020,#17232c); box-shadow:0 20px 50px rgba(0,0,0,.28); }
     .mentor-result-head { display:flex; align-items:center; gap:1.2rem; }
-    .mentor-result-portrait { flex:0 0 7.2rem; width:7.2rem; height:7.2rem; border-radius:50%; overflow:hidden; border:0; background:transparent; box-shadow:0 8px 22px rgba(0,0,0,.28); display:flex; align-items:center; justify-content:center; }
-    .mentor-result-portrait img { width:100%; height:100%; object-fit:contain; object-position:center; transform:scale(.9); image-rendering:auto; }
+    .mentor-result-portrait { flex:0 0 8.4rem; width:8.4rem; height:10.5rem; position:relative; overflow:hidden; border-radius:22px; border:1px solid rgba(229,163,110,.78); background:#172a34; box-shadow:0 16px 32px rgba(0,0,0,.32), inset 0 0 0 5px rgba(255,255,255,.04); display:flex; align-items:center; justify-content:center; }
+    .mentor-result-portrait::after { content:""; position:absolute; inset:45% 0 0; background:linear-gradient(to bottom,transparent,rgba(7,15,21,.72)); pointer-events:none; }
+    .mentor-result-portrait img { width:100%; height:100%; object-fit:cover; object-position:center top; transform:none; image-rendering:auto; }
     .mentor-result-heading { min-width:0; }
     .mentor-result-name { color:#fff4df !important; font-family:'DM Serif Display',serif; font-size:2.5rem; line-height:1.15; }
     .mentor-result-group { color:#f0ba86 !important; font-weight:800; letter-spacing:.08em; margin:.3rem 0 1rem; }
+    .mentor-story-tagline { color:#ffd6a8 !important; font-family:'DM Serif Display',serif; font-size:1.35rem; line-height:1.35; margin:1.15rem 0 .8rem; }
+    .mentor-story-section { border-top:1px solid rgba(111,146,159,.55); padding:1rem 0 .2rem; }
+    .mentor-story-label { color:#aee3ee !important; font-size:.72rem; font-weight:800; letter-spacing:.12em; margin-bottom:.38rem; }
+    .mentor-story-text { color:#f2f7f8 !important; font-size:1rem; line-height:1.75; }
+    .mentor-comparison-title { color:#fff4df !important; font-family:'DM Serif Display',serif; font-size:1.35rem; margin:1.5rem 0 .75rem; }
+    .mentor-comparison-card { min-height:9.5rem; border:1px solid #557683; border-radius:16px; padding:1rem; background:linear-gradient(145deg,#172a34,#111d25); }
+    .mentor-comparison-card.contrast { border-color:#a66f55; background:linear-gradient(145deg,#302220,#17232c); }
+    .mentor-comparison-card-head { display:flex; align-items:center; gap:.7rem; margin-bottom:.65rem; }
+    .mentor-comparison-avatar { width:3rem; height:3.6rem; flex:0 0 3rem; border-radius:10px; overflow:hidden; border:1px solid rgba(229,163,110,.58); background:#203642; }
+    .mentor-comparison-avatar img { width:100%; height:100%; object-fit:cover; object-position:center top; }
+    .mentor-comparison-name { color:#fff4df !important; font-weight:800; line-height:1.2; }
+    .mentor-comparison-score { color:#f0ba86 !important; font-size:.76rem; font-weight:700; margin-top:.2rem; }
+    .mentor-comparison-copy { color:#d8e7eb !important; font-size:.84rem; line-height:1.55; }
     .mentor-quote { color:#fff4df !important; border-left:3px solid #e5a36e; padding:.7rem 1rem; margin:1rem 0; line-height:1.65; font-size:1.05rem; }
     .mentor-report { color:#e5edf0 !important; line-height:1.8; margin:.2rem 0; }
     .mentor-tag { display:inline-block; color:#b9edf5 !important; background:#285565; border:1px solid #6f929f; border-radius:999px; padding:.28rem .65rem; margin:.25rem .25rem 0 0; font-size:.78rem; font-weight:700; }
@@ -3657,7 +3800,7 @@ background_styles = """<style>
     .profile-grid-value .blind { color:#e5a36e !important; font-style:italic; }
     .profile-grid-item.full { grid-column:1 / -1; }
     @media (max-width:640px) { .profile-grid { grid-template-columns:1fr; } .similarity-bar-label { width:5.5rem; font-size:.72rem; } }
-    @media (max-width:640px) { .mentor-result-head { align-items:flex-start; } .mentor-result-portrait { flex-basis:5.5rem; width:5.5rem; height:5.5rem; } }
+    @media (max-width:640px) { .mentor-result-head { align-items:flex-start; } .mentor-result-portrait { flex-basis:6.8rem; width:6.8rem; height:8.5rem; border-radius:18px; } }
     @media (max-width:640px) { .home-feature { height:auto; min-height:12rem; } }
     .intro-page { min-height:78vh; display:flex; align-items:center; justify-content:center; }
     .intro-shell { position:relative; overflow:hidden; width:100%; min-height:620px; border:1px solid #526b78; border-radius:24px; background:#101a21; box-shadow:0 24px 70px rgba(0,0,0,.38); }
@@ -4256,6 +4399,7 @@ elif st.session_state.screen == "mentor_result":
     report = st.session_state.mentor_report
     scores = st.session_state.get("mentor_scores", {})
     match_reason, match_evidence, match_difference = mentor_match_reasons(mentor, scores)
+    mentor_tagline, mentor_resemblance, mentor_advice = mentor_story(mentor, scores)
     rankings = st.session_state.get("mentor_rankings", [])
     top_rankings = rankings[:5]
     conflict_person = conflicting_mentors(scores)[0][0] if scores else "-"
@@ -4269,38 +4413,62 @@ elif st.session_state.screen == "mentor_result":
     st.markdown('<div class="eyebrow">YOUR AGORA MENTOR · RESULT</div>', unsafe_allow_html=True)
     st.markdown(
         f'<div class="mentor-result"><div class="mentor-result-head">{mentor_portrait_markup}<div class="mentor-result-heading">'
-        f'<div class="mentor-kicker">당신과 가장 잘 맞는 인물</div>'
+        f'<div class="mentor-kicker">YOUR AGORA MENTOR · 오늘의 멘토</div>'
         f'<div class="mentor-result-name">{html.escape(mentor)}</div>'
-        f'<div class="mentor-result-group">{html.escape(group)} · 생각의 방향이 닮은 정도 {match_score}%</div></div></div>'
-        f'<div class="mentor-quote">“{html.escape(quote)}”<br><small>{html.escape(quote_note)}</small></div>'
-        f'{"".join(f"<span class=\"mentor-tag\">{html.escape(tag)}</span>" for tag in tags)}'
-        f'<div class="mentor-profile"><div class="mentor-profile-title">왜 이 인물과 잘 맞는가</div>'
-        f'<div class="mentor-profile-row"><span class="mentor-profile-label">겹치는 기준</span>{html.escape(match_reason)}</div>'
-        f'<div class="mentor-profile-row"><span class="mentor-profile-label">비교 결과</span>{html.escape(match_evidence)}</div>'
-        f'<div class="mentor-profile-row"><span class="mentor-profile-label">다른 점</span>{html.escape(match_difference)}</div></div></div>',
+        f'<div class="mentor-result-group">{html.escape(group)}</div></div></div>'
+        f'<div class="mentor-story-tagline">“{html.escape(mentor_tagline)}”</div>'
+        f'<div class="mentor-story-section"><div class="mentor-story-label">선택의 닮은꼴</div>'
+        f'<div class="mentor-story-text">{html.escape(mentor_resemblance)}</div></div>'
+        f'<div class="mentor-story-section"><div class="mentor-story-label">이 인물이 건네는 팁</div>'
+        f'<div class="mentor-story-text">“{html.escape(mentor_advice)}”</div></div>'
+        f'<div class="mentor-story-section"><div class="mentor-story-label">이 인물의 한 문장</div>'
+        f'<div class="mentor-story-text">“{html.escape(quote)}”<br><small>{html.escape(quote_note)}</small></div></div></div>',
         unsafe_allow_html=True,
     )
     st.markdown(mentor_radar_chart(scores, mentor), unsafe_allow_html=True)
-    st.markdown(
-        f'<div class="callout"><strong>답변 경향의 선명도</strong><br>{summary["concentration"]}% · {html.escape(summary["concentration_text"])}'
-        '<br><small>정답률이나 추천의 확신도가 아니라, 12개 답변에서 특정 가치 축에 선택이 얼마나 집중됐는지를 보여주는 지표입니다.</small></div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f'<div class="callout"><strong>함께 닮은 인물</strong><br>{" · ".join(f"{name}({score}%)" for name, _, score in summary["top_three"][:3])}</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f'<div class="callout"><strong>나와 다르게 생각하는 인물</strong><br>{html.escape(conflict_person)}와 비교하면, 내가 익숙해서 지나치기 쉬운 다른 선택 기준을 볼 수 있습니다.</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f'<div class="callout"><strong>{mentor}의 기준으로 다시 보기</strong><br>{html.escape(mentor_viewpoint)}</div>',
-        unsafe_allow_html=True,
-    )
-    st.subheader("답변을 보면")
-    for line in report:
-        st.markdown(f'<div class="mentor-report">{html.escape(line)}</div>', unsafe_allow_html=True)
+    similar_rankings = [item for item in rankings if item[0] != mentor][:2]
+    contrast_ranking = conflicting_mentors(scores)[0] if scores else None
+    st.markdown('<div class="mentor-comparison-title">당신의 다른 가능성</div>', unsafe_allow_html=True)
+    comparison_columns = st.columns(2)
+    for column, (person, person_group, score) in zip(comparison_columns, similar_rankings):
+        person_image = avatar_image(person)
+        image_markup = (
+            f'<img src="{person_image}" alt="{html.escape(person)} 초상화">'
+            if person_image
+            else html.escape(chat_avatar(person))
+        )
+        with column:
+            st.markdown(
+                f'<div class="mentor-comparison-card"><div class="mentor-comparison-card-head">'
+                f'<div class="mentor-comparison-avatar">{image_markup}</div><div>'
+                f'<div class="mentor-comparison-name">{html.escape(person)}</div>'
+                f'<div class="mentor-comparison-score">닮은 정도 {int(round(score))}% · {html.escape(person_group)}</div></div></div>'
+                f'<div class="mentor-comparison-copy">{html.escape(mentor_comparison_phrase(person, scores))}</div></div>',
+                unsafe_allow_html=True,
+            )
+    if contrast_ranking:
+        contrast_person, contrast_group, contrast_score = contrast_ranking
+        contrast_image = avatar_image(contrast_person)
+        contrast_markup = (
+            f'<img src="{contrast_image}" alt="{html.escape(contrast_person)} 초상화">'
+            if contrast_image
+            else html.escape(chat_avatar(contrast_person))
+        )
+        st.markdown(
+            f'<div class="mentor-comparison-card contrast" style="margin-top:.75rem"><div class="mentor-comparison-card-head">'
+            f'<div class="mentor-comparison-avatar">{contrast_markup}</div><div>'
+            f'<div class="mentor-comparison-name">나와 가장 다른 인물 · {html.escape(contrast_person)}</div>'
+            f'<div class="mentor-comparison-score">닮은 정도 {int(round(contrast_score))}% · {html.escape(contrast_group)}</div></div></div>'
+            f'<div class="mentor-comparison-copy">{html.escape(mentor_comparison_phrase(contrast_person, scores, opposite=True))} '
+            f'그래서 이 인물은 당신이 놓치기 쉬운 반대편의 선택을 보여줍니다.</div></div>',
+            unsafe_allow_html=True,
+        )
+    with st.expander("내 답변이 만든 추천 과정을 더 보고 싶다면"):
+        st.markdown(
+            f"**추천된 이유**  \n{match_reason}  \n\n"
+            f"**비교해 본 방향**  \n{match_evidence}  \n\n"
+            f"**다르게 보이는 지점**  \n{match_difference}",
+        )
     st.write("")
 
     if st.button(f"🎴 {mentor}와의 연결점 보기", type="primary", use_container_width=True, key="mentor-insight"):
