@@ -529,10 +529,86 @@ def enhanced_mentor_report(user_scores: dict[str, int], group: str) -> list[str]
 
 
 def why_this_match(mentor: str, user_scores: dict[str, int]) -> str:
-    axis_labels = {"Action": "실행력", "Reflection": "성찰", "Innovation": "창의성", "Order": "질서감", "Logic": "논리", "Empathy": "공감", "Mastery": "집중력", "Acceptance": "유연함"}
-    ranked_axes = sorted(user_scores.items(), key=lambda item: item[1], reverse=True)[:3]
-    axis_text = ", ".join(f"{axis_labels.get(axis, axis)}({score})" for axis, score in ranked_axes)
-    return f"당신에게 두드러진 {axis_text}은 {mentor}가 중요하게 여긴 기준과 맞닿아 있습니다. 두 사람의 연결점은 같은 답을 내리는 데보다, 비슷한 기준으로 선택을 바라보는 데 있습니다."
+    axis_labels = {
+        "Action": "실행력",
+        "Reflection": "성찰",
+        "Innovation": "창의성",
+        "Order": "질서감",
+        "Logic": "논리",
+        "Empathy": "공감",
+        "Mastery": "집중력",
+        "Acceptance": "유연함",
+    }
+    user_profile = normalized_user_profile(user_scores)
+    mentor_vector = PERSONA_VECTORS.get(mentor, {})
+    shared_axes = sorted(
+        MENTOR_AXES,
+        key=lambda axis: min(user_profile.get(axis, 0), mentor_vector.get(axis, 0)),
+        reverse=True,
+    )
+    shared = [axis for axis in shared_axes if user_profile.get(axis, 0) >= 5 and mentor_vector.get(axis, 0) >= 5][:2]
+    if not shared:
+        shared = sorted(MENTOR_AXES, key=lambda axis: user_profile.get(axis, 0), reverse=True)[:2]
+    shared_text = "와 ".join(axis_labels[axis] for axis in shared)
+    user_evidence = ", ".join(
+        f"{axis_labels[axis]}({user_scores.get(axis, 0)}점)"
+        for axis in sorted(MENTOR_AXES, key=lambda item: user_scores.get(item, 0), reverse=True)
+        if user_scores.get(axis, 0) > 0
+    )[:90]
+    return (
+        f"당신의 답변에서는 {shared_text}을(를) 중요하게 보는 선택이 두드러졌습니다. "
+        f"{mentor}도 이 기준의 비중이 높은 인물이라 추천되었습니다. "
+        f"당신의 실제 응답 점수는 {user_evidence or '아직 기록된 선택이 없습니다'}이며, "
+        "인물의 삶이 당신과 같다는 뜻이 아니라 선택 기준이 겹친다는 의미입니다."
+    )
+
+
+def mentor_match_reasons(mentor: str, user_scores: dict[str, int]) -> tuple[str, str, str]:
+    """Explain the match from the user's answers, not from the mentor biography."""
+    axis_labels = {
+        "Action": "실행력",
+        "Reflection": "성찰",
+        "Innovation": "창의성",
+        "Order": "질서감",
+        "Logic": "논리",
+        "Empathy": "공감",
+        "Mastery": "집중력",
+        "Acceptance": "유연함",
+    }
+    user_profile = normalized_user_profile(user_scores)
+    mentor_vector = PERSONA_VECTORS.get(mentor, {})
+    shared = sorted(
+        (
+            axis for axis in MENTOR_AXES
+            if user_profile.get(axis, 0) >= 5 and mentor_vector.get(axis, 0) >= 5
+        ),
+        key=lambda axis: min(user_profile.get(axis, 0), mentor_vector.get(axis, 0)),
+        reverse=True,
+    )[:3]
+    if not shared:
+        shared = sorted(MENTOR_AXES, key=lambda axis: user_profile.get(axis, 0), reverse=True)[:2]
+    shared_text = ", ".join(axis_labels[axis] for axis in shared)
+    user_text = ", ".join(
+        f"{axis_labels[axis]} {user_scores.get(axis, 0)}점"
+        for axis in sorted(MENTOR_AXES, key=lambda axis: user_scores.get(axis, 0), reverse=True)[:3]
+    )
+    mentor_text = ", ".join(
+        f"{axis_labels[axis]} {mentor_vector.get(axis, 0)}"
+        for axis in sorted(MENTOR_AXES, key=lambda axis: mentor_vector.get(axis, 0), reverse=True)[:3]
+    )
+    differences = sorted(
+        MENTOR_AXES,
+        key=lambda axis: abs(user_profile.get(axis, 0) - mentor_vector.get(axis, 0)),
+        reverse=True,
+    )
+    difference_text = axis_labels[differences[0]] if differences else "다른 가치"
+    return (
+        f"당신의 답변에서 {shared_text}을(를) 우선하는 선택이 많았기 때문에 {mentor}가 추천되었습니다.",
+        f"당신의 답변 경향은 {user_text or '아직 충분히 기록되지 않았습니다'}이고, "
+        f"{mentor}의 비교 프로필은 {mentor_text}입니다. 두 결과에서 겹치는 기준이 추천의 근거입니다.",
+        f"가장 큰 차이는 {difference_text}에서 나타납니다. 따라서 이 결과는 '완전히 같은 인물'이라는 뜻이 아니라, "
+        f"{mentor}의 기준 중 일부가 당신의 선택과 닮았다는 뜻입니다.",
+    )
 
 
 def conflict_reason(mentor: str, conflict_person: str) -> str:
@@ -4171,7 +4247,6 @@ elif st.session_state.screen == "mentor_result":
     mentor = st.session_state.mentor
     group = st.session_state.mentor_group
     quote, quote_note = MENTOR_QUOTES[group]
-    life, thought, personality = MENTOR_PROFILES.get(mentor, ("기록과 전승을 통해 시대를 대표한 인물입니다.", "자신만의 기준으로 삶과 공동체의 문제를 바라보았습니다.", "뚜렷한 신념과 개성을 지닌 인물입니다."))
     mentor_portrait = avatar_image(mentor)
     mentor_portrait_markup = (
         f'<div class="mentor-result-portrait"><img src="{mentor_portrait}" alt="{html.escape(mentor)} 초상화"></div>'
@@ -4180,6 +4255,7 @@ elif st.session_state.screen == "mentor_result":
     )
     report = st.session_state.mentor_report
     scores = st.session_state.get("mentor_scores", {})
+    match_reason, match_evidence, match_difference = mentor_match_reasons(mentor, scores)
     rankings = st.session_state.get("mentor_rankings", [])
     top_rankings = rankings[:5]
     conflict_person = conflicting_mentors(scores)[0][0] if scores else "-"
@@ -4199,9 +4275,9 @@ elif st.session_state.screen == "mentor_result":
         f'<div class="mentor-quote">“{html.escape(quote)}”<br><small>{html.escape(quote_note)}</small></div>'
         f'{"".join(f"<span class=\"mentor-tag\">{html.escape(tag)}</span>" for tag in tags)}'
         f'<div class="mentor-profile"><div class="mentor-profile-title">왜 이 인물과 잘 맞는가</div>'
-        f'<div class="mentor-profile-row"><span class="mentor-profile-label">이유</span>{html.escape(life)}</div>'
-        f'<div class="mentor-profile-row"><span class="mentor-profile-label">사상</span>{html.escape(thought)}</div>'
-        f'<div class="mentor-profile-row"><span class="mentor-profile-label">성향</span>{html.escape(personality)}</div></div></div>',
+        f'<div class="mentor-profile-row"><span class="mentor-profile-label">겹치는 기준</span>{html.escape(match_reason)}</div>'
+        f'<div class="mentor-profile-row"><span class="mentor-profile-label">비교 결과</span>{html.escape(match_evidence)}</div>'
+        f'<div class="mentor-profile-row"><span class="mentor-profile-label">다른 점</span>{html.escape(match_difference)}</div></div></div>',
         unsafe_allow_html=True,
     )
     st.markdown(mentor_radar_chart(scores, mentor), unsafe_allow_html=True)
