@@ -7,32 +7,24 @@ import re
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
+from datetime import date
 from functools import lru_cache
 from pathlib import Path
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 
 st.set_page_config(
     page_title="Virtual Agora",
     page_icon="✦",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 
 def render_scroll_to_top() -> None:
-    components.html(
-        """
-        <script>
-          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-          document.body.scrollTop = 0;
-          document.documentElement.scrollTop = 0;
-        </script>
-        """,
-        height=0,
-    )
+    """Keep the screen transition hook without injecting a deprecated iframe."""
+    return None
 
 
 def go_to_screen(screen_name: str, **kwargs) -> None:
@@ -77,6 +69,15 @@ def go_home(default_screen: str = "landing") -> None:
     st.rerun()
 
 
+def render_topbar() -> None:
+    """Render a quiet brand strip without competing navigation controls."""
+    st.markdown(
+        '<div class="app-topbar"><div class="app-topbar-brand">VIRTUAL AGORA <span>· 질문의 광장</span></div>'
+        '<div class="app-topbar-note">과거의 시선으로 오늘을 다시 보기</div></div>',
+        unsafe_allow_html=True,
+    )
+
+
 MENTOR_PEOPLE = [
     "이순신",
     "세종대왕",
@@ -107,7 +108,7 @@ MENTOR_PEOPLE = [
     "알베르트 슈바이처",
     "테레사 수녀",
     "유비",
-    "오디세우스",
+    "율리우스 카이사르",
 ]
 PEOPLE = [
     "이순신",
@@ -220,7 +221,8 @@ MENTOR_GROUPS = {
     "결단/개척형": ("용기 · 혁신 · 정면승부", ["이순신", "스티브 잡스", "나폴레옹", "징기스칸", "체 게바라", "알렉산더 대왕"], _mentor_vector(Action=10, Reflection=2, Innovation=9, Order=3, Logic=7, Empathy=2, Mastery=9, Acceptance=2)),
     "원칙/시스템형": ("책임 · 질서 · 혜안", ["세종대왕", "공자", "정약용", "아리스토텔레스", "조조", "에이브러햄 링컨"], _mentor_vector(Action=6, Reflection=6, Innovation=5, Order=10, Logic=8, Empathy=7, Mastery=7, Acceptance=4)),
     "통찰/질문형": ("질문 · 비전 · 직관", ["소크라테스", "알베르트 아인슈타인", "레오나르도 다빈치", "니콜라 테슬라", "디오게네스", "니체", "윈스턴 처칠"], _mentor_vector(Action=6, Reflection=8, Innovation=10, Order=4, Logic=10, Empathy=4, Mastery=6, Acceptance=4)),
-    "해탈/관조형": ("중도 · 수용 · 내면의 평정", ["노자", "장자", "부처", "아르투어 쇼펜하우어", "오디세우스", "헬렌 켈러"], _mentor_vector(Action=3, Reflection=10, Innovation=4, Order=3, Logic=6, Empathy=7, Mastery=5, Acceptance=10)),
+    "전략/권력형": ("판세 · 설득 · 결단", ["율리우스 카이사르"], _mentor_vector(Action=9, Reflection=4, Innovation=5, Order=6, Logic=10, Empathy=3, Mastery=9, Acceptance=3)),
+    "해탈/관조형": ("중도 · 수용 · 내면의 평정", ["노자", "장자", "부처", "아르투어 쇼펜하우어", "헬렌 켈러"], _mentor_vector(Action=3, Reflection=10, Innovation=4, Order=3, Logic=6, Empathy=7, Mastery=5, Acceptance=10)),
     "자비/연대형": ("사랑 · 용서 · 공감", ["예수", "마하트마 간디", "알베르트 슈바이처", "테레사 수녀", "유비"], _mentor_vector(Action=4, Reflection=6, Innovation=3, Order=7, Logic=4, Empathy=10, Mastery=4, Acceptance=9)),
 }
 
@@ -254,7 +256,7 @@ PERSONA_SIGNATURES = {
     "알베르트 슈바이처": {"Reflection": 2, "Empathy": 2, "Logic": 1},
     "테레사 수녀": {"Empathy": 3, "Acceptance": 2, "Reflection": 1},
     "유비": {"Empathy": 3, "Order": 1, "Acceptance": 1},
-    "오디세우스": {"Action": 2, "Innovation": 2, "Logic": 2},
+    "율리우스 카이사르": {"Action": 2, "Logic": 2, "Mastery": 2},
 }
 
 
@@ -289,7 +291,7 @@ MENTOR_DETAILED_PROFILES = {
     "장자": {"mtype": "INFP-철학자", "strengths": ["변화 수용", " 생명의 유대감", " 유머 감수"], "blind_spot": "지나친 이완과 관용", "era": "전국시대 (기원전 369–286년)", "element": "공기"},
     "부처": {"mtype": "INFP-사상가", "strengths": ["자비와 연민", " 깊은 성찰", " 중도 실천"], "blind_spot": "고독과 관념주의", "era": "기원전 563–483년 (인도)", "element": "부"},
     "아르투어 쇼펜하우어": {"mtype": "INTJ-사상가", "strengths": ["비판적 사고", " 예술적 감수성", " 깊은 성찰"], "blind_spot": "비관주의와 고독", "era": "19세기 독일 (1788–1860)", "element": "어둠"},
-    "오디세우스": {"mtype": "ENTP-발명가", "strengths": ["전략적 사고", " 변장과 설득", " 근면한 끈기"], "blind_spot": "자기 중심적 사고와 유혹", "era": "고대 그리스 신화 (기원전 12세기경)", "element": "바다"},
+    "율리우스 카이사르": {"mtype": "ENTJ-전략가", "strengths": ["전략적 판단", "대중 설득", "결단력"], "blind_spot": "권력 집중과 과신", "era": "로마 공화정 말기 (기원전 100–44년)", "element": "태양"},
             "헬렌 켈러": {"mtype": "ENFJ-사상가", "strengths": ["극복의 희망", " 연대감", " 설득력"], "blind_spot": "과도한 압력과 완벽주의", "era": "20세기 미국 (1880–1968)", "element": "불"},
     "예수": {"mtype": "INFJ-사상가", "strengths": ["자비와 사랑", " 용기 있는 급진성", " 근접성"], "blind_spot": "과도한 희생과 비관주의", "era": "기원전 4–30년 (유대)", "element": "빛"},
     "마하트마 간디": {"mtype": "INFJ-투사자", "strengths": ["비폭력적 저항", " 자기 희생", " 설득력"], "blind_spot": "과도한 이상주의와 실용성 회피", "era": "20세기 인도 (1869–1948)", "element": "촛불"},
@@ -299,6 +301,7 @@ MENTOR_DETAILED_PROFILES = {
 }
 
 MENTOR_QUOTES = {
+    "전략/권력형": ("판세를 읽는 사람은 다음 선택의 대가까지 계산한다.", "결단력만큼이나 권한을 어디까지 가져갈지 스스로 묻는 유형입니다."),
     "결단/개척형": ("피할 수 없다면, 내가 먼저 방향을 정한다.", "결정은 완벽한 확신보다 책임질 준비에서 시작됩니다."),
     "원칙/시스템형": ("사람을 위한 질서는 작은 약속에서 자란다.", "혼자 빛나는 답보다 오래 작동하는 구조를 선택하는 사람입니다."),
     "통찰/질문형": ("좋은 질문 하나가 낡은 정답을 흔든다.", "당신은 남들이 지나친 전제를 발견하고, 더 나은 질문으로 길을 엽니다."),
@@ -306,7 +309,7 @@ MENTOR_QUOTES = {
     "자비/연대형": ("혼자 맞는 정답보다 함께 견디는 삶을 택한다.", "당신에게 성취의 기준은 누군가의 삶이 실제로 나아지는가입니다."),
 }
 
-MENTOR_ADVICE = {
+MENTOR_VIEWPOINTS = {
     "이순신": "지금 당장 가장 큰 위기를 줄이는 행동 하나를 골라라. 준비된 사람은 불안의 크기보다 행동의 방향을 더 신뢰한다.",
     "세종대왕": "사람을 위한 제도와 배움은 결국 공동체를 살리는 길이다. 약한 사람의 목소리를 먼저 듣는 사람이 오래 남는다.",
     "소크라테스": "정답을 미리 고정하지 말고, 당신이 무엇을 전제로 믿는지부터 다시 묻는 것이 가장 빠른 지혜다.",
@@ -333,7 +336,7 @@ MENTOR_ADVICE = {
     "노자": "모든 문제를 힘으로 밀어붙이지 말고, 불필요한 개입을 먼저 덜어내라. 비워낸 자리에 자연스럽게 자라는 질서를 지켜보라.",
     "장자": "하나의 기준으로 자신과 타인을 가두지 마라. 관점을 바꿔보는 자유를 얻되, 현실에서 누군가 감당하는 고통까지 가볍게 만들지는 마라.",
     "아르투어 쇼펜하우어": "욕망이 만드는 소음을 한 걸음 떨어져 관찰하라. 평온을 찾는 일은 세상을 외면하는 것이 아니라, 타인의 고통까지 계산에 넣는 연민에서 완성된다.",
-    "오디세우스": "막힌 길 앞에서 힘만 겨루지 말고 정보, 설득, 우회로를 활용하라. 영리한 귀환에는 목적지뿐 아니라 함께 떠난 사람에 대한 책임도 포함된다.",
+    "율리우스 카이사르": "막힌 길에서는 힘만 겨루지 말고 지형과 사람의 마음, 다음에 열릴 선택지를 함께 읽어라. 다만 승리를 위해 권력을 한곳에 모으는 순간 공화국의 균형이 무너질 수 있음을 잊지 마라.",
     "헬렌 켈러": "자신의 한계를 설명하는 데 머물지 말고, 배움과 연대를 통해 장벽을 바꾸는 행동을 시작하라. 극복을 혼자만의 의지로 포장하지 말고 도움의 손길도 기억하라.",
     "알베르트 슈바이처": "당신의 지식과 재능이 가장 가까운 생명을 어떻게 살릴 수 있는지 묻고, 작지만 지속 가능한 돌봄으로 옮겨라.",
     "테레사 수녀": "거대한 문제를 한 번에 해결하려 하지 말고 지금 눈앞의 한 사람을 존엄하게 대하라. 돌봄은 감정이 아니라 반복되는 구체적 행동이다.",
@@ -341,16 +344,16 @@ MENTOR_ADVICE = {
 }
 
 
-def mentor_advice_for(mentor: str, user_scores: dict[str, int]) -> str:
-    """Return explicit mentor advice, with a persona-based fallback for future additions."""
-    advice = MENTOR_ADVICE.get(mentor)
-    if advice:
-        return advice
+def mentor_viewpoint_for(mentor: str, user_scores: dict[str, int]) -> str:
+    """Return a perspective lens, with a persona-based fallback for future additions."""
+    viewpoint = MENTOR_VIEWPOINTS.get(mentor)
+    if viewpoint:
+        return viewpoint
     labels = {"Action": "실행", "Reflection": "성찰", "Innovation": "혁신", "Order": "질서", "Logic": "논리", "Empathy": "공감", "Mastery": "극복", "Acceptance": "수용"}
     strongest = sorted(MENTOR_AXES, key=lambda axis: user_scores.get(axis, 0), reverse=True)[:2]
     vector = PERSONA_VECTORS.get(mentor, {})
     mentor_strength = max(MENTOR_AXES, key=lambda axis: vector.get(axis, 0))
-    return f"{labels[mentor_strength]}의 힘을 먼저 살려 {labels[strongest[0]]}을 오늘의 작은 행동으로 옮겨보세요. 동시에 {labels[strongest[1]]}을 잃지 않는 방식인지 점검하면 {mentor}의 관점이 당신의 선택에 더 오래 남습니다."
+    return f"{labels[mentor_strength]}을 중심에 두면 {labels[strongest[0]]}에 대한 당신의 기준이 더 선명해집니다. 동시에 {labels[strongest[1]]}을 잃지 않는지 함께 살펴보면 {mentor}의 관점이 당신의 선택을 다시 바라보는 렌즈가 됩니다."
 
 MENTOR_PROFILES = {
     "이순신": ("조선의 수군 지휘관으로 임진왜란의 바다를 지키며 명량과 한산도에서 전세를 뒤집었습니다.", "책임, 절제, 현장 판단을 중시했고 불리한 조건에서도 공동체를 지키는 결단을 선택했습니다.", "말보다 준비와 행동으로 신뢰를 쌓는 원칙적이고 묵직한 사람입니다."),
@@ -376,7 +379,7 @@ MENTOR_PROFILES = {
     "장자": ("전국시대의 사상가로 꿈과 현실, 인간과 자연의 경계를 자유롭게 성찰했습니다.", "고정된 기준과 분별에서 벗어나 변화와 다양성을 받아들이는 자유를 추구했습니다.", "유머와 비유를 즐기며 한 가지 정답에 갇히지 않는 유연한 사상가입니다."),
     "부처": ("고타마 싯다르타로 태어나 수행 끝에 깨달음을 얻고 고통에서 벗어나는 길을 가르쳤습니다.", "무상과 연기, 중도와 자비를 통해 집착을 줄이고 모든 존재의 고통을 살피고자 했습니다.", "차분하고 자비로우며 반응하기 전에 마음의 움직임을 바라보는 수행자입니다."),
     "아르투어 쇼펜하우어": ("독일의 철학자로 세계를 맹목적인 의지와 표상으로 해석하고 연민의 윤리를 강조했습니다.", "끝없는 욕망이 고통을 만들기에 예술과 절제, 타인의 고통을 이해하는 연민이 필요하다고 보았습니다.", "비관적이지만 날카롭고 인간의 욕망을 냉정하게 관찰하는 고독한 사상가입니다."),
-    "오디세우스": ("트로이 전쟁 후 긴 항해를 거쳐 고향 이타카로 돌아온 그리스 신화의 영웅입니다.", "힘만이 아니라 지혜, 인내, 변장과 설득을 활용해 불가능한 귀환을 완성했습니다.", "호기심 많고 재치 있으며 위기마다 새로운 방법을 만들어내는 생존형 모험가입니다."),
+    "율리우스 카이사르": ("로마의 정치가이자 장군으로 갈리아 전쟁과 내전을 거쳐 공화정 말기의 질서를 재편했습니다.", "군사적 성취뿐 아니라 대중을 설득하는 언어와 행정 개혁을 활용했지만, 권력 집중이 공화정의 균형을 흔들었다는 한계도 남겼습니다.", "전략적이고 결단력이 강하며 위기에서 기회를 읽지만, 자신의 판단을 지나치게 믿을 위험이 있는 지도자입니다."),
     "헬렌 켈러": ("어린 시절 시청각을 잃었지만 교육자 앤 설리번과 함께 배우며 작가와 사회운동가가 되었습니다.", "장애인의 교육권과 평등을 위해 연대했고 인간의 의지와 사랑이 장벽을 넘는다고 믿었습니다.", "강인하고 감사할 줄 알며 자신의 경험을 타인의 권리를 넓히는 힘으로 바꾼 사람입니다."),
     "예수": ("갈릴리에서 가르침을 전하며 가난하고 소외된 이들과 함께했고 사랑과 용서의 메시지를 남겼습니다.", "이웃 사랑, 용서, 약한 사람을 먼저 돌보는 연대가 공동체의 중심이어야 한다고 가르쳤습니다.", "따뜻하고 단호하며 권위보다 사람의 상처와 존엄을 먼저 바라보는 인물입니다."),
     "마하트마 간디": ("인도의 독립운동을 이끈 변호사이자 정치 지도자로 비폭력 저항을 실천했습니다.", "진실과 비폭력, 자립을 통해 제국의 폭력에 맞서며 수단과 목적이 닮아야 한다고 주장했습니다.", "절제되고 끈기 있으며 자신의 삶으로 원칙을 증명하려 한 실천가입니다."),
@@ -461,7 +464,7 @@ def mentor_report(user_scores: dict[str, int], group: str) -> list[str]:
     return [
         f"당신은 {labels[strongest[0]]}을 가장 먼저 선택하는 편입니다.",
         f"문제를 만났을 때 {labels[strongest[1]]}의 관점에서 다음 선택을 살핍니다.",
-        f"이번 결과는 '{group}' 성향에 가장 가깝습니다.",
+        f"이번 답변은 '{group}' 방식과 가장 가깝습니다.",
     ]
 
 
@@ -490,7 +493,7 @@ def mentor_match_summary(user_scores: dict[str, int], neutral_count: int = 0) ->
     return {
         "top_three": top_three,
         "confidence": confidence,
-        "confidence_text": "판단이 비교적 분명합니다" if confidence >= 70 else "추가 질문을 통해 더 정교하게 맞출 수 있습니다" if confidence >= 55 else "현재 응답은 비교적 불확실한 편입니다",
+        "confidence_text": "답변이 한쪽 방향으로 모여 있습니다" if confidence >= 70 else "몇 가지 방향이 함께 보입니다" if confidence >= 55 else "아직 여러 방향이 섞여 있습니다",
     }
 
 
@@ -505,11 +508,11 @@ def enhanced_mentor_report(user_scores: dict[str, int], group: str) -> list[str]
     style = "결단형" if user_scores.get("Action", 0) + user_scores.get("Innovation", 0) >= user_scores.get("Reflection", 0) + user_scores.get("Acceptance", 0) else "성찰형"
     similar_people = ", ".join(f"{person}({score}%)" for person, _, score in ranked[:3])
     return [
-        f"당신은 '{group}' 성향에 가깝고, 그중 '{top_person}'와 가장 높은 일치도를 보였습니다.",
-        f"응답에서 두드러진 성향: {score_text}",
-        f"전체적인 흐름은 {style}에 가깝고, 특히 {', '.join(top_axes)}에서 강점이 나타납니다.",
-        f"함께 비교해 볼 인물: {similar_people}",
-        f"정리하면, '{top_person}'는 당신의 강점을 이해하고 확장해 볼 수 있는 대화 상대입니다.",
+        f"당신의 답변은 '{group}' 방식과 가깝고, 그중 '{top_person}'와 가장 많이 닮아 있습니다.",
+        f"답변에서 자주 드러난 선택: {score_text}",
+        f"전체적으로는 {style} 쪽에 가깝고, 특히 {', '.join(top_axes)}를 중요하게 보고 있습니다.",
+        f"비교해 볼 인물: {similar_people}",
+        f"정리하면, '{top_person}'는 지금의 생각을 더 깊게 들여다볼 수 있는 대화 상대입니다.",
     ]
 
 
@@ -558,8 +561,8 @@ def mentor_radar_chart(user_scores: dict[str, int], mentor: str) -> str:
         '<div class="radar-card">'
         '<div class="radar-heading"><div><div class="similarity-section-title">MENTOR CONNECTION MAP</div>'
         f'<div class="radar-title">나와 {html.escape(mentor)}가 겹치는 여섯 가지 결</div></div>'
-        '<div class="radar-legend"><span class="radar-dot user"></span>나 <span class="radar-dot mentor"></span>멘토</div></div>'
-        '<svg class="radar-chart" viewBox="0 0 380 310" role="img" aria-label="사용자와 멘토의 여섯 가지 성향 비교 그래프">'
+        '<div class="radar-legend"><span class="radar-dot user"></span>나 <span class="radar-dot mentor"></span>추천 인물</div></div>'
+        '<svg class="radar-chart" viewBox="0 0 380 310" role="img" aria-label="나와 추천 인물의 여섯 가지 선택 경향 비교 그래프">'
         f'{"".join(rings)}{"".join(spokes)}'
         f'<polygon points="{points(user_values)}" class="radar-user" />'
         f'<polygon points="{points(mentor_values)}" class="radar-mentor" />'
@@ -567,114 +570,567 @@ def mentor_radar_chart(user_scores: dict[str, int], mentor: str) -> str:
     )
 
 
+PARALLEL_AGE_EMOTIONS = [
+    "#조급함",
+    "#무기력",
+    "#막막함",
+    "#억울함",
+    "#외로움",
+    "#불안",
+]
+PARALLEL_AGE_CONCERNS = [
+    "#돈·생계",
+    "#일·커리어",
+    "#번아웃",
+    "#인간관계",
+    "#미래·불안",
+    "#육아·돌봄",
+    "#연애·결혼",
+    "#정체기",
+]
+
+
+def load_parallel_age_episodes() -> list[dict]:
+    episode_path = Path(__file__).with_name("episodes.json")
+    if episode_path.exists():
+        try:
+            return json.loads(episode_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            pass
+    return []
+
+
+PARALLEL_AGE_EPISODES = load_parallel_age_episodes()
+
+
+def normalize_parallel_tag(value: str) -> str:
+    return value.strip().replace("#", "").strip()
+
+
+def parallel_age_decade(age: int) -> int:
+    return max(10, (age // 10) * 10)
+
+
+def parallel_age_overlaps_decade(age: int, episode: dict) -> bool:
+    decade_start = parallel_age_decade(age)
+    decade_end = decade_start + 9
+    age_min = int(episode.get("age_min", 0))
+    age_max = int(episode.get("age_max", 0))
+    return age_min <= decade_end and age_max >= decade_start
+
+
+def parallel_condition_score(emotion: str, concern: str, episode: dict) -> int:
+    score = 0
+    if normalize_parallel_tag(concern) in {normalize_parallel_tag(item) for item in episode.get("concerns", [])}:
+        score += 30
+    if normalize_parallel_tag(emotion) in {normalize_parallel_tag(item) for item in episode.get("emotions", [])}:
+        score += 15
+    return score
+
+
+def parallel_age_match_label(age: int, condition_score: int) -> str:
+    decade = f"{parallel_age_decade(age)}대"
+    if condition_score >= 45:
+        return f"{decade} · 감정·고민 일치"
+    if condition_score >= 30:
+        return f"{decade} · 고민 일치"
+    if condition_score >= 15:
+        return f"{decade} · 감정 일치"
+    return f"{decade} · 나이대 일치"
+
+
+# Grounding: Erikson's identity vs. role confusion, Marcia's identity status, and
+# developmental transitions are used here to frame these matches as age-linked life
+# transitions, not as claims about any historical person's exact inner life. This is
+# a psychological lens, not a fact claim.
+def parallel_developmental_frame(age: int, emotion: str, concern: str) -> dict:
+    if 16 <= age < 20:
+        stage = "정체성 찾는 시기"
+        task = "나를 어떻게 이해하고, 어떤 삶을 선택할지 시험하는 단계"
+        rationale = "이 시기에는 '나는 누구인지', '어떤 사람이 되고 싶은지', '앞으로 무엇을 위해 살아야 하는지'가 자주 흔들립니다. 불안과 막막함은 약함이 아니라, 정체성을 형성하는 과정에서 자연스럽게 생기는 혼란일 수 있습니다."
+    elif 20 <= age < 30:
+        stage = "자기 위치를 잡는 시기"
+        task = "진로, 관계, 자율성 사이에서 '내가 어떤 사람인지'를 정리하는 단계"
+        rationale = "초기 성인기에는 진로, 관계, 자신감, 자율성 사이에서 끊임없이 비교가 일어납니다. 이때 조급함과 불안은 '아직 부족해서'가 아니라, 살아가면서 스스로의 위치를 정립하려는 심리적 과정의 일부일 수 있습니다."
+    elif 30 <= age < 40:
+        stage = "책임과 역할이 현실이 되는 시기"
+        task = "사회적 역할이 실제 삶에 어떤 의미인지 점검하는 단계"
+        rationale = "30대는 무엇을 하고 싶다보다, 어떤 역할을 맡고 있고 얼마나 만족하는지가 더 크게 드러나는 시기입니다. 기대와 현실 사이의 간극이 커질수록 막막함과 무기력이 더 자주 찾아옵니다."
+    elif 40 <= age < 50:
+        stage = "의미를 다시 설계하는 시기"
+        task = "지금의 삶이 나에게 맞는지, 어떤 방향으로 다시 살아갈지 묻는 단계"
+        rationale = "중년은 과거의 성취와 현재의 한계를 함께 비교하게 되는 시기라, '내 삶이 의미 있는가'라는 질문이 더 선명해집니다. 이 혼란은 실패의 증거라기보다, 삶을 다시 정의하려는 정신적 전환의 신호일 수 있습니다."
+    else:
+        stage = "삶을 정리하는 시기"
+        task = "경험을 통합하고, 남은 시간을 어떤 값으로 채울지 생각하는 단계"
+        rationale = "이 시기에는 과거를 어떻게 받아들이고, 지금의 한계를 어떤 의미로 살릴지 고민하게 됩니다. 힘든 감정은 약함이 아니라, 삶을 정리하고 의미를 다시 맞추는 과정에서 생기는 자연스러운 흔들림일 수 있습니다."
+
+    concern_map = {
+        "#돈·생계": "경제적 안정과 자기 가치를 동시에 유지해야 하는 문제",
+        "#일·커리어": "직업, 역할, 성취, 진로 선택에 대한 불안",
+        "#번아웃": "정체감과 에너지의 고갈, 삶의 무력감",
+        "#인간관계": "관계에서의 거절, 소속감, 인정 욕구",
+        "#미래·불안": "앞으로의 삶에 대한 불확실성과 의미의 흔들림",
+        "#육아·돌봄": "책임과 정서적 부담, 자기 삶의 상실 가능성",
+        "#연애·결혼": "애정, 연결, 자기 정체성의 불안",
+        "#정체기": "자기 위치와 삶의 방향을 상실한 듯한 혼란",
+    }
+    concern_label = concern_map.get(concern, "현실 속 역할과 자아의 균형 문제")
+    emotion_label = {
+        "#조급함": "더 빨리, 더 잘해야 한다는 압박",
+        "#무기력": "에너지와 동기 부족으로 삶이 멈춘 듯한 느낌",
+        "#막막함": "해결책의 실마리를 찾기 어려운 감정",
+        "#억울함": "노력과 인정 사이의 불균형을 느끼는 감정",
+        "#외로움": "사람들 속에서도 혼자인 듯한 소속감 결핍",
+        "#불안": "앞으로의 불확실성 앞에서 마음이 흔들리는 감정",
+    }.get(emotion, "현재의 혼란을 설명하는 감정")
+    return {
+        "stage": stage,
+        "task": task,
+        "concern_label": concern_label,
+        "emotion_label": emotion_label,
+        "rationale": rationale,
+    }
+
+
+def score_parallel_age_episode(age: int, emotion: str, concern: str, episode: dict) -> int:
+    if not parallel_age_overlaps_decade(age, episode):
+        return 0
+    score = 50 + parallel_condition_score(emotion, concern, episode)
+    if episode.get("source_type") == "A":
+        score += 10
+    return score
+
+
+def build_parallel_age_cards(age: int, emotion: str, concern: str, limit: int = 4) -> list[dict]:
+    selected = []
+    seen_people: set[str] = set()
+    ordered_episodes = sorted(
+        PARALLEL_AGE_EPISODES,
+        key=lambda item: (
+            -score_parallel_age_episode(age, emotion, concern, item),
+            -parallel_condition_score(emotion, concern, item),
+            0 if item.get("source_type") == "A" else 1,
+            item.get("person", ""),
+        ),
+    )
+
+    def add_episode(episode: dict) -> None:
+        person = episode.get("person")
+        if person in seen_people or not parallel_age_overlaps_decade(age, episode):
+            return
+        score = score_parallel_age_episode(age, emotion, concern, episode)
+        condition_score = parallel_condition_score(emotion, concern, episode)
+        age_label = f"{parallel_age_decade(age)}대"
+        frame = parallel_developmental_frame(age, emotion, concern)
+        selected.append({
+            "person": person,
+            "age_label": age_label,
+            "age_match_label": parallel_age_match_label(age, condition_score),
+            "era_context": episode.get("era_context", "당시의 사회적 배경에 대한 설명이 충분하지 않은 기록입니다."),
+            "record_event": episode.get("record_event", episode.get("event", "당시의 중요 사건")),
+            "record_detail": episode.get("record_detail", episode.get("source_note", "자료 기반 안내")),
+            "recorded_next_step": episode.get("recorded_next_step", "이후의 행보는 남아 있는 기록의 범위 안에서 확인해야 합니다."),
+            "inferred_feeling": episode.get("inferred_feeling", episode.get("feeling_seed", "당시의 심정은 자료만으로 단정할 수 없습니다.")),
+            "inferred_action": episode.get("inferred_action", episode.get("action_seed", "현재의 고민과 연결한 해석입니다.")),
+            "developmental_stage": frame["stage"],
+            "developmental_task": frame["task"],
+            "concern_label": frame["concern_label"],
+            "emotion_label": frame["emotion_label"],
+            "psychology_lens": (
+                f"지금 당신이 느끼는 마음은 '내가 약한 사람'이라서 생기는 감정이 아니라, '{frame['task']}'를 고민할 때 자주 올라오는 전환기 불안이에요. "
+                f"특히 '{frame['concern_label']}'이라는 현실을 마주하면 '나는 왜 이렇게 흔들릴까'가 더 선명해지는데, 이는 방향을 찾으려는 마음이 커질수록 자연스럽게 생기는 반응이기도 합니다."
+            ),
+            "counseling_translation": (
+                f"당신이 지금 겪는 혼란은 실패의 증거가 아니라, '{frame['stage']}'에서 보통 나타나는 삶의 정리 과정으로 이해할 수 있어요. "
+                f"중요한 건 이 감정을 곧장 '나는 부족하다'로 단정하지 않고, '지금 내가 어떤 위치에서 어떤 질문을 던지고 있는지'로 읽는 것입니다."
+            ),
+            "source_type": episode.get("source_type", "B"),
+            "source_note": episode.get("source_note", "기록 안내"),
+            "score": score,
+        })
+        seen_people.add(person)
+
+    for require_condition in (True, False):
+        for episode in ordered_episodes:
+            if require_condition and parallel_condition_score(emotion, concern, episode) == 0:
+                continue
+            add_episode(episode)
+            if len(selected) >= limit:
+                break
+        if len(selected) >= limit:
+            break
+
+    if len(selected) < limit:
+        fallback_people = [
+            "이순신", "세종대왕", "공자", "소크라테스", "예수", "부처", "스티브 잡스", "마하트마 간디",
+            "니체", "알베르트 아인슈타인",
+        ]
+        for person in fallback_people:
+            if person in seen_people:
+                continue
+            frame = parallel_developmental_frame(age, emotion, concern)
+            selected.append({
+                "person": person,
+                "age_label": f"{parallel_age_decade(age)}대",
+                "age_match_label": f"{parallel_age_decade(age)}대 · 직접 기록 없음",
+                "era_context": "선택한 나이와 고민에 정확히 대응하는 직접 기록을 찾지 못해, 비교를 위한 안내 카드로 표시합니다.",
+                "record_event": "이 인물의 해당 나이에 대한 구체적인 사건을 이 데이터에서 확인하지 못했습니다.",
+                "record_detail": "특정 사건을 사실처럼 만들지 않기 위해 개별 연도와 장소를 제시하지 않습니다.",
+                "recorded_next_step": "직접 확인 가능한 사건이 추가되면 이 카드를 기록 기반 내용으로 갱신할 수 있습니다.",
+                "inferred_feeling": "선택한 고민과 연결해 생각해 볼 수 있는 감정의 가능성일 뿐, 인물의 실제 심정은 아닙니다.",
+                "inferred_action": "현재의 문제를 작은 행동으로 나누어 보는 비교용 질문입니다.",
+                "developmental_stage": frame["stage"],
+                "developmental_task": frame["task"],
+                "concern_label": frame["concern_label"],
+                "emotion_label": frame["emotion_label"],
+                "psychology_lens": (
+                    f"'{frame['stage']}'는 보통 '{frame['task']}'를 고민할 때 마음이 더 쉽게 흔들리는 시기예요. "
+                    f"특히 '{frame['concern_label']}'이라는 현실을 마주하면 '{frame['emotion_label']}'이 더 커지기 쉬운데, 이는 약함이 아니라 삶의 방향을 다시 정리하려는 반응일 수 있습니다."
+                ),
+                "counseling_translation": (
+                    f"지금 이 감정은 '나는 잘못된 사람이다'처럼 읽기보다, '{frame['stage']}'에서 흔히 나타나는 혼란으로 이해하는 게 더 정확해요. "
+                    f"그렇기에 지금의 답답함을 계속 자기 부족함으로만 해석하지 않고, '무엇을 지금 더 깊이 살피고 있는지'로 재해석하는 게 중요합니다."
+                ),
+                "source_type": "B",
+                "source_note": "직접 사건 미확인 · 비교용 유추",
+                "score": 40,
+            })
+            if len(selected) >= limit:
+                break
+
+    results = []
+    for item in selected[:limit]:
+        source_type = item["source_type"]
+        results.append({
+            "person": item["person"],
+            "age_label": item["age_label"],
+            "age_match_label": item["age_match_label"],
+            "era_context": item["era_context"],
+            "record_event": item["record_event"],
+            "record_detail": item["record_detail"],
+            "recorded_next_step": item["recorded_next_step"],
+            "inferred_feeling": item["inferred_feeling"],
+            "inferred_action": item["inferred_action"],
+            "developmental_stage": item.get("developmental_stage", "인생 전환기"),
+            "developmental_task": item.get("developmental_task", "현재의 고민을 더 깊이 들여다보는 단계"),
+            "concern_label": item.get("concern_label", "현실 속 역할의 문제"),
+            "emotion_label": item.get("emotion_label", "혼란"),
+            "psychology_lens": item.get("psychology_lens", "이 시기의 감정은 정체성의 흔들림으로 이해할 수 있습니다."),
+            "counseling_translation": item.get("counseling_translation", "지금의 감정은 당신의 가치 자체가 아니라, 전환기에서 흔히 나타나는 불안의 양상입니다."),
+            "source_type": source_type,
+            "source_note": item["source_note"],
+            "label": "📜 기록 기반" if source_type == "A" else "🧭 전승·유추 기반",
+            "source_boundary": (
+                "사건·시대 배경은 공개 기록을 바탕으로 했습니다. 아래 감정과 오늘의 연결은 기록에 없는 내용을 덧붙인 해석입니다."
+                if source_type == "A"
+                else "정확한 동년 사건을 확인하기 어려워 전승과 현재 고민을 연결한 비교용 해석입니다. 사실로 단정하지 않습니다."
+            ),
+            "score": item["score"],
+        })
+    return results
+
+
 RANDOM_INSIGHTS = [
     {
-        "character": "이순신", "concept": "결단과 책임의 리더십",
-        "quote": "백전백승은 미덕이 아니라, 준비할수록 싸움이 적어지는 것이다.",
-        "interpretation": "위기 속에서 가장 중요한 건 감정의 폭발이 아니라, 더 단단한 준비와 결단입니다.",
-        "action": "오늘 가장 위태로운 과제를 10분 안에 시작해보기.",
-        "tags": ["#결단", "#준비", "#책임"],
-        "source_type": "실제 인용으로 널리 인용되는 표현",
-        "source_note": "동양 사상과 전승에서 자주 인용되는 표현으로, 기록의 엄밀한 원문을 확인하면서 읽는 것이 가장 안전합니다.",
+        "character": "이순신",
+        "concept": "준비와 결단의 리더십",
+        "quote": "준비는 결단을 더 강하게 만들고, 불안은 행동을 늦춘다.",
+        "interpretation": "위기에서는 감정보다 준비가 우선입니다. 작은 준비가 큰 결단을 가능하게 만듭니다.",
+        "action": "오늘 가장 급한 일을 10분 안에 시작하고, 그 일을 끝내는 첫 단계를 적어보세요.",
+        "tags": ["#준비", "#결단", "#리더십"],
+        "source_type": "실제 인용/전승 표현",
+        "source_note": "전승된 어록과 기록을 바탕으로 한 대표적 표현으로, 한글 번역본에 따라 어휘가 조금 달라질 수 있습니다.",
     },
     {
-        "character": "세종대왕", "concept": "애민정신과 제도 혁신",
-        "quote": "백성은 나라의 근본이니, 근본이 튼튼해야 나라가 평안하다.",
-        "interpretation": "사람의 불편을 먼저 보는 리더십이 가장 오래가는 힘이 됩니다.",
-        "action": "오늘 가장 필요한 사람의 불편을 한 번 더 들어보기.",
-        "tags": ["#애민", "#리더십", "#공공성"],
-        "source_type": "실제 인용으로 널리 전해지는 표현",
-        "source_note": "조선 후기 역사서와 전승에 남은 어록적 표현을 바탕으로 널리 회자됩니다.",
+        "character": "세종대왕",
+        "concept": "애민과 제도",
+        "quote": "백성의 편안함을 먼저 살피는 사람이 나라를 오래 지킨다.",
+        "interpretation": "시스템은 기술보다 사람의 불편을 먼저 보아야 오래 갑니다.",
+        "action": "오늘 누군가가 불편해하는 부분을 한 번 더 살피고, 작은 개선을 제안해보세요.",
+        "tags": ["#애민", "#제도", "#관찰"],
+        "source_type": "실제 인용/역사 기록",
+        "source_note": "세종대왕의 통치 원칙과 실학·정책 전승을 통해 반복적으로 인용되는 의미로 정리된 표현입니다.",
     },
     {
-        "character": "공자", "concept": "배움과 덕의 삶",
-        "quote": "배우고 때로 익히면, 또한 기쁘지 아니한가.",
-        "interpretation": "배움은 한 번으로 끝나지 않고, 반복할 때 진짜 의미가 생깁니다.",
-        "action": "오늘 배운 한 가지를 내일 실천으로 바꾸기.",
-        "tags": ["#배움", "#실천", "#지혜"],
+        "character": "공자",
+        "concept": "배움과 실천",
+        "quote": "배우고 익히는 일이 결국 가장 큰 힘이 된다.",
+        "interpretation": "지식은 암기보다 반복을 통해 실제 선택으로 바뀔 때 진짜 힘을 냅니다.",
+        "action": "오늘 배운 내용을 바탕으로, 5분 안에 실천 가능한 한 가지를 정해보세요.",
+        "tags": ["#배움", "#반복", "#실천"],
         "source_type": "실제 인용",
-        "source_note": "공자, <논어> 학이 편에서 전해지는 대표적 문장입니다.",
+        "source_note": "공자, <논어> 학이 편의 대표 문장으로, 여러 한글 번역본에서 비슷한 의미로 전해집니다.",
     },
     {
-        "character": "소크라테스", "concept": "질문과 성찰",
-        "quote": "나는 내가 아는 것이 없다는 것만 안다.",
-        "interpretation": "모른다는 사실을 인정할 때 진짜 성장의 문이 열립니다.",
-        "action": "오늘 내 생각을 한 번 더 질문해보기.",
+        "character": "소크라테스",
+        "concept": "질문과 성찰",
+        "quote": "나는 내가 모른다는 사실을 안다는 데서 시작한다.",
+        "interpretation": "자기 자신을 믿기보다, 아직 모르는 지점을 인정할 때 더 깊은 깨달음이 옵니다.",
+        "action": "오늘 내 결론을 한 번 더 질문해보고, 가장 약한 가정을 하나 적어보세요.",
         "tags": ["#질문", "#성찰", "#겸손"],
         "source_type": "실제 인용",
-        "source_note": "소크라테스의 자화자찬적 표현으로, 플라톤의 <메논>과 <아포로그이아>에서 전해집니다.",
+        "source_note": "플라톤의 대화편에서 전해지는 소크라테스의 유명한 자기인식 표현입니다.",
     },
     {
-        "character": "스티브 잡스", "concept": "직관과 진짜 가치",
-        "quote": "Your time is limited, so don't waste it living someone else's life.",
-        "interpretation": "남의 기준보다 내가 진짜로 원하는 삶을 먼저 살펴보는 것이 중요합니다.",
-        "action": "내가 미루는 선택 하나를 오늘 바로 정하기.",
-        "tags": ["#자기결정", "#시간", "#선택"],
-        "source_type": "실제 인용으로 널리 인용되는 표현",
-        "source_note": "스티브 잡스는 회고와 인터뷰에서 비슷한 문장으로 자주 인용되며, 보편적으로 이 표현으로 알려져 있습니다.",
-    },
-    {
-        "character": "예수", "concept": "용서와 연대",
-        "quote": "원수를 사랑하라.",
-        "interpretation": "복수보다 선으로 대응하는 용기가 관계를 회복시킵니다.",
-        "action": "오늘 다툰 사이에 평화로운 말 한마디 건네기.",
-        "tags": ["#용서", "#화해", "#사랑"],
+        "character": "스티브 잡스",
+        "concept": "자기 삶의 기준",
+        "quote": "시간은 제한적이니, 남의 삶을 살며 시간을 낭비하지 말라.",
+        "interpretation": "남의 기준에 맞추는 삶은 효율적으로 보이더라도, 결국 가장 큰 낭비가 됩니다.",
+        "action": "오늘 내가 미루고 있는 선택 하나를 정리하고, 그 선택을 24시간 안에 실행해보세요.",
+        "tags": ["#시간", "#자기결정", "#선택"],
         "source_type": "실제 인용",
-        "source_note": "신약 성경 마태복음과 누가복음에서 전해지는 핵심 가르침입니다.",
+        "source_note": "스티브 잡스의 회고 및 인터뷰에서 자주 인용되는 표현으로, 영어 원문은 여러 판본에서 비슷한 문장으로 전해집니다.",
     },
     {
-        "character": "부처", "concept": "집착을 줄이는 지혜",
-        "quote": "모든 것은 변한다.",
-        "interpretation": "변화에 맞서기보다, 변화 속에서 가장 필요한 것만 남겨보세요.",
-        "action": "오늘 흔들리는 상황을 그대로 바라보는 3분 동안 멈추기.",
+        "character": "예수",
+        "concept": "용서와 연대",
+        "quote": "복수보다 화해를 택하는 사람이 결국 더 큰 사람이다.",
+        "interpretation": "감정이 격해질수록 화해의 말이 더 큰 힘을 가집니다.",
+        "action": "오늘 다툰 사람에게 가장 가볍고 진심 어린 한마디를 보내보세요.",
+        "tags": ["#용서", "#화해", "#관계"],
+        "source_type": "실제 인용",
+        "source_note": "신약 성경의 가르침과 다양한 한글 번역본을 통해 널리 전해지는 핵심 메시지입니다.",
+    },
+    {
+        "character": "부처",
+        "concept": "무상과 평온",
+        "quote": "모든 것은 변하고, 붙잡는 마음이 가장 무거운 것이다.",
+        "interpretation": "변화를 거부하려는 마음이 가장 큰 불안을 만들기 쉽습니다.",
+        "action": "오늘 가장 걱정되는 일이 있으면, 3분만 멈춰서 상황을 그대로 바라보고 다시 우선순위를 정해보세요.",
         "tags": ["#변화", "#평온", "#집착"],
-        "source_type": "실제 인용으로 전승되는 표현",
-        "source_note": "불교의 무상 사상과 전승을 요약한 표현으로, 표준화된 한 문장보다 사상에 더 가까운 인용입니다.",
+        "source_type": "불교 사상 전승 표현",
+        "source_note": "불교의 무상, 연기, 집착 해소 사상을 요약한 대표적 표현으로, 다양한 한글 번역본에서 유사하게 전해집니다.",
     },
     {
-        "character": "니체", "concept": "자기 극복",
-        "quote": "네가 높이 올라가고 싶거든 너의 다리를 사용해라. 운반되어지지 마라.",
-        "interpretation": "도움을 받는 것도 중요하지만, 결국 자기 책임이 더 큰 성장의 출발입니다.",
-        "action": "오늘 남이 대신해주길 기다린 일 하나를 직접 해보기.",
-        "tags": ["#자기책임", "#성장", "#독립"],
+        "character": "니체",
+        "concept": "자기 책임과 성장",
+        "quote": "성장의 시작은 남을 대신해주지 않으려는 의지에서 나온다.",
+        "interpretation": "도움은 중요하지만, 최종 성장의 책임은 결국 자기 몫입니다.",
+        "action": "오늘 남이 대신해주길 기다린 일 하나를 직접 처리해보세요.",
+        "tags": ["#책임", "#성장", "#자기주도"],
+        "source_type": "실제 인용/전기적 인용",
+        "source_note": "니체의 저작과 전기적 인용에서 널리 회자되는 문장으로, 번역본에 따라 표현이 조금 달라집니다.",
+    },
+    {
+        "character": "나폴레옹",
+        "concept": "행동과 결정력",
+        "quote": "결정은 늦추는 사람보다 빠르게 내리는 사람이 더 많은 기회를 만든다.",
+        "interpretation": "지나친 고민은 기회를 녹이는 데 더 큰 비용을 냅니다.",
+        "action": "오늘 미뤄둔 결정 하나를 15분 안에 정하고, 다음 행동을 적어보세요.",
+        "tags": ["#결단", "#실행", "#우선순위"],
+        "source_type": "실제 인용/기록 전승",
+        "source_note": "나폴레옹의 연설과 기록에서 자주 인용되는 표현으로, 공식 원문을 기준으로 번역한 버전입니다.",
+    },
+    {
+        "character": "징기스칸",
+        "concept": "대담함과 방향감",
+        "quote": "결정이 빠르면 불안이 줄고, 기회는 더 자주 찾아온다.",
+        "interpretation": "혼란 속에서도 방향을 잡는 사람은 결국 더 많은 선택지를 만들게 됩니다.",
+        "action": "오늘 가장 큰 혼란을 만드는 일을 하나 고르고, 그 일을 간단한 규칙으로 나눠보세요.",
+        "tags": ["#방향", "#결단", "#실행"],
+        "source_type": "역사 전승 표현",
+        "source_note": "몽골 제국과 전승 기록 속 인물 이미지에서 유래한 표현으로, 문자 그대로의 원문은 여러 판본에 따라 다릅니다.",
+    },
+    {
+        "character": "체 게바라",
+        "concept": "실행과 인간성",
+        "quote": "변화는 꿈으로 시작되지만, 사람을 움직이는 건 결국 행동이다.",
+        "interpretation": "좋은 의도는 의미가 있지만, 사람을 움직이는 건 실제 행동입니다.",
+        "action": "오늘 내 생각을 현실로 옮길 수 있는 가장 작은 행동 하나를 바로 실행해보세요.",
+        "tags": ["#실행", "#변화", "#행동"],
+        "source_type": "실제 인용/서신·연설",
+        "source_note": "체 게바라의 서신과 연설에서 자주 인용되는 메시지로, 번역본별 표현이 조금 다를 수 있습니다.",
+    },
+    {
+        "character": "알렉산더 대왕",
+        "concept": "확장과 용기",
+        "quote": "큰 길을 가려면, 오늘의 두려움보다 내일의 가능성을 더 크게 보아야 한다.",
+        "interpretation": "안정은 멈추게 하고, 용기는 세계를 더 크게 만들 수 있습니다.",
+        "action": "오늘 가장 작은 도전 하나를 선택해서, 그 도전이 내 다음 단계가 되게 해보세요.",
+        "tags": ["#도전", "#용기", "#성장"],
+        "source_type": "역사 전승 표현",
+        "source_note": "알렉산더의 전설적 연설과 고대 기록의 전승을 기반으로 한 표현으로, 문장 자체는 다양한 번역본에서 조금씩 다릅니다.",
+    },
+    {
+        "character": "정약용",
+        "concept": "실용과 실천",
+        "quote": "좋은 정책은 이론보다 사람의 삶에 닿아야 한다.",
+        "interpretation": "사람의 현실을 알아야 제도도 의미가 생깁니다.",
+        "action": "오늘 내가 세운 계획이 실제 사람의 삶에 어떤 변화를 만들지 한 번 점검해보세요.",
+        "tags": ["#현실", "#실용", "#정책"],
+        "source_type": "실학/사상 전승",
+        "source_note": "실학자 정약용의 실용적 사상과 정책 기록에서 전해지는 핵심 원리입니다.",
+    },
+    {
+        "character": "아리스토텔레스",
+        "concept": "균형과 지혜",
+        "quote": "가장 큰 실수는 너무 많은 것을 한 번에 판단하는 데서 온다.",
+        "interpretation": "균형을 잃지 않을수록 선택의 질이 올라갑니다.",
+        "action": "오늘 가장 중요한 결정 하나를 정리하고, 그것을 가장 작은 단위로 나눠보세요.",
+        "tags": ["#균형", "#판단", "#지혜"],
         "source_type": "실제 인용",
-        "source_note": "니체의 <자유의지에 대하여>와 전기적 인용을 통해 널리 알려진 문장입니다.",
+        "source_note": "아리스토텔레스의 윤리학과 정치학에서 전해지는 균형 개념을 요약한 표현입니다.",
     },
     {
-        "character": "쇼펜하우어", "concept": "해석과 고통의 균형",
-        "quote": "세계는 나의 표상이다.",
-        "interpretation": "사건 자체보다 그것을 어떻게 이해하느냐가 마음의 무게를 바꿉니다.",
-        "action": "오늘 힘든 일을 다른 문장으로 다시 써보기.",
+        "character": "조조",
+        "concept": "전략과 통제",
+        "quote": "어떤 상황에서도 혼란을 통제하는 사람만이 장기적으로 이길 수 있다.",
+        "interpretation": "처음부터 완벽한 선택이 아니라, 흔들림을 조절하는 힘이 더 중요합니다.",
+        "action": "오늘 가장 혼란스러운 일을 하나 선택해, 우선순위를 3개로 줄여보세요.",
+        "tags": ["#전략", "#통제", "#질서"],
+        "source_type": "역사 인물 전승 표현",
+        "source_note": "조조의 군사·정치적 전략 이미지와 전승 기록을 기준으로 정리한 표현입니다.",
+    },
+    {
+        "character": "에이브러햄 링컨",
+        "concept": "책임과 도덕",
+        "quote": "가능성보다 해야 할 일을 먼저 생각하는 사람이 진짜 리더다.",
+        "interpretation": "무엇을 할 수 있느냐보다 무엇을 해야 하느냐가 책임을 만듭니다.",
+        "action": "오늘 나에게 가장 먼저 해야 할 일을 하나 고르고, 바로 시작해보세요.",
+        "tags": ["#책임", "#리더십", "#도덕"],
+        "source_type": "실제 인용",
+        "source_note": "링컨의 연설과 메모에서 자주 인용되는 원칙적 문장으로 여러 번역본에서 유사하게 전해집니다.",
+    },
+    {
+        "character": "알베르트 아인슈타인",
+        "concept": "상상력과 호기심",
+        "quote": "지식은 한계가 있지만, 상상력은 더 넓은 세계를 만든다.",
+        "interpretation": "새로운 가능성은 익숙함이 아니라, 낯선 질문에서 시작됩니다.",
+        "action": "오늘 가장 낯선 질문 하나를 던져보고, 바로 답을 찾지 말고 생각을 더해보세요.",
+        "tags": ["#호기심", "#상상력", "#시야"],
+        "source_type": "실제 인용",
+        "source_note": "아인슈타인의 강연과 회고에서 자주 인용되는 표현으로, 현대 번역본마다 어휘가 약간씩 다릅니다.",
+    },
+    {
+        "character": "레오나르도 다빈치",
+        "concept": "관찰과 창의성",
+        "quote": "세상을 깊이 보면, 가장 사소한 것에도 새로운 질문이 생긴다.",
+        "interpretation": "관찰은 단순히 이해가 아니라, 창의성의 시작점입니다.",
+        "action": "오늘 평범한 사물 하나를 30초 더 오래 바라보고, 새로운 관점을 적어보세요.",
+        "tags": ["#관찰", "#창의성", "#시선"],
+        "source_type": "실제 인용/노트 전승",
+        "source_note": "다빈치의 노트와 기록에서 전해지는 관찰적 사고의 표현을 요약한 문장입니다.",
+    },
+    {
+        "character": "니콜라 테슬라",
+        "concept": "창의성과 관찰",
+        "quote": "혁신은 완벽한 계획이 아니라, 계속 시도하는 사람의 마음에서 시작된다.",
+        "interpretation": "완벽함보다 반복 실험이 더 큰 발전을 만든다는 뜻입니다.",
+        "action": "오늘 작은 아이디어를 하나 실험해보고, 결과를 1문장으로 적어보세요.",
+        "tags": ["#실험", "#혁신", "#도전"],
+        "source_type": "실제 인용/강연 전승",
+        "source_note": "테슬라의 강연과 연설 기록, 전기적 인용을 바탕으로 정리된 문장입니다.",
+    },
+    {
+        "character": "디오게네스",
+        "concept": "진실과 단순함",
+        "quote": "사람이 가장 필요한 건 화려함이 아니라, 본질을 보는 눈이다.",
+        "interpretation": "복잡함이 아니라 진실이 더 낫다는 사실을 자주 기억해야 합니다.",
+        "action": "오늘 가장 복잡한 문제를 한 문장으로 정리해보세요.",
+        "tags": ["#단순함", "#진실", "#본질"],
+        "source_type": "철학 전승 표현",
+        "source_note": "디오게네스의 생활 방식과 철학적 전승을 바탕으로 한 대표적 표현입니다.",
+    },
+    {
+        "character": "윈스턴 처칠",
+        "concept": "위기 속 리더십",
+        "quote": "위기 속에서도 굴하지 않는 사람만이 다음을 설계할 수 있다.",
+        "interpretation": "불안이 큰 시기일수록, 침착한 선택이 더 큰 힘이 됩니다.",
+        "action": "오늘 힘든 상황에서 가장 먼저 해야 할 한 가지를 정하고, 그것만 우선해보세요.",
+        "tags": ["#침착", "#리더십", "#위기"],
+        "source_type": "실제 인용/연설",
+        "source_note": "처칠의 연설과 기록을 통해 널리 인용되는 위기 대응의 메시지입니다.",
+    },
+    {
+        "character": "노자",
+        "concept": "움직임과 가볍게 살기",
+        "quote": "무리하게 밀지 않아도, 가장 잘 움직이는 법은 가볍게 두는 데 있다.",
+        "interpretation": "강하게 밀어붙이는 것보다, 흐름을 살피는 힘이 더 오래 버팀니다.",
+        "action": "오늘 가장 큰 압박이 되는 일을 그대로 밀지 말고, 5분만 쉬고 우선순위를 다시 정해보세요.",
+        "tags": ["#유연함", "#평온", "#자연스러움"],
+        "source_type": "도교 사상 전승",
+        "source_note": "노자의 <도덕경>과 도가적 사상을 요약해 현대적으로 재해석한 표현입니다.",
+    },
+    {
+        "character": "장자",
+        "concept": "자유와 유연함",
+        "quote": "우리가 무엇을 놓치고 있는지보다, 무엇을 자유롭게 볼 수 있는지가 중요하다.",
+        "interpretation": "사람은 고정된 틀을 넘는 순간 더 넓은 시야를 얻습니다.",
+        "action": "오늘 한 가지 고정관념을 뒤집는 질문 하나를 던져보세요.",
+        "tags": ["#자유", "#유연", "#시야"],
+        "source_type": "실제 인용/도장 전승",
+        "source_note": "장자의 이야기와 사상에서 전해지는 유연한 사고를 현대적으로 정리한 표현입니다.",
+    },
+    {
+        "character": "아르투어 쇼펜하우어",
+        "concept": "관점의 무게",
+        "quote": "사건이 큰 것이 아니라, 그 사건을 어떻게 이해하느냐가 삶을 결정한다.",
+        "interpretation": "같은 상황도 해석이 바뀌면 감정과 행동의 무게가 달라집니다.",
+        "action": "오늘 힘든 일이 있으면, 그 일을 한 문장으로 다시 쓰고 그 문장의 느낌을 비교해보세요.",
         "tags": ["#해석", "#관점", "#마음"],
         "source_type": "실제 인용",
-        "source_note": "쇼펜하우어의 철학서 <의지와 표상으로서의 세계>에서 전해지는 핵심 표현입니다.",
+        "source_note": "쇼펜하우어의 <의지와 표상으로서의 세계>에서 전해지는 관점의 핵심 원리를 요약한 표현입니다.",
     },
     {
-        "character": "마하트마 간디", "concept": "비폭력과 원칙",
-        "quote": "행복은 무엇을 가지는 것보다 무엇을 나누는가에 달려 있다.",
-        "interpretation": "자기 이익보다 관계와 기여를 더 크게 보는 삶이 더 오래 남습니다.",
-        "action": "오늘 누군가에게 실제로 도움이 되는 작은 행동 하기.",
-        "tags": ["#연대", "#비폭력", "#사람"],
-        "source_type": "실제 인용",
-        "source_note": "간디의 연설과 전기적 기록에서 널리 인용되는 문장입니다.",
+        "character": "헬렌 켈러",
+        "concept": "자기 확장과 인내",
+        "quote": "어려운 길일수록 멈추지 않는 사람에게 더 큰 세상이 열린다.",
+        "interpretation": "제한을 인정하는 것과 포기하는 것은 다릅니다. 한계 뒤의 가능성은 계속 늘어납니다.",
+        "action": "오늘 내가 하기 싫은 일 하나를 5분만 더 버텨보고, 그 이후의 느낌을 적어보세요.",
+        "tags": ["#인내", "#성장", "#회복"],
+        "source_type": "실제 인용/기록",
+        "source_note": "헬렌 켈러의 회고와 연설, 자서전 기록에서 자주 인용되는 표현입니다.",
     },
     {
-        "character": "에이브러햄 링컨", "concept": "도덕적 결단",
-        "quote": "우리가 무엇을 할 수 있는지보다 무엇을 해야 하는지에 대해 생각하라.",
-        "interpretation": "가능성보다 책임이 더 큰 선택을 이끌어냅니다.",
-        "action": "오늘 나에게 가장 중요한 책임 하나를 다시 떠올리기.",
-        "tags": ["#책임", "#결단", "#도덕"],
+        "character": "마하트마 간디",
+        "concept": "연대와 비폭력",
+        "quote": "자기 삶을 사는 것보다, 누군가를 더 존중하는 삶이 더 큰 행복을 만든다.",
+        "interpretation": "사람은 자신의 편안함보다 관계 속에서 더 오래 성장합니다.",
+        "action": "오늘 누군가를 배려하는 말 한마디를 실제로 건네고, 그 반응을 살펴보세요.",
+        "tags": ["#관계", "#연대", "#배려"],
         "source_type": "실제 인용",
-        "source_note": "링컨의 연설과 메모에서 인용되는 대표적 원칙적 문장으로 전해집니다.",
+        "source_note": "간디의 연설과 저술에서 전해지는 비폭력적 삶의 가르침을 요약한 표현입니다.",
     },
     {
-        "character": "알베르트 아인슈타인", "concept": "직관과 호기심",
-        "quote": "상상력은 지식보다 더 중요하다.",
-        "interpretation": "실용함보다도 새로운 시각을 만드는 힘이 더 큰 변화의 씨앗이 됩니다.",
-        "action": "오늘 가장 낯선 아이디어 하나를 마음속에 받아들이기.",
-        "tags": ["#상상력", "#혁신", "#호기심"],
+        "character": "알베르트 슈바이처",
+        "concept": "인간존엄과 책임",
+        "quote": "사람은 자신의 삶을 살기보다, 다른 사람의 삶을 이해할 때 더 인간적으로 된다.",
+        "interpretation": "자기 자신을 이해하는 것만큼, 다른 사람의 어려움을 보듬는 것도 인간을 성장시킵니다.",
+        "action": "오늘 주변 사람 한 명의 입장에서 생각해보고, 그 사람이 가장 필요로 하는 작은 도움을 떠올려보세요.",
+        "tags": ["#공감", "#인간성", "#책임"],
+        "source_type": "실제 인용/철학 기록",
+        "source_note": "슈바이처의 윤리·인간 존엄 관련 저작과 강연에서 반복되는 메시지를 정리한 표현입니다.",
+    },
+    {
+        "character": "테레사 수녀",
+        "concept": "작은 행동의 의미",
+        "quote": "작은 선은 큰 세상을 바꾸는 데 충분히 중요하다.",
+        "interpretation": "눈에 보이지 않는 배려가 결국 가장 오래 남는 인간의 힘입니다.",
+        "action": "오늘 가장 작은 배려를 한 번 실천하고, 그 순간을 기억해보세요.",
+        "tags": ["#배려", "#작은실천", "#연민"],
         "source_type": "실제 인용",
-        "source_note": "아인슈타인의 강연과 회고록에서 자주 인용되는 문장입니다.",
+        "source_note": "테레사 수녀의 연설과 많은 기록에서 인용되는 대표적 메시지입니다.",
+    },
+    {
+        "character": "유비",
+        "concept": "신뢰와 사람의 힘",
+        "quote": "사람을 얻는 일은 힘을 얻는 일보다 더 중요하다.",
+        "interpretation": "결과보다 사람과의 신뢰가 과업을 지속시키는 가장 핵심적인 자산입니다.",
+        "action": "오늘 누구와의 관계에서 신뢰를 조금 더 쌓을 수 있는 말을 건네보세요.",
+        "tags": ["#신뢰", "#인재", "#관계"],
+        "source_type": "역사 전승 표현",
+        "source_note": "삼국지 전승과 인물 서사에서 널리 회자되는 유비의 리더십 원리를 현대적으로 정리한 표현입니다.",
+    },
+    {
+        "character": "율리우스 카이사르",
+        "concept": "지혜와 항해",
+        "quote": "많이 잃어도 길을 바꾸지 않는 자가 결국 집으로 돌아온다.",
+        "interpretation": "실패와 좌절이 많아도 방향을 잃지 않는 사람은 결국 더 멀리 갈 수 있습니다.",
+        "action": "오늘 좌절을 경험했다면, 그 일의 원인을 한 문장으로 정리하고 다음 행동을 하나 정해보세요.",
+        "tags": ["#항해", "#지혜", "#회복"],
+        "source_type": "서사 전승 표현",
+        "source_note": "카이사르의 갈리아 전쟁기와 로마 공화정 말기의 정치 행보를 바탕으로 한 현대적 재해석입니다.",
     },
 ]
 HISTORICAL_DATES = {
@@ -687,6 +1143,7 @@ HISTORICAL_DATES = {
     "부처": (-563, -483),
     "니체": (1844, 1900),
     "쇼펜하우어": (1788, 1860),
+    "율리우스 카이사르": (-100, -44),
     "이성계": (1335, 1408),
     "태조": (1335, 1408),
     "정약용": (1762, 1836),
@@ -694,20 +1151,22 @@ HISTORICAL_DATES = {
     "율곡 이이": (1536, 1584),
 }
 ASSET_DIR = Path(__file__).parent / "assets"
+PORTRAIT_DIR = ASSET_DIR / "portraits_clean"
 INTRO_IMAGE = ASSET_DIR / "intro-agora.jpg"
-CEO_IMAGE = ASSET_DIR / "ceo.png"
+CEO_IMAGE = PORTRAIT_DIR / "ceo_square.png"
 if not CEO_IMAGE.is_file():
-    CEO_IMAGE = ASSET_DIR / "founder.png"
+    CEO_IMAGE = ASSET_DIR / "ceo_square.png"
 PEOPLE_INFO = {
-    "이순신": ("절제된 용기 · 책임의 리더십", ASSET_DIR / "admiral.png", ASSET_DIR / "admiral.png"),
-    "세종대왕": ("애민 정신 · 지식의 대중화", ASSET_DIR / "king.png", ASSET_DIR / "king.png"),
-    "소크라테스": ("끊임없는 질문 · 성찰", ASSET_DIR / "philosopher.png", ASSET_DIR / "philosopher.png"),
-    "스티브 잡스": ("집요한 미학 · 사용자 경험", ASSET_DIR / "founder.png", ASSET_DIR / "founder.png"),
-    "공자": ("배움과 예 · 함께 만드는 질서", ASSET_DIR / "confucius.png", ASSET_DIR / "confucius.png"),
-    "예수": ("사랑과 용서 · 낮은 곳의 연대", ASSET_DIR / "jesus.png", ASSET_DIR / "jesus.png"),
-    "부처": ("자비와 중도 · 집착에서 벗어남", ASSET_DIR / "buddha.png", ASSET_DIR / "buddha.png"),
-    "니체": ("자기 극복 · 가치의 재창조", ASSET_DIR / "nietzsche.png", ASSET_DIR / "nietzsche.png"),
-    "쇼펜하우어": ("의지와 고통 · 연민의 윤리", ASSET_DIR / "schopenhauer.png", ASSET_DIR / "schopenhauer.png"),
+    "이순신": ("절제된 용기 · 책임의 리더십", PORTRAIT_DIR / "admiral.png", PORTRAIT_DIR / "admiral.png"),
+    "세종대왕": ("애민 정신 · 지식의 대중화", PORTRAIT_DIR / "king.png", PORTRAIT_DIR / "king.png"),
+    "소크라테스": ("끊임없는 질문 · 성찰", PORTRAIT_DIR / "philosopher.png", PORTRAIT_DIR / "philosopher.png"),
+    "스티브 잡스": ("집요한 미학 · 사용자 경험", PORTRAIT_DIR / "founder.png", PORTRAIT_DIR / "founder.png"),
+    "공자": ("배움과 예 · 함께 만드는 질서", PORTRAIT_DIR / "confucius.png", PORTRAIT_DIR / "confucius.png"),
+    "예수": ("사랑과 용서 · 낮은 곳의 연대", PORTRAIT_DIR / "jesus.png", PORTRAIT_DIR / "jesus.png"),
+    "부처": ("자비와 중도 · 집착에서 벗어남", PORTRAIT_DIR / "buddha.png", PORTRAIT_DIR / "buddha.png"),
+    "니체": ("자기 극복 · 가치의 재창조", PORTRAIT_DIR / "nietzsche.png", PORTRAIT_DIR / "nietzsche.png"),
+    "쇼펜하우어": ("의지와 고통 · 연민의 윤리", PORTRAIT_DIR / "schopenhauer.png", PORTRAIT_DIR / "schopenhauer.png"),
+    "율리우스 카이사르": ("전략적 판단 · 설득과 결단", PORTRAIT_DIR / "caesar.png", PORTRAIT_DIR / "caesar.png"),
     "유명 채용 플랫폼 대표": ("사람의 가능성 · 데이터와 실행", CEO_IMAGE, CEO_IMAGE),
 }
 LEGACY_PORTRAIT_NAMES = {
@@ -723,11 +1182,24 @@ LEGACY_PORTRAIT_NAMES = {
     "아르투어 쇼펜하우어",
 }
 PEOPLE_INFO["아르투어 쇼펜하우어"] = PEOPLE_INFO["쇼펜하우어"]
+EXAMPLE_PORTRAITS = {
+    "이순신": ASSET_DIR / "admiral.png",
+    "세종대왕": ASSET_DIR / "king.png",
+    "소크라테스": ASSET_DIR / "philosopher.png",
+    "스티브 잡스": ASSET_DIR / "founder.png",
+    "공자": ASSET_DIR / "confucius.png",
+    "예수": ASSET_DIR / "jesus.png",
+    "부처": ASSET_DIR / "buddha.png",
+    "니체": ASSET_DIR / "nietzsche.png",
+    "쇼펜하우어": ASSET_DIR / "schopenhauer.png",
+    "유명 채용 플랫폼 대표": ASSET_DIR / "ceo.png",
+}
 
 # The repository currently contains nine original portrait assets. Until the
 # remaining 21 individual portraits are supplied, keep every mentor visual by
 # borrowing the closest group's existing editorial portrait.
 MENTOR_PORTRAIT_FALLBACKS = {
+    "전략/권력형": "율리우스 카이사르",
     "결단/개척형": "이순신",
     "원칙/시스템형": "세종대왕",
     "통찰/질문형": "소크라테스",
@@ -754,16 +1226,18 @@ MENTOR_CARD_NAMES = [
     for person in mentor_people
 ]
 MENTOR_CARD_IMAGE_ALIASES = {
-    "니체": ASSET_DIR / "nietzsche.png",
-    "나폴레옹": ASSET_DIR / "mentor_cards" / "03_나폴레옹 보나파르트.png",
+    "니체": PORTRAIT_DIR / "nietzsche.png",
+    "나폴레옹": PORTRAIT_DIR / "03_나폴레옹 보나파르트.png",
+    "율리우스 카이사르": PORTRAIT_DIR / "caesar.png",
 }
 MENTOR_CARD_IMAGES = {}
+MENTOR_CARD_IMAGE_DIR = PORTRAIT_DIR
 for mentor_person in MENTOR_CARD_NAMES:
     if mentor_person in MENTOR_CARD_IMAGE_ALIASES:
         MENTOR_CARD_IMAGES[mentor_person] = MENTOR_CARD_IMAGE_ALIASES[mentor_person]
         continue
     mentor_image = next(
-        (path for path in (ASSET_DIR / "mentor_cards").glob("*.png") if path.stem.split("_", 1)[-1] == mentor_person),
+        (path for path in MENTOR_CARD_IMAGE_DIR.glob("*.png") if path.stem.split("_", 1)[-1] == mentor_person),
         None,
     )
     if mentor_image is not None:
@@ -909,39 +1383,63 @@ TOPICS = [
 ]
 MAGAZINE_ARTICLES = [
     {
-        "category": "TREND · AI WORK",
-        "title": "AI 도입 뒤, 사라진 직무보다 먼저 바뀐 것은 ‘업무의 경계’였다",
-        "dek": "기업들은 반복 업무를 자동화하는 동시에 검토·설명·돌봄을 새로운 핵심 역량으로 꼽기 시작했다.",
-        "body": "생성형 AI를 도입한 팀의 변화는 해고 숫자만으로 설명되지 않는다. 초안 작성과 검색은 빨라졌지만, 무엇을 믿고 누구에게 설명할지 결정하는 일은 오히려 더 무거워졌다. 조직은 이제 ‘AI를 쓸 것인가’보다 ‘어디까지 맡기고 누가 멈출 것인가’를 정해야 한다.",
-        "question": "AI가 바꾸는 것은 직업일까, 직업 안의 책임일까?",
+        "category": "NOW · AI WORK",
+        "title": "AI가 내 일을 대신할까보다 더 무서운 것, 내 일이 무엇인지 설명할 수 없는 상태",
+        "dek": "초안과 보고서는 빨라졌지만, 성과의 기준과 책임의 경계는 오히려 흐려지고 있다.",
+        "body": "요즘 직장인의 불안은 단순히 일자리가 사라질까 하는 두려움만이 아니다. 같은 시간에 더 많은 결과를 내라는 압박, AI를 쓰지 못하면 뒤처질 것 같은 불안, AI가 만든 결과를 검수하고 책임져야 하는 부담이 한꺼번에 커지고 있다. 회사는 생산성 향상을 말하지만, 구성원은 그만큼의 임금과 여유가 돌아올지 묻는다.",
+        "question": "AI 시대에 우리는 일을 덜 하게 되는가, 더 빠르게 소진되는가?",
         "comments": [
-            ("이순신", "직무가 바뀌는 것 자체보다 책임선이 흐려지는 일이 더 위험합니다. 자동화할 업무와 사람이 끝까지 확인할 판단을 작전도처럼 분명히 나눠야 합니다.", "책임의 경계"),
-            ("세종대왕", "새로운 역할이 생긴다고 말하려면 누구나 배울 길도 함께 열어야 합니다. 전환 교육이 없다면 변화는 일부 사람에게만 기회가 됩니다.", "배움의 접근성"),
-            ("스티브 잡스", "기능을 추가하는 데 그치지 말고 사람이 더 중요한 문제에 집중하게 만들어야 합니다. AI의 성공은 도입률이 아니라 경험의 질로 증명됩니다.", "본질과 경험"),
+            ("이순신", "새 기계를 들이는 일보다 먼저 물어야 할 것은 누가 마지막 책임을 질 것인가입니다. 병사에게 명령만 내리고 판단의 책임을 흐린다면, 좋은 무기도 군을 살리지 못합니다.", "책임의 경계"),
+            ("세종대왕", "백성이 새 글을 배울 겨를도 없이 쓰라 한다면 그것은 나라의 편의이지 백성을 위한 변화가 아닙니다. 배우는 길과 다시 물을 길을 함께 열어야 합니다.", "전환의 권리"),
+            ("스티브 잡스", "AI를 쓴다는 사실은 제품이 아닙니다. 사람들이 덜 중요한 일에 시간을 빼앗기지 않고, 정말 중요한 문제를 더 선명하게 풀게 되었는지가 전부입니다.", "본질과 생산성"),
         ],
     },
     {
-        "category": "ISSUE · CREATIVE AI",
-        "title": "AI가 만든 이미지, 창작의 도구인가 새로운 저작권의 전선인가",
-        "dek": "창작자는 결과물의 아름다움만큼 데이터의 출처와 참여자의 권리를 묻기 시작했다.",
-        "body": "AI 이미지와 음악이 일상적인 제작 도구가 되었지만, 학습 데이터와 창작자의 동의 문제는 아직 합의되지 않았다. 빠른 결과를 환영하는 목소리와 출처를 투명하게 공개해야 한다는 요구가 동시에 커지고 있다.",
-        "question": "좋은 결과물만으로 창작의 정당성이 충분해질 수 있을까?",
+        "category": "LIFE · HOUSING",
+        "title": "월급이 들어오기도 전에 사라지는 시대, 집과 미래를 함께 포기해야 할까",
+        "dek": "주거비와 대출 상환, 불안정한 소득이 현재의 생활뿐 아니라 미래의 선택까지 좁히고 있다.",
+        "body": "월세와 대출 이자, 생활비가 먼저 빠져나가면 사람은 꿈보다 다음 달을 계산하게 된다. 집을 사지 못했다는 박탈감만의 문제가 아니다. 이직이나 휴식, 결혼과 출산, 새로운 공부처럼 삶을 바꾸는 선택이 모두 비용표 위에서 망설여진다. 안정은 개인의 절약만으로 만들 수 없는 사회적 조건이기도 하다.",
+        "question": "주거의 불안은 정말 개인의 선택과 노력만으로 해결할 수 있을까?",
         "comments": [
-            ("소크라테스", "먼저 창작이라는 말을 정의해야 하지 않겠습니까? 결과가 새롭다는 것과 그 결과를 만든 과정이 정당하다는 것은 같은 질문이 아닙니다.", "정의와 과정"),
-            ("니체", "도구를 사용했다는 이유만으로 창작자를 지울 수는 없습니다. 다만 무엇을 선택하고 어떤 가치를 부여했는지 스스로 감당해야 합니다.", "가치의 선택"),
-            ("공자", "배움은 관계 속에서 이루어집니다. 그러므로 영향을 받은 이의 이름과 기여를 숨기지 않는 예가 창작의 바탕이 되어야 합니다.", "기여와 예"),
+            ("공자", "사는 곳이 불안한데 어찌 마음을 닦고 먼 앞날을 꾀하겠습니까. 백성에게 검소하라 말하기 전에, 나라가 삶을 세울 마땅한 질서를 마련했는지부터 돌아보아야 합니다.", "삶의 기반"),
+            ("쇼펜하우어", "더 큰 집과 더 많은 돈이 마음의 불안을 끝내 없애주지는 않습니다. 그러나 가진 자가 가난한 이에게 욕망을 줄이라 말하는 것은 지혜가 아니라 잔인함입니다.", "욕망과 안전"),
+            ("세종대왕", "법과 금융의 글이 어려워 백성이 자기 권리를 알지 못한다면, 그 제도는 아직 백성의 것이 아닙니다. 이해할 수 있는 말로 설명하고 다시 물을 수 있게 해야 합니다.", "접근 가능한 제도"),
         ],
     },
     {
-        "category": "SOCIETY · ATTENTION",
-        "title": "추천 알고리즘 시대, 우리는 더 많이 아는가 더 오래 머무는가",
-        "dek": "개인화된 피드는 관심사를 정확히 맞히지만, 우연한 만남과 멈출 권리까지 보장하지는 않는다.",
-        "body": "플랫폼은 사용자가 원하는 콘텐츠를 더 빠르게 보여준다. 그러나 편리함이 커질수록 다른 관점과 만날 기회는 줄어들 수 있다. 이제 서비스의 경쟁력은 얼마나 오래 붙잡는지가 아니라 사용자가 스스로 멈추고 선택할 수 있게 하는지로도 평가되어야 한다.",
-        "question": "편리한 추천은 선택을 넓히는가, 선택을 대신하는가?",
+        "category": "WORK · CARE",
+        "title": "잘 버티는 사람이 인정받는 사회에서, 번아웃은 개인의 의지가 아니다",
+        "dek": "퇴근 뒤에도 이어지는 업무와 돌봄의 부담이 ‘회복할 시간’마저 성과 경쟁으로 만들고 있다.",
+        "body": "직장에서는 성과를 내고 집에서는 가족을 돌보며, 자기계발까지 놓치지 않아야 한다는 요구가 동시에 쌓인다. 쉬고 싶다는 말은 게으름처럼 들리고, 도움을 요청하면 능력이 부족한 사람처럼 보일까 두렵다. 하지만 피로가 개인의 관리 실패로만 취급되면 조직과 사회가 만든 부담은 계속 보이지 않게 된다.",
+        "question": "회복하지 못하는 사람에게 더 잘 버티라고 말하는 것이 공정한가?",
         "comments": [
-            ("부처", "마음이 끌리는 방향을 곧 자유라고 부르기 전에, 무엇이 나를 끌고 가는지 살펴야 합니다. 멈출 수 있는 공간도 좋은 설계의 일부입니다.", "주의와 멈춤"),
-            ("쇼펜하우어", "욕망을 자극하는 장치는 만족을 약속하지만 더 큰 결핍을 만들 수 있습니다. 사용자가 거절할 수 없다면 추천은 선택이 아니라 지배에 가깝습니다.", "욕망과 선택"),
-            ("예수", "가장 약한 사람의 하루가 어떻게 바뀌는지 보아야 합니다. 누군가의 외로움과 불안을 더 오래 붙잡는 구조라면 편리함만으로 정당화할 수 없습니다.", "사람과 연대"),
+            ("부처", "몸과 마음이 지쳤는데도 더 나아가라 다그치면 괴로움에 괴로움을 더하는 셈입니다. 먼저 숨이 가쁜 줄 알아차리십시오. 멈춤을 알아야 바른 길도 보입니다.", "멈춤과 회복"),
+            ("예수", "지친 사람에게 더 강해지라 말하기 전에 그의 곁에 앉아야 합니다. 돌봄을 한 사람의 희생으로만 세우는 공동체는 가장 약한 이의 얼굴을 잊은 것입니다.", "돌봄의 책임"),
+            ("이순신", "장수가 모든 일을 혼자 짊어지면 부하들은 명령만 기다리게 됩니다. 맡길 사람에게 맡기고 서로의 몫을 분명히 하는 것이 오래 싸우는 군의 힘입니다.", "책임의 분배"),
+        ],
+    },
+    {
+        "category": "SOCIETY · CONNECTION",
+        "title": "연결되어 있는데도 외로운 이유, 관계마저 성과처럼 관리하기 때문이다",
+        "dek": "빠른 답장과 많은 팔로우가 가까움을 보장하지 않는 시대, 사람들은 안전한 관계를 다시 배우고 있다.",
+        "body": "연락처와 피드는 넘치지만 속마음을 꺼낼 사람은 없다고 느끼는 이들이 많다. 관계를 맺는 일도 좋은 모습과 빠른 반응을 보여주는 경쟁처럼 변했고, 상처받지 않기 위해 먼저 거리를 두는 습관도 커졌다. 연결의 양보다 거절당해도 다시 대화할 수 있는 안전이 필요한 때다.",
+        "question": "나를 지키는 거리와 나를 고립시키는 벽은 어떻게 구분할 수 있을까?",
+        "comments": [
+            ("소크라테스", "그대가 혼자 있기를 택한 것입니까, 아니면 아무도 나를 이해하지 못하리라는 판단에 갇힌 것입니까? 두 가지는 정말 같은 일인지 먼저 물어봅시다.", "고독의 질문"),
+            ("예수", "모든 문을 열어둘 필요는 없습니다. 그러나 다친 사람이 다시 두드릴 문 하나는 남겨두십시오. 환대란 경계를 없애는 일이 아니라, 사람을 완전히 버리지 않는 일입니다.", "경계와 환대"),
+            ("니체", "남이 정한 관계를 모두 끊는다고 곧 자기 자신이 되는 것은 아닙니다. 누구의 기대도 아닌 나의 기준으로 선택하고, 그 선택의 대가까지 견딜 힘을 길러야 합니다.", "관계의 선택"),
+        ],
+    },
+    {
+        "category": "SOCIETY · FAIRNESS",
+        "title": "열심히 하면 된다는 말이 더 이상 위로가 되지 않는 순간",
+        "dek": "시험, 채용, 플랫폼 평점과 추천 시스템 속에서 공정함의 기준을 다시 묻는 사람들이 늘고 있다.",
+        "body": "사람들은 노력의 가치를 부정해서가 아니라, 출발선과 정보와 실패의 비용이 서로 다르다는 사실을 매일 확인하기 때문에 지친다. 탈락 이유를 알 수 없는 평가와 숫자로 환원되는 사람의 가치는 불만을 넘어 무력감을 만든다. 공정한 사회는 모두에게 같은 결과를 약속하는 것이 아니라, 판단의 기준을 설명하고 잘못을 고칠 기회를 보장하는 데서 시작된다.",
+        "question": "공정한 경쟁은 결과가 아니라 과정에서 증명될 수 있을까?",
+        "comments": [
+            ("소크라테스", "공정하다고 말하는 사람에게 묻고 싶습니다. 그 기준은 누가 만들었고, 탈락한 사람은 무엇을 물을 수 있습니까? 질문할 수 없는 판정은 지혜가 아니라 권력일 뿐입니다.", "기준의 설명"),
+            ("세종대왕", "제도가 백성을 시험하기만 하고 백성의 말은 듣지 않는다면, 그것은 좋은 법이라 하기 어렵습니다. 놓친 사람의 목소리를 다시 들을 문을 마련해야 합니다.", "다시 들을 권리"),
+            ("니체", "남이 세운 서열을 부순다고 곧 자유인이 되는 것은 아닙니다. 그러나 그 서열이 그대의 가치 전부라고 믿는 순간, 스스로 자신을 가장 낮은 자리에 세우게 됩니다.", "서열과 자기 가치"),
         ],
     },
 ]
@@ -1962,7 +2460,7 @@ HISTORICAL_HONORIFICS = """[범용 관계·호칭 처리 규칙]
 대상 인물의 본명을 단독으로 부르지 말고, 관계에 맞는 공식 호칭과 조사를 붙인다. 군주·왕실 선대·국가 지도자는 시호·묘호·직위와 존칭을 사용하고, 스승·철학자·학자는 선생·공·성인 등 시대와 전통에 맞는 호칭을 사용한다. 부모·조상·존경받는 종교 인물도 이름만 부르지 않는다.
 관계가 확실하지 않거나 여러 호칭이 가능한 경우에는 이름을 억지로 붙이지 말고 '그분', '선대의 군주', '스승', '당시의 성인', '그 인물'처럼 안전한 관계 호칭을 사용한다. 화자 자신의 이름이나 현재 코멘트의 인물명을 표시하는 메타데이터에서는 이름을 사용할 수 있지만, 대사와 코멘트 본문에서는 이 규칙을 따른다.
 예를 들어 '누구가 말했다'처럼 이름 뒤에 조사만 붙이는 표현은 피하고, '누구 선생께서', '선대의 군주께서', '그분께서'처럼 격식을 갖춘다. 근거 없는 친족·군신 관계를 새로 만들지 말고, 직접 관계가 없으면 시대적 거리를 드러낸다."""
-PERSPECTIVE_REFERENCE_RULES = """[인물들의 시선: 언급 대상의 범위]
+PERSPECTIVE_REFERENCE_RULES = """[인물 코멘트: 언급 대상의 범위]
 각 화자는 자기 자신을 어떤 경우에도 존경·존중·스승·영향을 준 인물로 선택하거나 언급하지 않는다.
 역사적으로 언급할 수 있는 대상이라면 추상적인 표현으로 얼버무리지 말고 실명과 정식 호칭을 명확히 표기한다. 이름을 쓸 때는 대표 업적·가르침·사건을 함께 설명해 왜 그 인물을 언급하는지 분명히 한다.
 화자가 다른 인물을 언급할 때는 다음 네 조건을 모두 만족해야 한다.
@@ -1995,6 +2493,35 @@ PERSPECTIVE_EXTERNAL_EXAMPLES = {
     "니체": "괴테의 문학·예술적 인간상, 헤라클레이토스의 생성과 변화에 관한 사유",
     "쇼펜하우어": "칸트의 인식론과 윤리 철학, 에피쿠로스의 욕망 절제와 평정의 가르침",
 }
+# The public roster uses the full name while legacy perspective references use
+# the shorter display name. Keep the generation dictionaries aligned.
+PERSPECTIVE_CONTEXT["아르투어 쇼펜하우어"] = PERSPECTIVE_CONTEXT["쇼펜하우어"]
+PERSPECTIVE_EXTERNAL_EXAMPLES["아르투어 쇼펜하우어"] = PERSPECTIVE_EXTERNAL_EXAMPLES["쇼펜하우어"]
+
+AI_QUALITY_SYSTEM = """당신은 Virtual Agora의 수석 인문 콘텐츠 에디터이자 역사·인물 기반 대화 작가입니다.
+당신의 목표는 그럴듯한 위인 흉내가 아니라, 사용자가 자신의 고민을 더 정확히 이해하게 만드는 자연스럽고 지적인 한국어 콘텐츠를 만드는 것입니다.
+
+반드시 지킬 원칙:
+1. 실제 발언, 편지, 저서의 문장을 새로 만들어 인용부호로 제시하지 않습니다. 공개된 사상과 기록을 바탕으로 한 창작적 해석임을 유지합니다.
+2. 인물을 이름만 바꾼 충고 캐릭터로 만들지 않습니다. 각 인물의 시대, 사회적 위치, 대표 경험, 가치관, 말의 속도와 판단 습관을 문장 구조에 반영합니다.
+3. 현재의 문제를 과거 인물이 직접 겪었다고 거짓말하지 않습니다. 현대 사례는 가정·비유·질문으로 다루고, 역사적 사실과 해석을 분리합니다.
+4. 먼저 사용자의 감정과 현실적 비용을 인정한 뒤, 인물의 관점과 긴장을 제시합니다. 훈계, 자기계발 문구, 공허한 희망, 진단처럼 보이는 심리 단정을 피합니다.
+5. 한국어는 번역투가 아닌 자연스러운 존댓말을 사용합니다. 짧은 문장과 구체적인 생활 장면을 우선하며, 추상명사를 연속해서 쓰지 않습니다.
+6. 서로 다른 인물의 답을 같은 결론으로 평탄화하지 않습니다. 동의하더라도 무엇을 인정하고 무엇은 끝까지 다르게 보는지 남깁니다.
+7. 출력 형식과 글자 수를 지키고, JSON을 요청받으면 JSON만 출력합니다. 설명, 마크다운, 자기검토 과정은 출력하지 않습니다.
+"""
+
+
+def persona_generation_packet(person: str) -> str:
+    birth, death = HISTORICAL_DATES.get(person, ("연대 미상", "연대 미상"))
+    voice = VOICE.get(person, ("자신의 경험을 돌아보면", "사람의 삶을 중심에 두고 판단해야 합니다.", "책임 있는 검증이 필요합니다."))
+    return f"""[인물 생성 패킷: {person}]
+생존 시기: {birth}~{death}
+핵심 페르소나: {PERSONA.get(person, "공개 기록에 근거한 신중한 창작적 해석")}
+참고 사례: {CASE_NOTES.get(person, "공개적으로 알려진 활동")}
+말의 결: 도입은 '{voice[0]}', 우선 기준은 '{voice[1]}', 스스로 경계할 한계는 '{voice[2]}'에 가깝게 구성합니다. 문장을 그대로 반복하지 말고 사고 습관만 참고합니다.
+생성 금지: 현대의 일을 직접 경험했다고 말하기, 확인되지 않은 사생활·심리·명언 만들기, 시대 밖의 지식과 관계를 자연스럽게 아는 것처럼 말하기.
+"""
 
 
 def chronology_violation(
@@ -2049,12 +2576,13 @@ JSON만 출력하세요:
 is_valid가 false이면 가장 중요한 오류의 수정 지침을 구체적으로 적으세요.""",
         temperature=0.1,
         timeout=35,
+        system_prompt=AI_QUALITY_SYSTEM + "\n검수 단계에서는 생성보다 엄격한 사실성·시대성·페르소나 일관성 판정을 우선합니다.",
 model=_config_value(
     "OPENAI_VALIDATOR_MODEL",
     "OPENROUTER_VALIDATOR_MODEL",
     "OPENAI_MODEL",
     "OPENROUTER_MODEL",
-    default="gpt-4o-mini",
+    default="google/gemini-2.5-flash",
 ),
     )
 
@@ -2104,10 +2632,8 @@ def _generate_dialogue_once(
 이번 대화에서 반드시 다룰 구체적 딜레마: {TOPIC_DILEMMAS.get(topic, "좋은 원칙을 지키는 과정에서 누군가가 감당해야 할 비용이 생긴다면 무엇을 선택할 것인가?")}
 인물 A의 사상이 놓칠 수 있는 위험: {PERSONA_TENSIONS.get(person_a, "자신의 원칙이 놓칠 수 있는 사람과 결과")}
 인물 B의 사상이 놓칠 수 있는 위험: {PERSONA_TENSIONS.get(person_b, "자신의 원칙이 놓칠 수 있는 사람과 결과")}
-인물 A 페르소나: {PERSONA.get(person_a, "사용자가 입력한 인물의 알려진 특징을 과장하지 말고 창작적으로 해석한다.")}
-인물 B 페르소나: {PERSONA.get(person_b, "사용자가 입력한 인물의 알려진 특징을 과장하지 말고 창작적으로 해석한다.")}
-인물 A의 참고 사례: {CASE_NOTES.get(person_a, "공개적으로 알려진 활동을 바탕으로 한 창작적 해석")}
-인물 B의 참고 사례: {CASE_NOTES.get(person_b, "공개적으로 알려진 활동을 바탕으로 한 창작적 해석")}
+{persona_generation_packet(person_a)}
+{persona_generation_packet(person_b)}
 한국어로만 답하고, 전문용어는 짧게 풀어서 설명하는 편안한 대화체로 다음 JSON 형식만 출력하라. 아래 예시의 '인물 A'와 '인물 B'는 자리표시자이므로 그대로 출력하지 말고 반드시 실제 이름으로 바꿔 써라.
 {{"scene":"장면 한 줄","script":[{{"speaker":"{person_a} 또는 {person_b}","line":"대사"}}],"summary":"{person_a}와 {person_b}의 주장을 각각 한 문장으로 명시하고 핵심 차이를 설명한 요약","stance_a":"{person_a}가 이 주제에서 우선해야 한다고 주장하는 바","stance_b":"{person_b}가 이 주제에서 우선해야 한다고 주장하는 바","conflict":"두 주장이 갈라지는 핵심 기준","chem":87,"mvp":"{person_a} 또는 {person_b}"}}
 script는 정확히 24턴이며 각 대사는 2문장 이하로 쓴다. 딱딱한 논문체나 과도한 한자어 대신 친구에게 설명하듯 쉽게 말한다.
@@ -2116,9 +2642,12 @@ script는 정확히 24턴이며 각 대사는 2문장 이하로 쓴다. 딱딱�
 종교적 인물은 신앙을 강요하거나 교리를 단정하지 말고, 공개적으로 알려진 가르침을 바탕으로 한 존중 어린 창작 대화로 쓴다."""
     body = json.dumps(
         {
-            "model": _config_value("OPENAI_MODEL", "OPENROUTER_MODEL", default="gpt-4o-mini"),
+            "model": _config_value("OPENAI_MODEL", "OPENROUTER_MODEL", default="google/gemini-2.5-flash"),
             "temperature": 0.8,
-            "messages": [{"role": "user", "content": prompt}],
+            "messages": [
+                {"role": "system", "content": AI_QUALITY_SYSTEM},
+                {"role": "user", "content": prompt},
+            ],
             "response_format": {"type": "json_object"},
         }
     ).encode("utf-8")
@@ -2180,9 +2709,11 @@ script는 정확히 24턴이며 각 대사는 2문장 이하로 쓴다. 딱딱�
     except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, KeyError, TypeError, ValueError, json.JSONDecodeError) as error:
         raise RuntimeError(f"대화 생성에 실패했습니다: {error}") from error
 
+@st.cache_data(ttl=1800, show_spinner=False)
 def remote_dialogue(person_a: str, person_b: str, topic: str, intensity: int) -> Dialogue:
+    """Generate once per exact conversation request and reuse the judged result."""
     feedback = ""
-    for _ in range(3):
+    for attempt in range(2):
         try:
             dialogue = _generate_dialogue_once(
                 person_a, person_b, topic, intensity, feedback
@@ -2205,7 +2736,7 @@ def remote_dialogue(person_a: str, person_b: str, topic: str, intensity: int) ->
         except RuntimeError as error:
             feedback = f"생성 또는 형식 검증 오류: {error}"
     raise RuntimeError(
-        f"AI 대화가 3회 검증을 통과하지 못했습니다. 마지막 검수 의견: {feedback}"
+        f"AI 대화가 {attempt + 1}회 생성·검수를 통과하지 못했습니다. 마지막 검수 의견: {feedback}"
     )
 
 
@@ -2215,6 +2746,7 @@ def _openai_json(
     temperature: float = 0.8,
     timeout: int = 35,
     model: str = "",
+    system_prompt: str = "",
 ) -> dict:
     api_key = _config_value("OPENAI_API_KEY", "OPENROUTER_API_KEY")
     if not api_key:
@@ -2226,10 +2758,13 @@ def _openai_json(
     ).rstrip("/")
     body = json.dumps({
         "model": model or _config_value(
-            "OPENAI_MODEL", "OPENROUTER_MODEL", default="gpt-4o-mini"
+            "OPENAI_MODEL", "OPENROUTER_MODEL", default="google/gemini-2.5-flash"
         ),
         "temperature": temperature,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": [
+            {"role": "system", "content": system_prompt or AI_QUALITY_SYSTEM},
+            {"role": "user", "content": prompt},
+        ],
         "response_format": {"type": "json_object"},
     }).encode("utf-8")
     request = urllib.request.Request(
@@ -2250,14 +2785,103 @@ def _openai_json(
         raise RuntimeError(f"AI 응답을 받을 수 없습니다: {error}") from error
 
 
-def remote_perspective_comments(topic: str, _feedback: str = "") -> list[tuple[str, str, str]]:
+@st.cache_data(ttl=900, show_spinner=False)
+def enrich_parallel_age_cards_with_llm(
+    cards: list[dict],
+    *,
+    age: int,
+    emotion: str,
+    concern: str,
+) -> list[dict]:
+    """Personalize weak matches without letting the model invent historical facts."""
+    if not cards or not _config_value("OPENAI_API_KEY", "OPENROUTER_API_KEY"):
+        return cards
+    strong_matches = sum("감정·고민 일치" in card.get("age_match_label", "") for card in cards)
+    if len(cards) >= 4 and strong_matches >= 2:
+        return cards
+
+    source_cards = [
+        {
+            "person": card["person"],
+            "age_label": card["age_label"],
+            "record_event": card["record_event"],
+            "record_detail": card["record_detail"],
+            "age_match_label": card["age_match_label"],
+        }
+        for card in cards
+    ]
+    prompt = f"""Virtual Agora의 평행 시절 결과를 유저가 즉시 공감할 수 있게 연결하세요.
+유저 나이대: {parallel_age_decade(age)}대
+유저 감정: {emotion}
+유저 고민: {concern}
+
+아래 카드는 이미 확인된 기록 기반 카드입니다.
+{json.dumps(source_cards, ensure_ascii=False)}
+
+목표:
+- 각 카드가 '아, 나도 지금 이 감정을 느끼는 거구나'라고 느끼게 하세요.
+- 같은 문장 패턴을 반복하지 말고, 상실·생계·거절·관계·진로·자기 정체성·무기력 같은 서로 다른 실제 인간의 문제를 다루세요.
+- 표현은 쉽고 생생하게 쓰되, 과장이나 역사적 단정을 피하세요.
+- 사용자가 1문장 안에 감정이 왜 닿는지 이해할 수 있도록, 구체적이고 즉시 와닿는 어휘를 사용하세요.
+- 추상적인 교훈, 공문서체, '배움을 이어갔다', '인생의 의미를 깨달았다' 같은 문장은 금지합니다.
+- 기록 카드에 없는 연도, 장소, 발언, 심정의 사실을 새로 만들지 않습니다.
+- 사실과 해석을 분리하고, '오늘의 연결'이라고 표기하면서 현재 유저와의 연관만 설명하세요.
+- 각 카드의 핵심 사건은 입력된 record_event의 범위를 벗어나지 않습니다.
+- 심리학적으로는 정체성 혼란, 역할 긴장, 자기결정감의 상실, 불확실성 관리, 소속감 결핍, 성취 압박 같은 감정 구조를 반영하되, 인물의 실제 내면을 단정하지 마세요.
+
+다음 JSON만 출력하세요.
+{{"bridges":[{{"person":"카드의 인물명","angle":"이 카드가 건드리는 인간적 문제를 짧고 강하게","connection":"사용자의 감정·고민과 사건이 닿는 지점을 2문장으로, 가볍고 직관적이게","raw_emotion":"기록에 없는 내면을 단정하지 않는 공감적 재구성 1~2문장","today_action":"오늘 바로 해볼 수 있는 작고 구체적인 행동 1문장"}}]}}
+bridges는 입력 카드의 인물마다 정확히 하나씩 반환하세요."""
+    try:
+        result = _openai_json(
+            prompt,
+            temperature=0.65,
+            timeout=20,
+            model=_config_value(
+                "OPENAI_PARALLEL_MODEL",
+                "OPENROUTER_PARALLEL_MODEL",
+                "OPENAI_MODEL",
+                "OPENROUTER_MODEL",
+                default="google/gemini-2.5-flash",
+            ),
+            system_prompt=AI_QUALITY_SYSTEM + "\n평행 시절 단계에서는 역사적 사실과 현재 사용자를 연결하는 해석의 경계를 가장 엄격하게 지킵니다.",
+        )
+        raw_bridges = result.get("bridges")
+        if not isinstance(raw_bridges, list):
+            return cards
+        bridges = {
+            item.get("person"): item
+            for item in raw_bridges
+            if isinstance(item, dict)
+            and item.get("person") in {card["person"] for card in cards}
+            and all(isinstance(item.get(field), str) and item[field].strip() for field in (
+                "angle", "connection", "raw_emotion", "today_action"
+            ))
+        }
+        if len(bridges) != len(cards):
+            return cards
+        enriched = []
+        for card in cards:
+            bridge = bridges[card["person"]]
+            enriched.append({
+                **card,
+                "llm_angle": bridge["angle"].strip(),
+                "llm_connection": bridge["connection"].strip(),
+                "llm_emotion": bridge["raw_emotion"].strip(),
+                "llm_action": bridge["today_action"].strip(),
+            })
+        return enriched
+    except (RuntimeError, TypeError, ValueError, KeyError):
+        return cards
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def remote_perspective_comments(topic: str, feedback: str = "") -> list[tuple[str, str, str]]:
     persona_block = "\n".join(
-        f"- {person} ({HISTORICAL_DATES.get(person, ('연대 미상', '연대 미상'))[0]}~"
-        f"{HISTORICAL_DATES.get(person, ('연대 미상', '연대 미상'))[1]}): "
-        f"{PERSONA[person]} 참고 사례: {CASE_NOTES[person]}"
+        f"- {persona_generation_packet(person)}"
         for person in PEOPLE
     )
-    result = _openai_json(f"""Virtual Agora의 '인물들의 시선' 콘텐츠를 작성하세요.
+    result = _openai_json(f"""Virtual Agora의 '인물 코멘트' 콘텐츠를 작성하세요.
 사용자 주제: {topic}
 아래 9명의 인물이 각자 SNS에 남기는 짧은 코멘트를 작성합니다.
 {persona_block}
@@ -2265,6 +2889,7 @@ def remote_perspective_comments(topic: str, _feedback: str = "") -> list[tuple[s
 {HISTORICAL_HONORIFICS}
 {PERSPECTIVE_REFERENCE_RULES}
 각 코멘트는 해당 인물의 사상과 경험에서 출발하고, 인물별 관점이 서로 달라야 합니다.
+각 코멘트는 먼저 사용자의 현실적 감정을 한 번 정확히 짚은 뒤, 그 인물만의 기준과 긴장을 제시합니다. 짧은 격언이나 유명 문구를 흉내 내지 말고, 현재 한국인의 구체적인 생활 장면을 인물의 관점으로 해석하세요.
 본문에서 역사적 인물을 직접 언급할 때는 위 관계·호칭 규칙을 반드시 적용하며, 허용되는 대상이면 이름·정식 호칭·대표 업적을 함께 적습니다.
 각 인물의 허용되는 역사적 인맥 범위:
 {chr(10).join(f"- {person}: {PERSPECTIVE_CONTEXT[person]}" for person in PEOPLE)}
@@ -2276,7 +2901,7 @@ def remote_perspective_comments(topic: str, _feedback: str = "") -> list[tuple[s
 이 질문이 존경·존중하는 인물을 묻는 내용이라면, 각 화자는 자기 자신을 답으로 선택할 수 없습니다. 허용되는 역사적 인물을 실명으로 답하고 대표 업적이나 가르침을 함께 설명합니다. '나는 나 자신을 존경한다'는 답은 금지합니다.
 특히 존경 대상을 묻는 질문에서는 현재 서비스의 인물 목록({", ".join(PEOPLE)})에 포함된 인물을 선택하지 않습니다. 이 목록의 인물끼리 서로 존경한다고 답하는 것도 금지합니다. 반드시 목록 밖의 역사적 인물을 실명으로 선택하고 대표 업적·가르침·사건을 함께 설명합니다.
 이전 응답의 수정 요청:
-{_feedback or "없음"}
+{feedback or "없음"}
 JSON의 person 필드는 반드시 아래 목록의 이름을 글자 그대로 사용하고 존칭이나 직함을 붙이지 않습니다: {", ".join(PEOPLE)}
 현대 주제를 억지로 AI·생산성 언어로 바꾸지 말고, 실제 발언처럼 인용하지 마세요.
 한국어 JSON만 출력하세요:
@@ -2325,7 +2950,7 @@ comments는 정확히 9개이며 모든 인물을 한 번씩 포함합니다."""
     ]
     if prohibited_mentions:
         unique_mentions = list(dict.fromkeys(prohibited_mentions))
-        if not _feedback:
+        if not feedback:
             return remote_perspective_comments(
                 topic,
                 "존경 질문의 답에 서비스 인물 목록이 포함되었습니다: "
@@ -2343,8 +2968,7 @@ def remote_direct_reply(person: str, topic: str, message: str) -> str:
     result = _openai_json(f"""Virtual Agora의 가상 인물 답변을 작성하세요.
 인물: {person}
 주제 맥락: {topic}
-인물 페르소나: {PERSONA[person]}
-참고 사례: {CASE_NOTES[person]}
+{persona_generation_packet(person)}
 {HONORIFIC_RULES}
 사용자 질문: {message}
 공개적으로 알려진 사상과 사례를 참고한 창작 답변임을 전제로, 인물의 말투와 문제의식을 살려 한국어 3~5문장으로 답하세요.
@@ -2356,6 +2980,7 @@ def remote_direct_reply(person: str, topic: str, message: str) -> str:
     return reply.strip()
 
 
+@st.cache_data(ttl=900, show_spinner=False)
 def remote_dialogue_followup(
     person_a: str,
     person_b: str,
@@ -2367,11 +2992,9 @@ def remote_dialogue_followup(
     result = _openai_json(f"""Virtual Agora 대화에 사용자가 참여했습니다.
 주제: {topic}
 참여 인물 A: {person_a}
-인물 A 페르소나: {PERSONA.get(person_a, "공개적으로 알려진 사상과 활동을 바탕으로 한 창작적 해석")}
-인물 A 참고 사례: {CASE_NOTES.get(person_a, "공개적으로 알려진 활동")}
+{persona_generation_packet(person_a)}
 참여 인물 B: {person_b}
-인물 B 페르소나: {PERSONA.get(person_b, "공개적으로 알려진 사상과 활동을 바탕으로 한 창작적 해석")}
-인물 B 참고 사례: {CASE_NOTES.get(person_b, "공개적으로 알려진 활동")}
+{persona_generation_packet(person_b)}
 {HONORIFIC_RULES}
 
 지금까지의 대화:
@@ -2565,17 +3188,6 @@ def chat_bubble(speaker: str, line: str, person_a: str, turn: int) -> str:
     )
 
 
-def copy_button(text: str) -> None:
-    escaped = html.escape(text, quote=True)
-    components.html(
-        f"""<button onclick="navigator.clipboard.writeText({json.dumps(text)})"
-        style="width:100%;padding:0.55rem;border:1px solid #c7b8a5;border-radius:8px;
-        background:#285d6b;color:#ffffff;font-size:14px;font-weight:700;cursor:pointer">결과 복사하기</button>
-        <small style="display:block;text-align:center;color:#bcd0d8;margin-top:4px">{escaped[:0]}</small>""",
-        height=48,
-    )
-
-
 def set_selection(person_a: str, person_b: str, topic: str, tone: str) -> None:
     st.session_state.update(
         {"person_a": person_a, "person_b": person_b, "topic": topic, "tone": tone, "screen": "select"}
@@ -2699,11 +3311,13 @@ def start_ask_mode(person: str) -> None:
     )
 
 
-valid_screens = {"intro", "landing", "mentor_landing", "mentor_quiz", "mentor_result", "magazine", "ask", "select"}
+valid_screens = {"intro", "landing", "mentor_landing", "mentor_quiz", "mentor_result", "parallel_age", "magazine", "ask", "select", "result"}
 if "screen" not in st.session_state or st.session_state.screen not in valid_screens:
     st.session_state.screen = "intro"
 if "screen_history" not in st.session_state:
     st.session_state.screen_history = []
+if "parallel_age_result" not in st.session_state:
+    st.session_state.parallel_age_result = []
 if "mentor_answer_history" not in st.session_state:
     st.session_state.mentor_answer_history = []
 if "mentor_scores" not in st.session_state or not isinstance(st.session_state.mentor_scores, dict):
@@ -2751,6 +3365,19 @@ background_styles = """<style>
     .magazine-dek { color:#58605f !important; font-size:.98rem; line-height:1.6; font-weight:600; }
     .magazine-body { color:#40545b !important; line-height:1.75; margin-top:.8rem; }
     .magazine-question { border-left:3px solid #b56c4a; padding:.65rem .8rem; margin-top:1rem; color:#304651 !important; font-weight:700; background:#f4e5cf; }
+    .parallel-age-card { background:#fff8ed; border:1px solid #dfd0bd; border-radius:16px; padding:1.25rem 1.35rem; margin:1rem 0 1.4rem; box-shadow:0 5px 18px rgba(72,54,35,.07); }
+    .parallel-age-header { display:flex; justify-content:space-between; gap:.8rem; align-items:flex-start; }
+    .parallel-age-source { color:#a05237 !important; font-size:.7rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    .parallel-age-person { color:#263f4a !important; font-family:'DM Serif Display',serif; font-size:1.65rem; line-height:1.25; margin:.25rem 0 .2rem; }
+    .parallel-age-age { color:#58605f !important; font-size:.86rem; font-weight:700; }
+    .parallel-age-match { color:#397064 !important; font-size:.73rem; font-weight:800; margin-top:.35rem; }
+    .parallel-age-context { color:#40545b !important; line-height:1.7; margin:.9rem 0; padding:.8rem .9rem; background:#f4e5cf; border-left:3px solid #b56c4a; }
+    .parallel-age-section { margin-top:1rem; padding-top:.9rem; border-top:1px solid #dfd0bd; }
+    .parallel-age-section-title { color:#914f35 !important; font-size:.76rem; font-weight:800; letter-spacing:.08em; margin-bottom:.35rem; }
+    .parallel-age-section-body { color:#40545b !important; line-height:1.7; }
+    .parallel-age-inference { background:#eef3f0; border:1px solid #bfd0c7; border-radius:10px; padding:.9rem; }
+    .parallel-age-inference .parallel-age-section-title { color:#397064 !important; }
+    .parallel-age-source-note { color:#68756f !important; font-size:.76rem; line-height:1.55; margin-top:.65rem; }
     .comment-card { background:#f9f2e7; border:1px solid #dfd0bd; border-radius:12px; padding:.9rem 1rem; margin:.55rem 0; }
     .comment-head { color:#a05237 !important; font-weight:800; font-size:.88rem; }
     .comment-tag { float:right; color:#71817b !important; font-size:.72rem; font-weight:600; }
@@ -2798,6 +3425,15 @@ background_styles = """<style>
     .scene, .callout { background:#243844 !important; color:#ffffff !important; }
     .scene *, .callout * { color:#ffffff !important; }
     .magazine-question { background:#263e4a !important; color:#ffffff !important; border-color:#83b7c5 !important; }
+    .parallel-age-card { background:#17232c !important; border-color:#526b78 !important; }
+    .parallel-age-person, .parallel-age-section-body { color:#ffffff !important; }
+    .parallel-age-age, .parallel-age-source-note { color:#c3d2d9 !important; }
+    .parallel-age-match { color:#9fe1d1 !important; }
+    .parallel-age-context { background:#263e4a !important; color:#ffffff !important; border-color:#83b7c5 !important; }
+    .parallel-age-context * { color:#ffffff !important; }
+    .parallel-age-section { border-color:#526b78 !important; }
+    .parallel-age-section-title, .parallel-age-inference .parallel-age-section-title { color:#aee3ee !important; }
+    .parallel-age-inference { background:#203b3a !important; border-color:#5f958e !important; }
     .chat-window { background:#101a21 !important; border-color:#526b78 !important; }
     .chat-window-head { border-color:#526b78 !important; }
     .chat-title, .chat-bubble, .chat-bubble * { color:#ffffff !important; }
@@ -2846,8 +3482,8 @@ background_styles = """<style>
     .mentor-answer { min-height:7.5rem !important; text-align:left !important; white-space:normal !important; line-height:1.5 !important; }
     .mentor-result { border:1px solid #c89b6d; border-radius:18px; padding:1.55rem; background:linear-gradient(145deg,#2b2020,#17232c); box-shadow:0 20px 50px rgba(0,0,0,.28); }
     .mentor-result-head { display:flex; align-items:center; gap:1.2rem; }
-    .mentor-result-portrait { flex:0 0 7.2rem; width:7.2rem; height:7.2rem; border-radius:50%; overflow:hidden; border:3px solid #e5a36e; background:#172a34; box-shadow:0 8px 22px rgba(0,0,0,.28); display:flex; align-items:center; justify-content:center; }
-    .mentor-result-portrait img { width:100%; height:100%; object-fit:cover; object-position:center; transform:scale(1.1); }
+    .mentor-result-portrait { flex:0 0 7.2rem; width:7.2rem; height:7.2rem; border-radius:50%; overflow:hidden; border:0; background:transparent; box-shadow:0 8px 22px rgba(0,0,0,.28); display:flex; align-items:center; justify-content:center; }
+    .mentor-result-portrait img { width:100%; height:100%; object-fit:contain; object-position:center; transform:scale(.9); image-rendering:auto; }
     .mentor-result-heading { min-width:0; }
     .mentor-result-name { color:#fff4df !important; font-family:'DM Serif Display',serif; font-size:2.5rem; line-height:1.15; }
     .mentor-result-group { color:#f0ba86 !important; font-weight:800; letter-spacing:.08em; margin:.3rem 0 1rem; }
@@ -2964,7 +3600,7 @@ background_styles = """<style>
     div[data-testid="stRadio"] label p { font-weight:500; line-height:1.45; }
     div[data-testid="stSelectbox"] label, div[data-testid="stRadio"] > label { color:#40545b !important; font-weight:700 !important; }
     [data-testid="stImage"] + div, [data-testid="stImage"] + div p { color:#4f5f64 !important; font-weight:600; }
-    [data-testid="stImage"] img { border-radius:50%; aspect-ratio:1 / 1; object-fit:cover; border:3px solid #d7b89b; filter:saturate(.78) contrast(.98); }
+    [data-testid="stImage"] img { display:block; width:100%; border-radius:50%; aspect-ratio:1 / 1; object-fit:cover; border:0; filter:saturate(.78) contrast(.98); }
     div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="stHorizontalBlock"]) { gap:.25rem; }
     /* Keep every interactive and supporting text surface readable in the dark theme. */
     .stApp input, .stApp textarea,
@@ -3187,9 +3823,104 @@ background_styles = """<style>
         .insight-book::after { top:50%; left:0; right:0; width:auto; height:1px; }
         .insight-page { min-height:0; }
     }
+    .app-topbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.2rem 0 .85rem; margin-bottom:.2rem; border-bottom:1px solid rgba(174,227,238,.18); }
+    .app-topbar-brand { color:#eef9fb !important; font-size:.75rem; font-weight:800; letter-spacing:.16em; }
+    .app-topbar-brand span { color:#9fc3cb !important; font-weight:500; letter-spacing:.02em; }
+    .app-topbar-note { color:#9eb4bc !important; font-size:.78rem; }
+    .app-topbar { margin-bottom:1.4rem; }
+    .block-container { max-width:1180px; padding:1.4rem 2.5rem 5rem; }
+    .home-feature { min-height:12.5rem; padding:1.35rem 1.45rem; transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+    .home-feature:hover { transform:translateY(-2px); border-color:#a9e5ee; box-shadow:0 16px 32px rgba(0,0,0,.22); }
+    .home-feature-title { font-size:1.45rem; }
+    .home-feature-copy { min-height:4.1rem; }
+    .mentor-hero { margin-top:1.5rem; }
+    .landing-section-label { color:#aee3ee !important; font-size:.72rem; font-weight:800; letter-spacing:.16em; margin:2.2rem 0 .7rem; }
+    .landing-section-copy { color:#c7d8de !important; max-width:42rem; line-height:1.7; margin-bottom:1rem; }
+    .section-divider { height:1px; background:rgba(174,227,238,.14); margin:2.2rem 0; }
+    @media (max-width:760px) {
+        .block-container { padding:1rem 1rem 4rem; }
+        .app-topbar { align-items:flex-start; flex-direction:column; gap:.35rem; }
+        .app-topbar-note { font-size:.72rem; }
+        .mentor-hero-grid { grid-template-columns:1fr; }
+        .mentor-glow-card { min-height:0; }
+    }
     @media (max-width: 640px) { h1 { font-size:3.4rem; } .brand-wordmark { font-size:3.5rem; } .block-container { padding-top:1.2rem; } }
+    /* Final control language: quiet surfaces, clear hierarchy, no generic dashboard gloss. */
+    div[data-testid="stButton"] button,
+    .stDownloadButton button {
+        min-height:2.8rem !important;
+        padding:.62rem 1.05rem !important;
+        border-radius:7px !important;
+        border:1px solid rgba(164,204,211,.42) !important;
+        background:rgba(18,39,49,.84) !important;
+        color:#dcecef !important;
+        font-family:'Noto Sans KR',sans-serif !important;
+        font-size:.87rem !important;
+        font-weight:700 !important;
+        letter-spacing:0 !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 5px 16px rgba(0,0,0,.12) !important;
+        transition:background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease !important;
+    }
+    div[data-testid="stButton"] button p,
+    div[data-testid="stButton"] button span,
+    .stDownloadButton button p,
+    .stDownloadButton button span { color:inherit !important; font-family:inherit !important; }
+    div[data-testid="stButton"] button:hover,
+    .stDownloadButton button:hover {
+        background:#214957 !important;
+        border-color:#9ddbe2 !important;
+        color:#ffffff !important;
+        transform:translateY(-1px);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 9px 22px rgba(0,0,0,.22) !important;
+    }
+    div[data-testid="stButton"] button:focus-visible,
+    .stDownloadButton button:focus-visible { outline:2px solid #e5a36e !important; outline-offset:3px; }
+    div[data-testid="stButton"] button[kind="primary"] {
+        background:#c47b55 !important;
+        border-color:#efb38a !important;
+        color:#fff8f0 !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.16), 0 8px 22px rgba(160,82,52,.24) !important;
+    }
+    div[data-testid="stButton"] button[kind="primary"]:hover {
+        background:#d48b62 !important;
+        border-color:#ffe0c4 !important;
+        color:#ffffff !important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.2), 0 11px 28px rgba(181,108,74,.34) !important;
+    }
+    div[data-testid="stButton"] button:disabled,
+    .stDownloadButton button:disabled { background:#1a2b32 !important; color:#81949a !important; border-color:#425a62 !important; transform:none; box-shadow:none !important; }
+    .intro-page + div[data-testid="stButton"] button { min-height:3.25rem !important; border-radius:7px !important; font-size:.95rem !important; }
+    .home-feature + div[data-testid="stButton"] button { margin-top:.55rem; }
+    .mentor-answer { min-height:6.8rem !important; padding:1rem !important; text-align:left !important; }
+    .stApp [data-testid="stFormSubmitButton"] button { min-height:3rem !important; }
+    /* Editorial spacing: give each idea a clear pause before the next one begins. */
+    h2 { margin-top:2rem !important; margin-bottom:1rem !important; }
+    h3 { margin-top:1.8rem !important; margin-bottom:.85rem !important; }
+    h4, h5 { margin-top:1.35rem !important; margin-bottom:.7rem !important; }
+    .beta-notice { margin:1.25rem 0 1.7rem !important; padding:1.15rem 1.3rem !important; }
+    .magazine-card { margin:1.5rem 0 1.8rem !important; padding:1.5rem 1.55rem !important; }
+    .magazine-question { margin-top:1.35rem !important; padding:.85rem 1rem !important; }
+    .comment-card { margin:.8rem 0 !important; padding:1rem 1.1rem !important; }
+    .comment-text { margin-top:.6rem !important; line-height:1.75 !important; }
+    .parallel-age-card { margin:1.5rem 0 2rem !important; padding:1.45rem 1.55rem !important; }
+    .parallel-age-section { margin-top:1.35rem !important; padding-top:1.15rem !important; }
+    .parallel-age-section + .parallel-age-section { margin-top:1.55rem !important; }
+    .parallel-age-context { margin:1.25rem 0 !important; padding:1rem 1.05rem !important; }
+    .parallel-age-inference { margin-top:1.55rem !important; padding:1.05rem !important; }
+    .chat-window { margin:1rem 0 2rem !important; padding:1.35rem 1rem !important; }
+    .chat-row { margin:1.05rem .35rem !important; }
+    .insight-card { margin:.8rem 0 !important; padding:1.15rem 1.2rem !important; }
+    .callout { margin:1rem 0 !important; padding:1.2rem 1.35rem !important; }
+    .mentor-profile-row { padding:1rem 0 .35rem !important; }
+    .mentor-report { margin:.55rem 0 !important; }
+    .similarity-section, .radar-card, .conflict-section, .detailed-profile-section { margin-top:1.8rem !important; }
+    .section-divider { margin:2.7rem 0 !important; }
+    div[data-testid="stVerticalBlock"] > div:has(> div[data-testid="stHorizontalBlock"]) { gap:.55rem; }
     </style>""".replace("__AGORA_BACKGROUND_IMAGE__", image_data_url(INTRO_IMAGE))
 st.markdown(background_styles, unsafe_allow_html=True)
+
+if st.session_state.screen != "intro":
+    render_topbar()
 
 
 if st.session_state.screen == "intro":
@@ -3199,7 +3930,7 @@ if st.session_state.screen == "intro":
         f'<img class="intro-art" src="{intro_image}" alt="두 인물이 마주 앉아 대화하는 장면">'
         f'<div class="intro-shade"></div><div class="intro-content">'
         f'<div class="intro-title">Virtual<br>Agora</div>'
-        f'<div class="intro-lead">여러 시대의 지혜를 마주하고,<br>오늘의 방향성을 더 정직하게 바라봅니다.</div>'
+        f'<div class="intro-lead">다른 시대의 사람을 만나고,<br>오늘의 나를 조금 더 선명하게 바라봅니다.</div>'
         f'</div></div></div>',
         unsafe_allow_html=True,
     )
@@ -3217,16 +3948,15 @@ elif st.session_state.screen == "landing":
           <div class="mentor-hero-grid">
             <div>
               <div class="mentor-kicker">FIND YOUR AGORA MENTOR</div>
-              <div class="mentor-title">당신의 생각과 가장 잘 맞는 인물을 만나보세요.</div>
+                            <div class="mentor-title">지금의 나를 비추는 인물을 만나보세요.</div>
               <div class="mentor-copy">
-                가치관, 행동 습관, 리더십 성향, 감정 반응을 12문항으로 살펴보고,
-                가장 가까운 사고 방식을 가진 인물을 추천합니다. 이 과정은 단순한 재미를 넘어,
-                지금 당신이 어떤 길에서 더 성숙하게 움직일 수 있는지를 가늠하는 시작점입니다.
+                                정답을 맞히는 테스트가 아닙니다. 선택의 습관과 마음이 움직이는 방향을 천천히 살펴보고,
+                                지금의 나와 대화가 잘 이어질 인물을 찾아봅니다. 결과는 결론이 아니라, 나를 돌아보는 첫 질문입니다.
               </div>
               <div class="mentor-meta">
                 <span class="mentor-meta-badge">12문항</span>
                 <span class="mentor-meta-badge">개인 맞춤</span>
-                <span class="mentor-meta-badge">사고 구조 기반</span>
+                <span class="mentor-meta-badge">생각하는 방식 중심</span>
               </div>
             </div>
             <div class="mentor-glow-card">
@@ -3239,7 +3969,7 @@ elif st.session_state.screen == "landing":
         ''',
         unsafe_allow_html=True,
     )
-    if st.button("나의 아고라 멘토 찾기", type="primary", use_container_width=True, key="mentor-primary-entry"):
+    if st.button("나와 잘 맞는 인물 찾기", type="primary", use_container_width=True, key="mentor-primary-entry"):
         st.session_state.update({"screen": "mentor_landing", "mentor_index": 0, "mentor_scores": {axis: 0 for axis in MENTOR_AXES}})
         st.rerun()
     st.write("")
@@ -3249,25 +3979,33 @@ elif st.session_state.screen == "landing":
         '나만의 길을 더 정직하게 살펴보는 공간입니다.</p>',
         unsafe_allow_html=True,
     )
-    st.markdown("#### 어떤 방향으로 살펴볼까요?")
-    feature_a, feature_b, feature_c = st.columns(3)
+    st.markdown('<div class="landing-section-label">CHOOSE YOUR ENTRANCE</div>', unsafe_allow_html=True)
+    st.markdown('<div class="landing-section-copy">지금 필요한 방식으로 광장에 들어오세요. 대화를 시작해도 좋고, 먼저 내 마음과 비슷한 시절을 만나도 좋습니다.</div>', unsafe_allow_html=True)
+    feature_a, feature_b = st.columns(2, gap="medium")
     with feature_a:
         st.markdown('<div class="home-feature"><div class="home-feature-kicker">01 · DIALOGUE</div><div class="home-feature-title">인물 대화</div><div class="home-feature-copy">서로 다른 시대의 인물들이 다양한 주제를 놓고 각자의 관점으로 토론합니다.</div></div>', unsafe_allow_html=True)
-        if st.button("인물 대화 시작", type="primary", use_container_width=True):
+        if st.button("두 사람의 대화 열기  →", type="primary", use_container_width=True):
             st.session_state.screen = "select"
             st.rerun()
     with feature_b:
-        st.markdown(        '<div class="home-feature"><div class="home-feature-kicker">02 · PERSPECTIVES</div><div class="home-feature-title">인물들의 시선</div><div class="home-feature-copy">당신이 던진 주제에 아홉 인물이 각자의 경험과 가치관으로 댓글을 남깁니다.</div></div>', unsafe_allow_html=True)
-        if st.button("인물들의 시선 보기", use_container_width=True):
+        st.markdown('<div class="home-feature"><div class="home-feature-kicker">02 · PERSPECTIVES</div><div class="home-feature-title">인물 코멘트</div><div class="home-feature-copy">당신이 던진 주제에 아홉 인물이 각자의 경험과 가치관으로 댓글을 남깁니다.</div></div>', unsafe_allow_html=True)
+        if st.button("여러 시선 모아보기  →", use_container_width=True):
             start_ask_mode(PEOPLE[0])
             st.rerun()
+    feature_c, feature_d = st.columns(2, gap="medium")
     with feature_c:
-        st.markdown('<div class="home-feature"><div class="home-feature-kicker">03 · MAGAZINE</div><div class="home-feature-title">아고라 매거진</div><div class="home-feature-copy">가상의 최신 이슈에 역사적 인물들이 남긴 코멘트를 읽어봅니다.</div></div>', unsafe_allow_html=True)
-        if st.button("매거진 읽기", use_container_width=True):
+        st.markdown('<div class="home-feature"><div class="home-feature-kicker">03 · MAGAZINE</div><div class="home-feature-title">오늘의 아고라</div><div class="home-feature-copy">가상의 최신 이슈에 역사적 인물들이 남긴 코멘트를 읽어봅니다.</div></div>', unsafe_allow_html=True)
+        if st.button("오늘의 질문 읽기  →", use_container_width=True):
             st.session_state.screen = "magazine"
             st.rerun()
+    with feature_d:
+        st.markdown('<div class="home-feature"><div class="home-feature-kicker">04 · PARALLEL AGE</div><div class="home-feature-title">평행 시절</div><div class="home-feature-copy">내 나이·감정·고민을 같은 시절을 지나온 인물의 기록과 나란히 살펴봅니다.</div></div>', unsafe_allow_html=True)
+        if st.button("평행 시절 살펴보기  →", use_container_width=True):
+            st.session_state.screen = "parallel_age"
+            st.rerun()
     st.write("")
-    # === 오늘의 인물 조언 ===
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    # === 역사적 통찰 ===
     if "insight_index" not in st.session_state or not (0 <= st.session_state.insight_index < len(RANDOM_INSIGHTS)):
         st.session_state.insight_index = random.randrange(len(RANDOM_INSIGHTS))
     insight = RANDOM_INSIGHTS[st.session_state.insight_index]
@@ -3275,7 +4013,7 @@ elif st.session_state.screen == "landing":
     source_label = insight.get("source_type", "사상 기반 해석")
     st.markdown(
         f'<section class="insight-book">'
-        f'<div class="insight-page"><div class="insight-book-kicker">TODAY\'S INSIGHT · 오늘의 인물 조언</div>'
+        f'<div class="insight-page"><div class="insight-book-kicker">AGORA NOTE · 역사적 통찰</div>'
         f'<div class="insight-author">{html.escape(insight["character"])}</div>'
         f'<div class="insight-concept">{html.escape(insight["concept"])} · {html.escape(source_label)}</div>'
         f'<div class="insight-quote"><span class="insight-quote-mark">“</span>{html.escape(insight["quote"])}<span class="insight-quote-mark">”</span></div>'
@@ -3287,13 +4025,14 @@ elif st.session_state.screen == "landing":
         f'</section>',
         unsafe_allow_html=True,
     )
-    if st.button("다른 인물 조언 보기  ↻", use_container_width=True, key="new-insight"):
+    if st.button("다른 인물의 관점 보기  ↻", use_container_width=True, key="new-insight"):
         current_index = st.session_state.insight_index
         candidates = [index for index in range(len(RANDOM_INSIGHTS)) if index != current_index]
         st.session_state.insight_index = random.choice(candidates)
         st.rerun()
     st.write("")
-    st.markdown("#### 오늘의 연결된 질문")
+    st.markdown('<div class="landing-section-label">CURATED CONVERSATIONS</div>', unsafe_allow_html=True)
+    st.markdown('<div class="landing-section-copy">처음이라면 아래 대화 중 하나를 골라 광장의 분위기를 먼저 느껴보세요.</div>', unsafe_allow_html=True)
     for a, b, topic in [
         ("유명 채용 플랫폼 대표", "스티브 잡스", "AI 시대, 인간은 어떻게 살아남을 것인가"),
         ("예수", "부처", "AI시대, 종교의 방향"),
@@ -3303,10 +4042,10 @@ elif st.session_state.screen == "landing":
         card_a, card_b, card_action = st.columns([1, 1, 1.4])
         with card_a:
             if a in PEOPLE_INFO:
-                st.image(PEOPLE_INFO[a][1], caption=a, use_container_width=True)
+                st.image(EXAMPLE_PORTRAITS.get(a, PEOPLE_INFO[a][1]), caption=a, use_container_width=True)
         with card_b:
             if b in PEOPLE_INFO:
-                st.image(PEOPLE_INFO[b][1], caption=b, use_container_width=True)
+                st.image(EXAMPLE_PORTRAITS.get(b, PEOPLE_INFO[b][1]), caption=b, use_container_width=True)
         with card_action:
             st.markdown(f"**{a} × {b}**  \n<span class='person-caption'>{topic}</span>", unsafe_allow_html=True)
             if st.button("이 조합 바로 보기", key=f"showcase-{a}-{b}", type="primary", use_container_width=True):
@@ -3321,18 +4060,18 @@ elif st.session_state.screen == "mentor_landing":
     st.markdown('<div class="eyebrow">04 · MENTOR MATCHING</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="mentor-hero"><div class="mentor-kicker">FIND YOUR AGORA MENTOR</div>'
-        '<div class="mentor-title">나의 아고라 멘토 찾기</div>'
+        '<div class="mentor-title">나와 잘 맞는 인물 찾기</div>'
         '<div class="mentor-copy">당신의 사고방식, 가치관, 선택 습관을 정리해 12문항으로 살펴봅니다. '
         '이 질문들이 당신과 가장 닮은 역사 인물을 찾는 시작점이 됩니다.</div></div>',
         unsafe_allow_html=True,
     )
     st.markdown(
-        '<div class="beta-notice" style="margin-top:1rem"><strong>왜 시작점이 멘토 찾기인가?</strong>'
-        '<span>Virtual Agora의 핵심은 “어떤 인물과 대화해야 내가 가장 깊이 성장할 수 있는가”를 찾는 것입니다. 이 기능은 단지 재미로 끝나지 않고, 당신의 사고방식과 가장 잘 맞는 인물을 현실처럼 발견하게 만드는 첫 관문입니다.</span></div>',
+        '<div class="beta-notice" style="margin-top:1rem"><strong>왜 이 질문부터 시작할까요?</strong>'
+        '<span>12개의 질문에 답하면, 지금의 생각과 가장 잘 맞는 인물을 찾아드립니다. 결과는 성격을 단정하는 판정이 아니라, 나를 더 잘 이해하기 위한 대화의 시작점입니다.</span></div>',
         unsafe_allow_html=True,
     )
     st.caption("깊게 고민하지 말고, 첫 번째로 떠오르는 답을 고르세요.")
-    if st.button("나의 아고라 멘토 찾기", type="primary", use_container_width=True, key="mentor-start"):
+    if st.button("질문 시작하기", type="primary", use_container_width=True, key="mentor-start"):
         reset_mentor_state()
         st.session_state.screen = "mentor_quiz"
         st.rerun()
@@ -3340,7 +4079,7 @@ elif st.session_state.screen == "mentor_landing":
 
 elif st.session_state.screen == "mentor_quiz":
     render_scroll_to_top()
-    if st.button("← 멘토 소개로", key="mentor-quiz-back", use_container_width=True):
+    if st.button("← 소개로 돌아가기", key="mentor-quiz-back", use_container_width=True):
         go_back_screen(default_screen="mentor_landing")
     question_index = st.session_state.get("mentor_index", 0)
     question = MENTOR_QUESTIONS[question_index]
@@ -3351,15 +4090,7 @@ elif st.session_state.screen == "mentor_quiz":
         f'<div class="mentor-question-title">{html.escape(question["prompt"])}</div></div>',
         unsafe_allow_html=True,
     )
-    if st.session_state.get("mentor_answer_history") and question_index > 0:
-        if st.button("← 이전 선택지로", key="mentor-back-choice", use_container_width=True):
-            history = st.session_state.get("mentor_answer_history", [])
-            previous_state = history.pop()
-            st.session_state.mentor_answer_history = history
-            st.session_state.mentor_scores = previous_state.get("scores", {axis: 0 for axis in MENTOR_AXES})
-            st.session_state.mentor_index = previous_state.get("index", max(0, question_index - 1))
-            st.rerun()
-    answer_a, answer_b, answer_c = st.columns(3)
+    answer_a, answer_c, answer_b = st.columns([1, 0.62, 1], gap="small")
     for column, answer_key in ((answer_a, "a"), (answer_b, "b")):
         with column:
             answer_text, _ = question[answer_key]
@@ -3411,6 +4142,15 @@ elif st.session_state.screen == "mentor_quiz":
                 st.session_state.mentor_index = question_index + 1
             st.rerun()
 
+    if st.session_state.get("mentor_answer_history") and question_index > 0:
+        if st.button("← 이전 선택지로", key="mentor-back-choice", use_container_width=True):
+            history = st.session_state.get("mentor_answer_history", [])
+            previous_state = history.pop()
+            st.session_state.mentor_answer_history = history
+            st.session_state.mentor_scores = previous_state.get("scores", {axis: 0 for axis in MENTOR_AXES})
+            st.session_state.mentor_index = previous_state.get("index", max(0, question_index - 1))
+            st.rerun()
+
 
 elif st.session_state.screen == "mentor_result":
     render_scroll_to_top()
@@ -3437,13 +4177,13 @@ elif st.session_state.screen == "mentor_result":
     tags = [label for axis, label in tag_options if scores.get(axis, 0) >= 3][:4]
     neutral_count = sum(1 for state in st.session_state.get("mentor_answer_history", []) if state.get("response") == "neutral")
     summary = mentor_match_summary(scores, neutral_count=neutral_count)
-    mentor_advice = mentor_advice_for(mentor, scores)
+    mentor_viewpoint = mentor_viewpoint_for(mentor, scores)
     st.markdown('<div class="eyebrow">YOUR AGORA MENTOR · RESULT</div>', unsafe_allow_html=True)
     st.markdown(
         f'<div class="mentor-result"><div class="mentor-result-head">{mentor_portrait_markup}<div class="mentor-result-heading">'
         f'<div class="mentor-kicker">당신과 가장 잘 맞는 인물</div>'
         f'<div class="mentor-result-name">{html.escape(mentor)}</div>'
-        f'<div class="mentor-result-group">{html.escape(group)} · 성향 일치도 {match_score}%</div></div></div>'
+        f'<div class="mentor-result-group">{html.escape(group)} · 생각의 방향이 닮은 정도 {match_score}%</div></div></div>'
         f'<div class="mentor-quote">“{html.escape(quote)}”<br><small>{html.escape(quote_note)}</small></div>'
         f'{"".join(f"<span class=\"mentor-tag\">{html.escape(tag)}</span>" for tag in tags)}'
         f'<div class="mentor-profile"><div class="mentor-profile-title">왜 이 인물과 잘 맞는가</div>'
@@ -3454,22 +4194,22 @@ elif st.session_state.screen == "mentor_result":
     )
     st.markdown(mentor_radar_chart(scores, mentor), unsafe_allow_html=True)
     st.markdown(
-        f'<div class="callout"><strong>추천 신뢰도</strong><br>{summary["confidence"]}% · {html.escape(summary["confidence_text"])}</div>',
+        f'<div class="callout"><strong>답변이 한 방향으로 모인 정도</strong><br>{summary["confidence"]}% · {html.escape(summary["confidence_text"])}</div>',
         unsafe_allow_html=True,
     )
     st.markdown(
-        f'<div class="callout"><strong>상위 매치</strong><br>{" · ".join(f"{name}({score}%)" for name, _, score in summary["top_three"][:3])}</div>',
+        f'<div class="callout"><strong>함께 닮은 인물</strong><br>{" · ".join(f"{name}({score}%)" for name, _, score in summary["top_three"][:3])}</div>',
         unsafe_allow_html=True,
     )
     st.markdown(
-        f'<div class="callout"><strong>상반된 관점을 가진 인물</strong><br>{html.escape(conflict_person)}와의 차이를 통해, 당신이 놓치기 쉬운 반대편의 관점을 살펴볼 수 있습니다.</div>',
+        f'<div class="callout"><strong>나와 다르게 생각하는 인물</strong><br>{html.escape(conflict_person)}와 비교하면, 내가 익숙해서 지나치기 쉬운 다른 선택 기준을 볼 수 있습니다.</div>',
         unsafe_allow_html=True,
     )
     st.markdown(
-        f'<div class="callout"><strong>{mentor}의 관점에서 건네는 조언</strong><br>{html.escape(mentor_advice)}</div>',
+        f'<div class="callout"><strong>{mentor}의 기준으로 다시 보기</strong><br>{html.escape(mentor_viewpoint)}</div>',
         unsafe_allow_html=True,
     )
-    st.subheader("당신의 성향을 읽어보면")
+    st.subheader("답변을 보면")
     for line in report:
         st.markdown(f'<div class="mentor-report">{html.escape(line)}</div>', unsafe_allow_html=True)
     st.write("")
@@ -3487,19 +4227,107 @@ elif st.session_state.screen == "mentor_result":
         go_to_screen("landing")
 
 
+elif st.session_state.screen == "parallel_age":
+    if st.button("← 홈으로", key="parallel-age-home", use_container_width=True):
+        st.session_state.screen = "landing"
+        st.rerun()
+    st.markdown('<div class="eyebrow">04 · PARALLEL AGE</div>', unsafe_allow_html=True)
+    st.header("평행 시절")
+    st.markdown(
+        '<div class="beta-notice"><strong>지금의 나와 비슷한 시절을 지나온 사람을 만나보세요.</strong>'
+        '<span>나이대와 감정, 고민을 바탕으로 역사 속 기록을 연결합니다. 기록과 오늘의 해석은 분리해 보여드리며, 실제 인물의 발언을 재현하지 않습니다.</span></div>',
+        unsafe_allow_html=True,
+    )
+
+    with st.form("parallel_age_form"):
+        age = st.slider("지금 나는 몇 살인가요?", min_value=16, max_value=70, value=29, step=1)
+        emotion = st.radio("요즘 가장 가까운 마음", options=PARALLEL_AGE_EMOTIONS, index=0)
+        concern = st.radio("지금 가장 크게 걸리는 것", options=PARALLEL_AGE_CONCERNS, index=1)
+        submitted = st.form_submit_button("나와 닿는 시절 찾기  →", type="primary", use_container_width=True)
+
+    if submitted:
+        parallel_cards = build_parallel_age_cards(age, emotion, concern, limit=4)
+        st.session_state.parallel_age_result = enrich_parallel_age_cards_with_llm(
+            parallel_cards,
+            age=age,
+            emotion=emotion,
+            concern=concern,
+        )
+
+    result_cards = st.session_state.get("parallel_age_result", [])
+    if result_cards:
+        for card in result_cards:
+            inferred_feeling = card["inferred_feeling"].replace("[공감적 재구성] ", "", 1)
+            inferred_action = card["inferred_action"].replace("[오늘의 연결] ", "", 1)
+            psychology_lens = card.get("psychology_lens", "이 시기의 감정은 정체성의 흔들림으로 이해할 수 있습니다.")
+            counseling_translation = card.get("counseling_translation", "지금의 감정은 변화의 시기에서 자연스럽게 나타나는 혼란일 수 있습니다.")
+            developmental_stage = card.get("developmental_stage", "인생 전환기")
+            developmental_task = card.get("developmental_task", "삶의 방향을 다시 점검하는 단계")
+            llm_markup = ""
+            if card.get("llm_connection"):
+                llm_markup = (
+                    '<div class="parallel-age-section parallel-age-ai">'
+                    '<div class="parallel-age-section-title">✦ 내 상황과 연결해 보기</div>'
+                    f'<div class="parallel-age-ai-angle">{html.escape(card["llm_angle"])}</div>'
+                    f'<div class="parallel-age-section-body"><strong>왜 지금 내 이야기처럼 느껴지는가:</strong> {html.escape(card["llm_connection"])}<br><br>'
+                    f'<strong>내 마음에 대입해 보면:</strong> {html.escape(card["llm_emotion"])}<br><br>'
+                    f'<strong>오늘 살펴볼 작은 행동:</strong> {html.escape(card["llm_action"])}</div>'
+                    '</div>'
+                )
+            st.markdown(
+                f'<article class="parallel-age-card">'
+                f'<div class="parallel-age-header"><div>'
+                f'<div class="parallel-age-source">{html.escape(card["label"])}</div>'
+                f'<div class="parallel-age-person">{html.escape(card["person"])}</div>'
+                f'<div class="parallel-age-age">{html.escape(card["age_label"])}</div>'
+                f'<div class="parallel-age-match">{html.escape(card["age_match_label"])}</div>'
+                f'</div></div>'
+                f'<div class="parallel-age-context"><strong>시대 배경</strong><br>{html.escape(card["era_context"])}</div>'
+                f'<div class="parallel-age-section"><div class="parallel-age-section-title">🧠 지금의 나와 이어지는 지점</div>'
+                f'<div class="parallel-age-section-body"><strong>지금 겪고 있는 시기:</strong> {html.escape(developmental_stage)}<br><br>'
+                f'<strong>이 시기에 자주 드는 질문:</strong> {html.escape(developmental_task)}<br><br>'
+                f'<strong>내 감정과 닿는 이유:</strong> {html.escape(psychology_lens)}<br><br>'
+                f'<strong>내 삶에 대입해 보면:</strong> {html.escape(counseling_translation)}</div>'
+                f'</div>'
+                f'<div class="parallel-age-section"><div class="parallel-age-section-title">📜 기록으로 확인되는 사건</div>'
+                f'<div class="parallel-age-section-body">{html.escape(card["record_event"])}</div>'
+                f'<div class="parallel-age-source-note"><strong>근거와 범위:</strong> {html.escape(card["record_detail"])}</div>'
+                f'</div>'
+                f'<div class="parallel-age-section"><div class="parallel-age-section-title">기록에서 이어지는 행보</div>'
+                f'<div class="parallel-age-section-body">{html.escape(card["recorded_next_step"])}</div>'
+                f'</div>'
+                f'<div class="parallel-age-section parallel-age-inference"><div class="parallel-age-section-title">🧭 공감적 재구성 · 기록에 없는 내면</div>'
+                f'<div class="parallel-age-section-body"><strong>그때의 마음을 오늘의 언어로 옮기면:</strong> {html.escape(inferred_feeling)}<br><br>'
+                f'<strong>오늘의 연결:</strong> {html.escape(inferred_action)}</div>'
+                f'</div>'
+                f'{llm_markup}'
+                f'<div class="parallel-age-source-note"><strong>{html.escape(card["label"])}:</strong> {html.escape(card["source_boundary"])}<br>'
+                f'<strong>자료 표기:</strong> {html.escape(card["source_note"])}</div>'
+                f'</article>',
+                unsafe_allow_html=True,
+            )
+        st.caption("📜 기록으로 확인되는 사실과 🧭 오늘의 연결을 분리했습니다. 연결 문장은 해석이며, 실제 인물의 발언이나 확인된 심리 기록이 아닙니다.")
+    else:
+        st.info("나이대와 지금의 마음을 고르면, 나와 닿는 시절의 기록을 찾아드립니다.")
+
+    if st.button("다시 하기", key="parallel-age-reset", use_container_width=True):
+        st.session_state.parallel_age_result = []
+        st.rerun()
+
+
 elif st.session_state.screen == "magazine":
     if st.button("← 홈으로", key="magazine-home", use_container_width=True):
         st.session_state.screen = "landing"
         st.rerun()
-    st.markdown('<div class="eyebrow">VIRTUAL AGORA · MAGAZINE</div>', unsafe_allow_html=True)
-    st.header("Agora Magazine")
+    st.markdown('<div class="eyebrow">VIRTUAL AGORA · TODAY</div>', unsafe_allow_html=True)
+    st.header("오늘의 질문")
     st.markdown(
         '<div class="beta-notice"><strong>가상 기사 · 인물 코멘터리</strong>'
-        '<span>아래 기사는 데모를 위해 임의로 구성한 가상 이슈입니다. '
+        '<span>아래 기사는 오늘의 질문을 더 넓게 바라보기 위한 가상 이슈입니다. '
         '각 코멘트 역시 인물의 사상과 공개 기록을 참고해 AI가 창작한 가상 의견이며 실제 발언이 아닙니다.</span></div>',
         unsafe_allow_html=True,
     )
-    st.markdown("#### 지금, 광장 밖에서 가장 뜨거운 질문")
+    st.markdown("#### 오늘 우리가 함께 들여다볼 질문")
     for article_index, article in enumerate(MAGAZINE_ARTICLES):
         st.markdown(
             f'<article class="magazine-card"><div class="magazine-category">{article["category"]}</div>'
@@ -3533,21 +4361,21 @@ elif st.session_state.screen == "ask":
         st.session_state.screen = "landing"
         st.rerun()
     st.markdown('<div class="eyebrow">VIRTUAL AGORA · PERSPECTIVES</div>', unsafe_allow_html=True)
-    st.header("인물들의 시선")
+    st.header("여러 시선 모아보기")
     st.markdown(
-        '<div class="beta-notice"><strong>AI 생성 · SNS 코멘터리</strong>'
-        '<span>입력한 주제에 대해 각 인물이 공개적으로 알려진 사상과 경험을 참고해 코멘트를 남깁니다. '
+        '<div class="beta-notice"><strong>하나의 질문, 아홉 가지 시선</strong>'
+        '<span>궁금한 주제를 적으면 각 인물이 공개적으로 알려진 사상과 경험을 참고해 서로 다른 관점을 남깁니다. '
         '모든 코멘트는 실제 발언이 아닌 가상 창작 콘텐츠입니다.</span></div>',
         unsafe_allow_html=True,
     )
     topic_prompt = st.text_area(
-        "어떤 주제에 대한 시선이 궁금한가요?",
+        "무엇을 다른 시선으로 보고 싶나요?",
         value=st.session_state.get("perspective_topic", ""),
-        placeholder="예: 나이가 들수록 새로운 일을 시작하는 것은 무모한가?",
+        placeholder="예: 나이가 들수록 새로운 일을 시작하는 것은 무모한가요?",
         height=110,
     )
     st.session_state.perspective_topic = topic_prompt
-    if st.button("인물들의 코멘트 생성하기", type="primary", use_container_width=True):
+    if st.button("시선 모아보기  →", type="primary", use_container_width=True):
         if not topic_prompt.strip():
             st.error("인물들의 시선을 보고 싶은 주제를 입력해주세요.")
         else:
@@ -3579,7 +4407,7 @@ elif st.session_state.screen == "select":
         st.session_state.screen = "landing"
         st.rerun()
     st.markdown('<div class="eyebrow">STEP 01 · GATHER YOUR GUESTS</div>', unsafe_allow_html=True)
-    st.header("누구를 광장에 초대할까요?")
+    st.header("어떤 대화를 열어볼까요?")
     defaults = {
         "person_a": PEOPLE[0],
         "person_b": "스티브 잡스",
@@ -3587,13 +4415,23 @@ elif st.session_state.screen == "select":
         "tone": 50,
     }
     st.markdown(
-        '<div class="beta-notice"><strong>AI API · 사용자 주제 지원</strong>'
-        '<span>준비된 주제는 시작점으로 사용할 수 있고, 직접 입력한 주제도 두 인물의 페르소나에 맞춰 생성됩니다. '
+        '<div class="beta-notice"><strong>두 인물, 하나의 질문</strong>'
+        '<span>준비된 주제를 골라도 좋고, 지금 마음에 걸리는 질문을 직접 적어도 좋습니다. '
         '모든 대화는 AI가 창작한 가상 시뮬레이션입니다.</span></div>',
         unsafe_allow_html=True,
     )
-    person_a = st.selectbox("인물 A", PEOPLE, index=PEOPLE.index(st.session_state.get("person_a", defaults["person_a"])))
-    person_b = st.selectbox("인물 B", PEOPLE, index=PEOPLE.index(st.session_state.get("person_b", defaults["person_b"])))
+    saved_person_a = st.session_state.get("person_a", defaults["person_a"])
+    saved_person_b = st.session_state.get("person_b", defaults["person_b"])
+    person_a = st.selectbox(
+        "첫 번째 목소리",
+        PEOPLE,
+        index=PEOPLE.index(saved_person_a) if saved_person_a in PEOPLE else 0,
+    )
+    person_b = st.selectbox(
+        "두 번째 목소리",
+        PEOPLE,
+        index=PEOPLE.index(saved_person_b) if saved_person_b in PEOPLE else 1,
+    )
     image_a, image_b = st.columns(2)
     with image_a:
         if person_a in PEOPLE_INFO:
@@ -3605,7 +4443,7 @@ elif st.session_state.screen == "select":
     saved_topic = st.session_state.get("topic", defaults["topic"])
     saved_choice = "직접 주제 입력하기" if st.session_state.get("custom_topic", "").strip() else saved_topic
     topic_choice = st.radio(
-        "대화 주제",
+        "두 사람이 함께 들여다볼 질문",
         topic_choices,
         horizontal=False,
         index=topic_choices.index(saved_choice) if saved_choice in topic_choices else 0,
@@ -3613,7 +4451,7 @@ elif st.session_state.screen == "select":
     custom_topic = ""
     if topic_choice == "직접 주제 입력하기":
         custom_topic = st.text_area(
-            "AI에게 전달할 주제를 입력하세요",
+            "지금 마음에 걸리는 질문을 적어주세요",
             value=st.session_state.get("custom_topic", ""),
             placeholder="예: 인간은 자신의 기억을 AI에게 맡겨도 괜찮을까요?",
             height=90,
@@ -3621,7 +4459,7 @@ elif st.session_state.screen == "select":
         )
         topic = custom_topic.strip()
         if not topic:
-            st.caption("주제를 입력하면 선택한 두 인물에게 그대로 전달됩니다.")
+            st.caption("질문은 선택한 두 인물의 관점에 맞춰 대화의 중심이 됩니다.")
     else:
         topic = topic_choice
         st.session_state.custom_topic = ""
@@ -3631,13 +4469,13 @@ elif st.session_state.screen == "select":
     slider_col, _ = st.columns([1.35, 1])
     with slider_col:
         intensity = st.slider(
-            "논쟁의 온도계",
+            "대화의 온도",
             min_value=0,
             max_value=100,
             value=max(0, min(100, saved_intensity)),
             step=1,
             format="%d",
-            help="왼쪽은 차분한 교류, 오른쪽은 뜨거운 설전입니다.",
+            help="왼쪽은 서로의 말을 오래 듣는 대화, 오른쪽은 관점이 선명하게 부딪히는 대화입니다.",
         )
     debate_name, debate_style, _, _ = debate_profile(intensity)
     temperature_label, temperature_color, temperature_description = temperature_visual(intensity)
@@ -3658,33 +4496,42 @@ elif st.session_state.screen == "select":
             st.session_state.screen = "landing"
             st.rerun()
     with right:
-        if st.button("대화 생성하기  →", type="primary", use_container_width=True):
+        if st.button("이 질문으로 대화 열기  →", type="primary", use_container_width=True):
             if not person_a or not person_b or not topic:
                 st.error("인물 두 명과 주제를 모두 입력해주세요.")
             elif person_a == person_b:
                 st.error("서로 다른 인물을 골라주세요.")
             else:
-                with st.spinner("두 인물이 광장에 모이는 중…"):
+                dialogue = None
+                with st.status("두 인물이 광장에 모이는 중…", expanded=True) as generation_status:
                     try:
                         st.session_state.topic = topic
-                        dialogue = remote_dialogue(person_a, person_b, topic, intensity)
+                        curated_dialogue = demo_dialogue(person_a, person_b, topic, debate_name)
+                        if curated_dialogue is not None:
+                            generation_status.write("준비된 큐레이션 대화를 불러오는 중")
+                            dialogue = curated_dialogue
+                        else:
+                            generation_status.write("두 인물의 시대와 관점을 정리하는 중")
+                            dialogue = remote_dialogue(person_a, person_b, topic, intensity)
+                        generation_status.update(label="대화가 준비되었습니다.", state="complete", expanded=False)
                     except RuntimeError as error:
+                        generation_status.update(label="대화를 준비하지 못했습니다.", state="error", expanded=True)
                         st.error(str(error))
-                        st.stop()
-                st.session_state.update(
-                    {
-                        "screen": "result",
-                        "dialogue": dialogue,
-                        "person_a": person_a,
-                        "person_b": person_b,
-                        "topic": topic,
-                        "tone": intensity,
-                        "direct_messages": [],
-                        "dialogue_followups": [],
-                        "dialogue_followup_prompt": "",
-                    }
-                )
-                st.rerun()
+                if dialogue is not None:
+                    st.session_state.update(
+                        {
+                            "screen": "result",
+                            "dialogue": dialogue,
+                            "person_a": person_a,
+                            "person_b": person_b,
+                            "topic": topic,
+                            "tone": intensity,
+                            "direct_messages": [],
+                            "dialogue_followups": [],
+                            "dialogue_followup_prompt": "",
+                        }
+                    )
+                    st.rerun()
 
 
 else:
@@ -3694,6 +4541,10 @@ else:
     back_col, home_col = st.columns(2)
     with back_col:
         if st.button("← 설정으로 돌아가기", key="result-back", use_container_width=True):
+            if st.session_state.get("person_a") not in PEOPLE:
+                st.session_state.person_a = PEOPLE[0]
+            if st.session_state.get("person_b") not in PEOPLE:
+                st.session_state.person_b = PEOPLE[1]
             st.session_state.screen = "select"
             st.rerun()
     with home_col:
@@ -3743,19 +4594,22 @@ else:
     )
     st.subheader("내 의견 전달하기")
     st.caption("이 대화에서 떠오른 의견이나 질문을 남기면, 두 인물이 지금까지의 대화 맥락을 바탕으로 답합니다.")
-    user_message = st.text_area(
-        "의견 또는 질문",
-        placeholder="예: 두 분의 말을 들어보니, 현실적인 생존과 인간다운 열정은 함께 설계해야 한다고 생각합니다. 그렇다면 첫 단계는 무엇인가요?",
-        height=120,
-        key="dialogue_user_message",
-        label_visibility="collapsed",
-    )
-    if st.button("두 인물의 추가 의견 받기", type="primary", use_container_width=True):
+    with st.form("dialogue_followup_form", clear_on_submit=False):
+        user_message = st.text_area(
+            "의견 또는 질문",
+            placeholder="예: 두 분의 말을 들어보니, 현실적인 생존과 인간다운 열정은 함께 설계해야 한다고 생각합니다. 그렇다면 첫 단계는 무엇인가요?",
+            height=120,
+            key="dialogue_user_message",
+            label_visibility="collapsed",
+        )
+        followup_submitted = st.form_submit_button("두 인물의 추가 의견 받기  →", type="primary", use_container_width=True)
+    if followup_submitted:
         if not user_message.strip():
             st.warning("의견이나 질문을 입력해주세요.")
         else:
-            with st.spinner("두 인물이 당신의 의견을 읽고 답하는 중…"):
+            with st.status("두 인물이 당신의 의견을 읽는 중…", expanded=True) as followup_status:
                 try:
+                    followup_status.write("지금까지의 대화와 연결점을 찾는 중")
                     st.session_state.dialogue_followups = remote_dialogue_followup(
                         person_a,
                         person_b,
@@ -3764,8 +4618,10 @@ else:
                         user_message.strip(),
                     )
                     st.session_state.dialogue_followup_prompt = user_message.strip()
+                    followup_status.update(label="두 인물의 답변이 도착했습니다.", state="complete", expanded=False)
                     st.rerun()
                 except RuntimeError as error:
+                    followup_status.update(label="추가 의견을 받지 못했습니다.", state="error", expanded=True)
                     st.error(str(error))
     followup_prompt = st.session_state.get("dialogue_followup_prompt")
     followups = st.session_state.get("dialogue_followups", [])
@@ -3783,3 +4639,4 @@ else:
     if st.button("홈으로", key="result-home-bottom", use_container_width=True):
         st.session_state.screen = "landing"
         st.rerun()
+
