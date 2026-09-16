@@ -427,13 +427,19 @@ def mentor_similarity_percent(user_scores: dict[str, int], mentor_vector: dict[s
     return round(max(0.0, min(100.0, combined)), 1)
 
 
-def mentor_match_confidence(user_scores: dict[str, int], neutral_count: int = 0) -> int:
-    """Estimate the confidence of the current recommendation based on response spread and uncertainty."""
-    active_axes = sum(1 for axis in MENTOR_AXES if user_scores.get(axis, 0) > 0)
-    spread = active_axes / len(MENTOR_AXES)
-    uncertainty_penalty = min(25, neutral_count * 5)
-    confidence = int(round((spread * 100) - uncertainty_penalty + 30))
-    return max(35, min(95, confidence))
+def mentor_answer_concentration(user_scores: dict[str, int], neutral_count: int = 0) -> int:
+    """Measure whether answers favor a few value axes or are broadly distributed."""
+    values = [max(0, user_scores.get(axis, 0)) for axis in MENTOR_AXES]
+    total = sum(values)
+    if total == 0:
+        return 0
+
+    shares = [value / total for value in values if value > 0]
+    concentration = sum(share * share for share in shares)
+    minimum = 1 / len(MENTOR_AXES)
+    normalized = (concentration - minimum) / (1 - minimum)
+    uncertainty_penalty = min(20, neutral_count * 4)
+    return max(0, min(100, int(round(normalized * 100)) - uncertainty_penalty))
 
 
 def _mentor_group_for(person: str) -> str:
@@ -486,14 +492,20 @@ def conflicting_mentors(user_scores: dict[str, int]) -> list[tuple[str, str, flo
 
 
 def mentor_match_summary(user_scores: dict[str, int], neutral_count: int = 0) -> dict[str, object]:
-    """Return a compact summary of the top matches and decision confidence for UI display."""
+    """Return top matches and a readable summary of answer concentration."""
     rankings = calculate_mentor_rankings(user_scores)
     top_three = rankings[:3]
-    confidence = mentor_match_confidence(user_scores, neutral_count)
+    concentration = mentor_answer_concentration(user_scores, neutral_count)
     return {
         "top_three": top_three,
-        "confidence": confidence,
-        "confidence_text": "답변이 한쪽 방향으로 모여 있습니다" if confidence >= 70 else "몇 가지 방향이 함께 보입니다" if confidence >= 55 else "아직 여러 방향이 섞여 있습니다",
+        "concentration": concentration,
+        "concentration_text": (
+            "특정 가치에 뚜렷하게 집중되어 있습니다"
+            if concentration >= 70
+            else "몇 가지 가치가 함께 작동합니다"
+            if concentration >= 40
+            else "여러 가치가 고르게 섞여 있습니다"
+        ),
     }
 
 
@@ -4194,7 +4206,8 @@ elif st.session_state.screen == "mentor_result":
     )
     st.markdown(mentor_radar_chart(scores, mentor), unsafe_allow_html=True)
     st.markdown(
-        f'<div class="callout"><strong>답변이 한 방향으로 모인 정도</strong><br>{summary["confidence"]}% · {html.escape(summary["confidence_text"])}</div>',
+        f'<div class="callout"><strong>답변 경향의 선명도</strong><br>{summary["concentration"]}% · {html.escape(summary["concentration_text"])}'
+        '<br><small>정답률이나 추천의 확신도가 아니라, 12개 답변에서 특정 가치 축에 선택이 얼마나 집중됐는지를 보여주는 지표입니다.</small></div>',
         unsafe_allow_html=True,
     )
     st.markdown(
@@ -4639,4 +4652,3 @@ else:
     if st.button("홈으로", key="result-home-bottom", use_container_width=True):
         st.session_state.screen = "landing"
         st.rerun()
-
