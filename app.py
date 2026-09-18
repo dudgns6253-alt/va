@@ -2708,6 +2708,11 @@ def _generate_dialogue_once(
         else
         "이 대화는 AI와 사회 변화의 구체적 영향을 다루되, 기술 용어만 나열하지 말고 "
         "당사자의 삶과 책임, 선택의 결과를 중심으로 말한다."
+        if topic in TOPICS
+        else
+        "이 대화는 사용자가 직접 입력한 주제만을 다룬다. AI·자동화·알고리즘 같은 소재나 "
+        "미리 준비된 다른 주제로 바꾸지 말고, 입력된 문장에 실제로 등장하는 대상·상황·감정을 "
+        "그대로 붙잡아 두 인물의 삶과 사상에 비추어 구체적으로 말한다."
     )
     intensity = max(0, min(100, int(intensity)))
     debate_name, debate_style, interruption, expression = debate_profile(intensity)
@@ -2724,10 +2729,10 @@ def _generate_dialogue_once(
 {HISTORICAL_HONORIFICS}
 이전 검수에서 수정이 필요하다고 판단한 내용:
 {feedback or "없음"}
-핵심 논점: {TOPIC_GUIDANCE.get(topic, "주제의 장단점과 실제 삶의 영향을 구체적으로 논한다.")}
+핵심 논점: {TOPIC_GUIDANCE.get(topic, "입력된 주제 자체의 장단점과 그것이 실제 삶에 미치는 구체적 영향을 논한다.")}
 두 인물 사이의 핵심 긴장: {pair_dynamic(person_a, person_b)}
-이번 대화가 답해야 할 질문: {TOPIC_QUESTIONS.get(topic, "이 변화의 비용과 책임은 누가 감당하는가?")}
-이번 대화에서 반드시 다룰 구체적 딜레마: {TOPIC_DILEMMAS.get(topic, "좋은 원칙을 지키는 과정에서 누군가가 감당해야 할 비용이 생긴다면 무엇을 선택할 것인가?")}
+이번 대화가 답해야 할 질문: {TOPIC_QUESTIONS.get(topic, "이 주제 앞에서 무엇을 지키고 무엇을 바꿔야 하는가?")}
+이번 대화에서 반드시 다룰 구체적 딜레마: {TOPIC_DILEMMAS.get(topic, "이 주제에서 두 사람이 각자 옳다고 믿는 원칙이 서로 부딪힌다면 무엇을 먼저 선택할 것인가?")}
 인물 A의 사상이 놓칠 수 있는 위험: {PERSONA_TENSIONS.get(person_a, "자신의 원칙이 놓칠 수 있는 사람과 결과")}
 인물 B의 사상이 놓칠 수 있는 위험: {PERSONA_TENSIONS.get(person_b, "자신의 원칙이 놓칠 수 있는 사람과 결과")}
 {persona_generation_packet(person_a)}
