@@ -2778,19 +2778,40 @@ script는 정확히 24턴이며 각 대사는 2문장 이하로 쓴다. 딱딱�
                 value = value.replace(placeholder, name)
             return value
 
+        def resolve_speaker(raw_speaker: object) -> str | None:
+            """Tolerate minor AI formatting drift (placeholders, honorifics, stray punctuation)."""
+            if not isinstance(raw_speaker, str):
+                return None
+            candidate = replace_placeholders(raw_speaker).strip()
+            candidate = candidate.strip("():-·「」『』“”\"'* ")
+            if candidate in (person_a, person_b):
+                return candidate
+            candidate_no_honorific = candidate.rstrip("님씨")
+            if candidate_no_honorific in (person_a, person_b):
+                return candidate_no_honorific
+            if person_a in candidate:
+                return person_a
+            if person_b in candidate:
+                return person_b
+            return None
+
         for field in ("scene", "summary", "stance_a", "stance_b", "conflict", "mvp"):
             if field in result:
                 result[field] = replace_placeholders(result[field])
-        script = [(item["speaker"], item["line"]) for item in result["script"]]
+        script = []
+        for item in result["script"]:
+            speaker = resolve_speaker(item.get("speaker"))
+            line = item.get("line")
+            line = line.strip() if isinstance(line, str) else line
+            script.append((speaker, line))
         if not 12 <= len(script) <= 24:
             raise RuntimeError(
                 f"AI가 유효한 대화 길이(12~24턴)를 반환하지 않았습니다: {len(script)}턴"
             )
         if any(
-            not isinstance(speaker, str)
-            or speaker not in {person_a, person_b}
+            speaker is None
             or not isinstance(line, str)
-            or not line.strip()
+            or not line
             for speaker, line in script
         ):
             raise RuntimeError("AI 응답에 선택한 두 인물 이외의 화자 또는 빈 대사가 포함되었습니다.")
