@@ -3,7 +3,6 @@ import json
 import os
 import random
 import base64
-import re
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -20,6 +19,61 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+
+DEMO_AI_LIMITS = {
+    "dialogue": 2,
+    "followup": 3,
+    "comments": 2,
+    "parallel": 2,
+}
+DEMO_AI_TOTAL_LIMIT = 6
+
+
+def demo_mode_enabled() -> bool:
+    """Keep public demos bounded unless explicitly disabled for private testing."""
+    return os.getenv("VIRTUAL_AGORA_DEMO_MODE", "true").lower() not in {"0", "false", "off", "no"}
+
+
+def consume_demo_ai_budget(feature: str) -> tuple[bool, int]:
+    """Reserve one model action for this browser session and return remaining total uses."""
+    if not demo_mode_enabled():
+        return True, -1
+    today = date.today().isoformat()
+    if st.session_state.get("demo_usage_date") != today:
+        st.session_state.demo_usage_date = today
+        st.session_state.demo_ai_usage = {}
+    usage = st.session_state.setdefault("demo_ai_usage", {})
+    feature_count = int(usage.get(feature, 0))
+    total_count = sum(int(value) for value in usage.values())
+    feature_limit = DEMO_AI_LIMITS.get(feature, 1)
+    if feature_count >= feature_limit or total_count >= DEMO_AI_TOTAL_LIMIT:
+        return False, max(0, DEMO_AI_TOTAL_LIMIT - total_count)
+    usage[feature] = feature_count + 1
+    st.session_state.demo_ai_usage = usage
+    return True, max(0, DEMO_AI_TOTAL_LIMIT - total_count - 1)
+
+
+def notify_demo_ai_click(allowed: bool, remaining: int) -> None:
+    """Give quick, non-blocking toast feedback the moment an AI-powered button is pressed."""
+    if allowed:
+        st.toast(
+            f"데모 버전이라 AI 생성 횟수가 제한됩니다. (남은 횟수 {remaining}회)"
+            if remaining >= 0
+            else "데모 버전이라 AI 생성 횟수가 제한됩니다.",
+            icon="✨",
+        )
+    else:
+        st.toast("AI 호출 횟수가 소진되었습니다.", icon="🚫")
+
+
+def render_demo_limit_alert(fallback_message: str = "") -> None:
+    """Compact fallback notice shown once the demo AI budget runs out."""
+    fallback = f" {fallback_message}" if fallback_message else ""
+    st.info(
+        "AI 생성 없이도 즐길 수 있어요 — 큐레이션 대화 · 오늘의 질문 · 인물 매칭 · 평행 시절 기록."
+        f"{fallback}"
+    )
 
 
 def render_scroll_to_top() -> None:
@@ -63,53 +117,15 @@ def reset_mentor_state() -> None:
     )
 
 
-def go_home(default_screen: str = "landing") -> None:
-    st.session_state.screen_history = []
-    st.session_state.screen = default_screen
-    st.rerun()
-
-
 def render_topbar() -> None:
     """Render a quiet brand strip without competing navigation controls."""
     st.markdown(
         '<div class="app-topbar"><div class="app-topbar-brand">VIRTUAL AGORA <span>· 질문의 광장</span></div>'
-        '<div class="app-topbar-note">과거의 시선으로 오늘을 다시 보기</div></div>',
+        '<div class="app-topbar-note">과거의 시선으로 오늘을 다시 보기 · 데모 운영 모드</div></div>',
         unsafe_allow_html=True,
     )
 
 
-MENTOR_PEOPLE = [
-    "이순신",
-    "세종대왕",
-    "소크라테스",
-    "스티브 잡스",
-    "공자",
-    "예수",
-    "부처",
-    "니체",
-    "나폴레옹",
-    "징기스칸",
-    "체 게바라",
-    "알렉산더 대왕",
-    "정약용",
-    "아리스토텔레스",
-    "조조",
-    "에이브러햄 링컨",
-    "알베르트 아인슈타인",
-    "레오나르도 다빈치",
-    "니콜라 테슬라",
-    "디오게네스",
-    "윈스턴 처칠",
-    "노자",
-    "장자",
-    "아르투어 쇼펜하우어",
-    "헬렌 켈러",
-    "마하트마 간디",
-    "알베르트 슈바이처",
-    "테레사 수녀",
-    "유비",
-    "율리우스 카이사르",
-]
 PEOPLE = [
     "이순신",
     "세종대왕",
@@ -267,38 +283,6 @@ for _, (_, people, base_vector) in MENTOR_GROUPS.items():
         for axis, delta in PERSONA_SIGNATURES.get(person, {}).items():
             vector[axis] = min(10, max(0, vector.get(axis, 0) + delta))
         PERSONA_VECTORS[person] = vector
-
-MENTOR_DETAILED_PROFILES = {
-    "이순신": {"mtype": "ISTJ-리더십", "strengths": ["책임감", "전략적 사고", "절제"], "blind_spot": "완벽주의로 인한 지체", "era": "조선 중기 (1545–1598)", "element": "물"},
-    "스티브 잡스": {"mtype": "ENFJ-발명가", "strengths": ["미적 직관", "극단적 집중", "스토리텔링"], "blind_spot": "완벽주의와 내면 갈등", "era": "현대 미국 (1955–2011)", "element": "불"},
-    "나폴레옹": {"mtype": "ENTJ-전략가", "strengths": ["전략적 사고", "도시적 리더십", "결단력"], "blind_spot": "야심과 오버플렉스", "era": "프랑스 혁명기 (1769–1821)", "element": "전기"},
-    "징기스칸": {"mtype": "ESTP-정복자", "strengths": ["기습적 급진변화", "용기", "속도감"], "blind_spot": "포악함과 불안정", "era": "몽골 제국 건국기 (1162–1227)", "element": "바람"},
-    "체 게바라": {"mtype": "ENFJ-투사자", "strengths": ["이상주의적 헌신", " 설득력", " 급진적 실천"], "blind_spot": "극단적 타협과 분노", "era": "쿠바 혁명기 (1928–1967)", "element": "화재"},
-    "알렉산더 대왕": {"mtype": "ESTJ-지배자", "strengths": ["통솔력", "문화적 융합", " 용기"], "blind_spot": "지나친 욕심과 불안정", "era": "고대 그리스-막 (356–323 BC)", "element": "철"},
-    "세종대왕": {"mtype": "INFJ-사상가", "strengths": ["장기적 비전", " 백성을 위한 사랑", " 체계적 사고"], "blind_spot": "완벽주의로 인한 지체", "era": "조선 중기 (1397–1450)", "element": "물"},
-    "공자": {"mtype": "ISTJ-교육자", "strengths": ["윤리적 기준", " 교육적 섬세함", " 관계 중심"], "blind_spot": "보수주의적 사고", "era": "춘추시대 (551–479 BC)", "element": "목"},
-    "정약용": {"mtype": "INTJ-발명가", "strengths": ["실용적 사고", " 독립적 통찰", " 제도 개혁"], "blind_spot": "과도한 비판과 냉정함", "era": "조선 후기 (1762–1836)", "element": "토"},
-    "아리스토텔레스": {"mtype": "INTJ-철학자", "strengths": ["논리적 체계화", " 관측적 사고", " 윤리적 균형"], "blind_spot": "이성적 냉간화", "era": "고대 그리스 (384–322 BC)", "element": "공기"},
-    "조조": {"mtype": "ENTJ-전략가", "strengths": ["실용적 리더십", " 능력 중심", " 위기 극복"], "blind_spot": "인물 사용과 계산적 배신", "era": "후한 말 (181–220)", "element": "총"},
-    "에이브러햄 링컨": {"mtype": "INFJ-사상가", "strengths": ["도덕적 용기", " 연민", " 끈끈한 인내"], "blind_spot": "우울과 과도한 책임감", "era": "미국 (1809–1865)", "element": "나무"},
-    "소크라테스": {"mtype": "ENFJ-철학자", "strengths": ["질문 기술", " 자기 성찰", " 윤리적 탐구"], "blind_spot": "자기 확신 부족과 회의주의", "era": "고대 아테네 (470–399 BC)", "element": "불"},
-    "알베르트 아인슈타인": {"mtype": "INFP-사상가", "strengths": ["상상력", " 독립적 사고", " 물리적 직관"], "blind_spot": "실용성 무시와 관계 어려움", "era": "현대 유럽 (1879–1955)", "element": "별"},
-    "레오나르도 다빈치": {"mtype": "ENFP-발명가", "strengths": ["다학문적 통찰", " 호기심", " 예술적 표현"], "blind_spot": "미루기와 완성도 어려움", "era": "르네상스 (1452–1519)", "element": "공기"},
-    "니콜라 테슬라": {"mtype": "INTJ-발명가", "strengths": ["미래지향적 사고", " 발명적 창조", " 집중력"], "blind_spot": "현실감 없는 이상주의와 OCD", "era": "현대 미국/유럽 (1856–1943)", "element": "번개"},
-    "디오게네스": {"mtype": "ENTP-사상가", "strengths": ["급진적 비판", " 자유로운 사고", " 실용적 해석"], "blind_spot": "지나친 급진주의와 사회 거리두기", "era": "고대 그리스 (412–323 BC)", "element": "불"},
-    "윈스턴 처칠": {"mtype": "ESTJ-지도자", "strengths": ["섬세한 언어 사용", " 위기 리더십", " 결단력"], "blind_spot": "과도한 자부심과 고집", "era": "20세기 영국 (1874–1965)", "element": "나무"},
-    "노자": {"mtype": "INFP-사상가", "strengths": ["자연스러운 사유", " 물음표", " 비언성"], "blind_spot": "실천 회피와 관용주의", "era": "부적시 (기원전 600년경)", "element": "물"},
-    "장자": {"mtype": "INFP-철학자", "strengths": ["변화 수용", " 생명의 유대감", " 유머 감수"], "blind_spot": "지나친 이완과 관용", "era": "전국시대 (기원전 369–286년)", "element": "공기"},
-    "부처": {"mtype": "INFP-사상가", "strengths": ["자비와 연민", " 깊은 성찰", " 중도 실천"], "blind_spot": "고독과 관념주의", "era": "기원전 563–483년 (인도)", "element": "부"},
-    "아르투어 쇼펜하우어": {"mtype": "INTJ-사상가", "strengths": ["비판적 사고", " 예술적 감수성", " 깊은 성찰"], "blind_spot": "비관주의와 고독", "era": "19세기 독일 (1788–1860)", "element": "어둠"},
-    "율리우스 카이사르": {"mtype": "ENTJ-전략가", "strengths": ["전략적 판단", "대중 설득", "결단력"], "blind_spot": "권력 집중과 과신", "era": "로마 공화정 말기 (기원전 100–44년)", "element": "태양"},
-            "헬렌 켈러": {"mtype": "ENFJ-사상가", "strengths": ["극복의 희망", " 연대감", " 설득력"], "blind_spot": "과도한 압력과 완벽주의", "era": "20세기 미국 (1880–1968)", "element": "불"},
-    "예수": {"mtype": "INFJ-사상가", "strengths": ["자비와 사랑", " 용기 있는 급진성", " 근접성"], "blind_spot": "과도한 희생과 비관주의", "era": "기원전 4–30년 (유대)", "element": "빛"},
-    "마하트마 간디": {"mtype": "INFJ-투사자", "strengths": ["비폭력적 저항", " 자기 희생", " 설득력"], "blind_spot": "과도한 이상주의와 실용성 회피", "era": "20세기 인도 (1869–1948)", "element": "촛불"},
-    "알베르트 슈바이처": {"mtype": "INTJ-사상가", "strengths": ["과학적 분석", " 침묵과 깊이", " 독립적 사고"], "blind_spot": "감정 억제와 고독", "era": "20세기 프랑스 (1913–2012)", "element": "불꽃"},
-    "테레사 수녀": {"mtype": "ISFP-수호자", "strengths": ["자비로운 돌봄", " 영적 통찰", " 사랑스러운 헌신"], "blind_spot": "고통에 대한 회피와 불안", "era": "20세기 알바니아/인도 (1910–1997)", "element": "빛"},
-    "유비": {"mtype": "ENFJ-지도자", "strengths": ["정의로운 사랑", " 배신과 용서", " 인간 관계"], "blind_spot": "과도한 신뢰와 비관주의", "era": "후한 말 (161–223)", "element": "불"},
-}
 
 MENTOR_QUOTES = {
     "전략/권력형": ("판세를 읽는 사람은 다음 선택의 대가까지 계산한다.", "결단력만큼이나 권한을 어디까지 가져갈지 스스로 묻는 유형입니다."),
@@ -518,12 +502,6 @@ MENTOR_PROFILES = {
 }
 
 
-def calculate_best_mentor(user_scores: dict[str, int]) -> tuple[str, str, float]:
-    """Return the mentor with the highest normalized profile similarity."""
-    person, group, score = calculate_mentor_rankings(user_scores)[0]
-    return person, group, score
-
-
 def normalized_user_profile(user_scores: dict[str, int]) -> dict[str, float]:
     """Map raw quiz totals to the same 0-10 scale used by mentor vectors, with a stable 0-10 normalization."""
     raw = {axis: max(0, user_scores.get(axis, 0)) for axis in MENTOR_AXES}
@@ -576,33 +554,6 @@ def _mentor_group_for(person: str) -> str:
     return group
 
 
-def validate_mentor_coverage() -> dict[str, list[str] | bool]:
-    """Verify that every roster member has one vector and one group mapping."""
-    group_members = [person for _, (_, people, _) in MENTOR_GROUPS.items() for person in people]
-    covered = {person: [group_name for group_name, (_, people, _) in MENTOR_GROUPS.items() if person in people] for person in MENTOR_PEOPLE}
-    missing = [person for person in MENTOR_PEOPLE if person not in PERSONA_VECTORS or not covered[person]]
-    duplicates = [person for person, groups in covered.items() if len(groups) != 1]
-    unexpected = [person for person in group_members if person not in MENTOR_PEOPLE]
-    return {
-        "all_present": not missing and not duplicates and not unexpected and len(PERSONA_VECTORS) == len(MENTOR_PEOPLE),
-        "coverage": covered,
-        "missing": missing,
-    }
-
-
-MENTOR_COVERAGE_CHECK = validate_mentor_coverage()
-
-
-def mentor_report(user_scores: dict[str, int], group: str) -> list[str]:
-    strongest = sorted(user_scores, key=user_scores.get, reverse=True)[:3]
-    labels = {"Action": "실행", "Reflection": "성찰", "Innovation": "혁신", "Order": "질서", "Logic": "본질", "Empathy": "공감", "Mastery": "자기극복", "Acceptance": "수용"}
-    return [
-        f"당신은 {labels[strongest[0]]}을 가장 먼저 선택하는 편입니다.",
-        f"문제를 만났을 때 {labels[strongest[1]]}의 관점에서 다음 선택을 살핍니다.",
-        f"이번 답변은 '{group}' 방식과 가장 가깝습니다.",
-    ]
-
-
 def calculate_mentor_rankings(user_scores: dict[str, int]) -> list[tuple[str, str, float]]:
     """Return all mentors ranked by hybrid similarity, which combines profile alignment and directional consistency."""
     ranked = []
@@ -614,16 +565,16 @@ def calculate_mentor_rankings(user_scores: dict[str, int]) -> list[tuple[str, st
     return ranked
 
 
-def conflicting_mentors(user_scores: dict[str, int]) -> list[tuple[str, str, float]]:
+def conflicting_mentors(user_scores: dict[str, int], rankings: list[tuple[str, str, float]] | None = None) -> list[tuple[str, str, float]]:
     """Return the 3 mentors whose vectors are *least* similar to the user (conflict / contrast)."""
-    ranked = calculate_mentor_rankings(user_scores)
+    ranked = rankings if rankings is not None else calculate_mentor_rankings(user_scores)
     return ranked[-3:][::-1]
 
 
-def mentor_match_summary(user_scores: dict[str, int], neutral_count: int = 0) -> dict[str, object]:
+def mentor_match_summary(user_scores: dict[str, int], neutral_count: int = 0, rankings: list[tuple[str, str, float]] | None = None) -> dict[str, object]:
     """Return top matches and a readable summary of answer concentration."""
-    rankings = calculate_mentor_rankings(user_scores)
-    top_three = rankings[:3]
+    ranked = rankings if rankings is not None else calculate_mentor_rankings(user_scores)
+    top_three = ranked[:3]
     concentration = mentor_answer_concentration(user_scores, neutral_count)
     return {
         "top_three": top_three,
@@ -636,60 +587,6 @@ def mentor_match_summary(user_scores: dict[str, int], neutral_count: int = 0) ->
             else "여러 가치가 고르게 섞여 있습니다"
         ),
     }
-
-
-def enhanced_mentor_report(user_scores: dict[str, int], group: str) -> list[str]:
-    """Return a concise, readable summary of the matched mentor profile."""
-    ranked = calculate_mentor_rankings(user_scores)
-    top_person, _, _ = ranked[0]
-    strongest = sorted(user_scores, key=user_scores.get, reverse=True)[:3]
-    labels = {"Action": "실행", "Reflection": "성찰", "Innovation": "창의", "Order": "질서", "Logic": "논리", "Empathy": "공감", "Mastery": "집중", "Acceptance": "유연"}
-    top_axes = [labels[axis] for axis in strongest]
-    score_text = ", ".join(f"{label}({user_scores[axis]}점)" for axis in strongest if axis in user_scores for label in [labels[axis]])
-    style = "결단형" if user_scores.get("Action", 0) + user_scores.get("Innovation", 0) >= user_scores.get("Reflection", 0) + user_scores.get("Acceptance", 0) else "성찰형"
-    similar_people = ", ".join(f"{person}({score}%)" for person, _, score in ranked[:3])
-    return [
-        f"당신의 답변은 '{group}' 방식과 가깝고, 그중 '{top_person}'와 가장 많이 닮아 있습니다.",
-        f"답변에서 자주 드러난 선택: {score_text}",
-        f"전체적으로는 {style} 쪽에 가깝고, 특히 {', '.join(top_axes)}를 중요하게 보고 있습니다.",
-        f"비교해 볼 인물: {similar_people}",
-        f"정리하면, '{top_person}'는 지금의 생각을 더 깊게 들여다볼 수 있는 대화 상대입니다.",
-    ]
-
-
-def why_this_match(mentor: str, user_scores: dict[str, int]) -> str:
-    axis_labels = {
-        "Action": "실행력",
-        "Reflection": "성찰",
-        "Innovation": "창의성",
-        "Order": "질서감",
-        "Logic": "논리",
-        "Empathy": "공감",
-        "Mastery": "집중력",
-        "Acceptance": "유연함",
-    }
-    user_profile = normalized_user_profile(user_scores)
-    mentor_vector = PERSONA_VECTORS.get(mentor, {})
-    shared_axes = sorted(
-        MENTOR_AXES,
-        key=lambda axis: min(user_profile.get(axis, 0), mentor_vector.get(axis, 0)),
-        reverse=True,
-    )
-    shared = [axis for axis in shared_axes if user_profile.get(axis, 0) >= 5 and mentor_vector.get(axis, 0) >= 5][:2]
-    if not shared:
-        shared = sorted(MENTOR_AXES, key=lambda axis: user_profile.get(axis, 0), reverse=True)[:2]
-    shared_text = "와 ".join(axis_labels[axis] for axis in shared)
-    user_evidence = ", ".join(
-        f"{axis_labels[axis]}({user_scores.get(axis, 0)}점)"
-        for axis in sorted(MENTOR_AXES, key=lambda item: user_scores.get(item, 0), reverse=True)
-        if user_scores.get(axis, 0) > 0
-    )[:90]
-    return (
-        f"당신의 답변에서는 {shared_text}을(를) 중요하게 보는 선택이 두드러졌습니다. "
-        f"{mentor}도 이 기준의 비중이 높은 인물이라 추천되었습니다. "
-        f"당신의 실제 응답 점수는 {user_evidence or '아직 기록된 선택이 없습니다'}이며, "
-        "인물의 삶이 당신과 같다는 뜻이 아니라 선택 기준이 겹친다는 의미입니다."
-    )
 
 
 def mentor_match_reasons(mentor: str, user_scores: dict[str, int]) -> tuple[str, str, str]:
@@ -738,10 +635,6 @@ def mentor_match_reasons(mentor: str, user_scores: dict[str, int]) -> tuple[str,
         f"가장 큰 차이는 {difference_text}에서 나타납니다. 따라서 이 결과는 '완전히 같은 인물'이라는 뜻이 아니라, "
         f"{mentor}의 기준 중 일부가 당신의 선택과 닮았다는 뜻입니다.",
     )
-
-
-def conflict_reason(mentor: str, conflict_person: str) -> str:
-    return f"{mentor}와 {conflict_person}는 서로 다른 선택 기준을 보여줍니다. 이 차이는 당신이 익숙한 방식에서 벗어나 놓치기 쉬운 관점을 살펴보게 합니다."
 
 
 def mentor_radar_chart(user_scores: dict[str, int], mentor: str) -> str:
@@ -1709,15 +1602,6 @@ TOPIC_RESOLUTIONS = {
         "헌신과 자유를 서로의 반대말로 만들지 않고, 함께 살되 각자의 성장과 선택권을 지키는 약속이 필요하다.",
     ),
 }
-CLAIM_LABELS = {
-    ("이순신", "AI는 일자리를 없애는가, 바꾸는가"): "일부 업무는 사라져도, 책임 있는 판단의 역할은 더 중요해진다",
-    ("스티브 잡스", "AI는 일자리를 없애는가, 바꾸는가"): "반복 업무는 줄고, 본질적인 문제를 정의하는 일이 남는다",
-    ("예수", "AI 시대에 사람만 할 수 있는 일"): "돌봄과 연대처럼 사람의 얼굴을 마주하는 일에 인간의 역할이 남는다",
-    ("부처", "AI 시대에 사람만 할 수 있는 일"): "기술의 속도보다 깨어 있음과 자비를 실천하는 과정이 중요하다",
-    ("소크라테스", "생성형 AI와 창의적인 직업의 미래"): "생성 능력보다 질문하고 선택한 이유를 설명하는 일이 창작의 중심이다",
-    ("니체", "생성형 AI와 창의적인 직업의 미래"): "정해진 답을 생산하기보다 자기 가치를 창조하는 힘이 창작을 새롭게 한다",
-    ("쇼펜하우어", "AI 시대에 사람만 할 수 있는 일"): "고통의 원인을 이해하고 줄이려는 연민은 효율만으로 대체되지 않는다",
-}
 PAIR_DYNAMICS = {
     frozenset(("이순신", "세종대왕")): "두 지도자가 백성을 지키는 책임을 공유하지만, 이순신은 현장의 결단을, 세종은 제도와 교육을 먼저 본다.",
     frozenset(("이순신", "소크라테스")): "이순신은 즉시 결단해야 하는 전장을 말하고, 소크라테스는 그 결단의 정의와 전제를 끝까지 묻는다.",
@@ -2283,9 +2167,6 @@ def local_dialogue(person_a: str, person_b: str, topic: str, tone: str) -> Dialo
     dilemma = TOPIC_DILEMMAS.get(topic, "좋은 원칙을 지키는 과정에서 누군가가 감당해야 할 비용이 생긴다면 무엇을 선택할 것인가?")
     limit_a = PERSONA_TENSIONS.get(person_a, "자신의 원칙이 놓칠 수 있는 사람과 결과")
     limit_b = PERSONA_TENSIONS.get(person_b, "자신의 원칙이 놓칠 수 있는 사람과 결과")
-    frame, decision = TOPIC_FRAMES.get(
-        topic, ("이 문제의 기준을 무엇으로 삼을지", "혜택과 비용의 책임을 어떻게 나눌지")
-    )
     a_claim = [
         f"{case_a} 그 장면을 떠올리면 {lens[0]}부터 살펴야 합니다.",
         f"제가 선택하고 수련해 본 경험에서는 {lens[2]}가 출발점입니다.",
@@ -3181,22 +3062,6 @@ comments는 정확히 9개이며 모든 인물을 한 번씩 포함합니다."""
     return comments
 
 
-def remote_direct_reply(person: str, topic: str, message: str) -> str:
-    result = _openai_json(f"""Virtual Agora의 가상 인물 답변을 작성하세요.
-인물: {person}
-주제 맥락: {topic}
-{persona_generation_packet(person)}
-{HONORIFIC_RULES}
-사용자 질문: {message}
-공개적으로 알려진 사상과 사례를 참고한 창작 답변임을 전제로, 인물의 말투와 문제의식을 살려 한국어 3~5문장으로 답하세요.
-현대의 사실을 인물이 직접 경험했다고 주장하지 말고, 질문을 피하는 일반론이나 업무 템플릿을 쓰지 마세요.
-{{"reply":"답변"}}""", temperature=0.8, timeout=25)
-    reply = result.get("reply")
-    if not isinstance(reply, str) or not reply.strip():
-        raise RuntimeError("인물 답변이 비어 있습니다.")
-    return reply.strip()
-
-
 @st.cache_data(ttl=900, show_spinner=False)
 def remote_dialogue_followup(
     person_a: str,
@@ -3241,20 +3106,6 @@ responses는 정확히 2개이며 순서는 반드시 인물 A, 인물 B입니�
     return parsed
 
 
-def format_result(dialogue: Dialogue, person_a: str, person_b: str, topic: str, tone: str) -> str:
-    script = "\n".join(f"{speaker}: {line}" for speaker, line in dialogue.script)
-    return (
-        f"VIRTUAL AGORA · 가상 생성 대화\n{person_a} × {person_b} · {topic} · {tone}\n"
-        f"※ 아래 대화는 역사적 인물의 사상과 기록을 참고해 창작한 가상 시뮬레이션이며, 실제 발언이나 역사적 기록이 아닙니다.\n\n"
-        f"장면\n{dialogue.scene}\n\n대본\n{script}\n\n"
-        f"한 줄 요약\n{dialogue.summary}\n\n케미 {dialogue.chem}/100 · MVP {dialogue.mvp}"
-    )
-
-
-def case_note(person_a: str, person_b: str) -> str:
-    return f"{person_a}: {CASE_NOTES.get(person_a, '인물의 알려진 활동을 바탕으로 한 창작적 해석')}\n{person_b}: {CASE_NOTES.get(person_b, '인물의 알려진 활동을 바탕으로 한 창작적 해석')}"
-
-
 def viewpoint_cards(person_a: str, person_b: str, topic: str) -> tuple[str, str, str, str]:
     if (
         topic == FEATURED_FOUNDER_TOPIC
@@ -3286,21 +3137,6 @@ def viewpoint_cards(person_a: str, person_b: str, topic: str) -> tuple[str, str,
     return stance_a, stance_b, conflict, f"{dynamic} {agreement}"
 
 
-def claim_label(person: str, topic: str, stance: str) -> str:
-    return CLAIM_LABELS.get((person, topic), f"이 주제에서 우선하는 관점 — {stance}")
-
-
-def viewpoint_profile(person_a: str, person_b: str, topic: str, vote: str | None) -> str:
-    stance_a, stance_b, _, _ = viewpoint_cards(person_a, person_b, topic)
-    if vote:
-        if vote in (person_a, person_b):
-            return f"당신은 {vote}의 기준에 더 가까운 판단을 했습니다. 다른 관점도 함께 고려하면 더 균형 잡힌 결론에 도달할 수 있습니다."
-        return "당신은 두 사람의 주장 사이에서 판단을 유보했습니다. 변화의 조건을 더 확인하려는 신중한 관점입니다."
-    if "사람만" in topic:
-        return "당신은 생산성보다 돌봄·책임·공감의 가치를 먼저 보는 관점에 가깝습니다."
-    return f"당신은 {person_a}의 '{stance_a[:26]}…'와 {person_b}의 '{stance_b[:26]}…' 사이에서 자신의 기준을 세우는 중입니다."
-
-
 def direct_reply(person: str, other: str, topic: str, message: str) -> str:
     """Give a short offline reply so the interactive demo works without an API key."""
     voice = VOICE.get(person, ("제 경험을 돌아보면", "사람을 중심에 두고 판단해야 합니다.", "책임 있는 검증이 필요합니다."))
@@ -3317,15 +3153,6 @@ def direct_reply(person: str, other: str, topic: str, message: str) -> str:
     if "실패" in prompt:
         return f"{voice[0]} 제 원칙도 {PERSONA_TENSIONS.get(person, '현실의 복잡한 조건')}라는 한계를 가질 수 있습니다. 그러므로 결과를 확인하고 필요하면 판단을 고쳐야 합니다."
     return f"그 질문을 {other}의 관점과 함께 놓고 보면 더 선명해집니다. {voice[1]} 그래서 저는 {stance}"
-
-
-def user_bubble(line: str, turn: int) -> str:
-    return (
-        f'<div class="chat-row right user-row"><div class="chat-avatar user-avatar">나</div>'
-        f'<div class="chat-content"><div class="chat-name">나</div>'
-        f'<div class="chat-bubble">{html.escape(line)}</div>'
-        f'<div class="chat-time">Agora · {turn:02d}</div></div></div>'
-    )
 
 
 def chat_avatar(name: str) -> str:
@@ -3405,16 +3232,9 @@ def chat_bubble(speaker: str, line: str, person_a: str, turn: int) -> str:
     )
 
 
-def set_selection(person_a: str, person_b: str, topic: str, tone: str) -> None:
-    st.session_state.update(
-        {"person_a": person_a, "person_b": person_b, "topic": topic, "tone": tone, "screen": "select"}
-    )
-
-
 def featured_founder_dialogue() -> Dialogue:
     """Return the dedicated Wanted hackathon showcase conversation."""
     founder = "유명 채용 플랫폼 대표"
-    topic = "AI 시대, 인간은 어떻게 살아남을 것인가"
     return Dialogue(
         "제품 발표장의 조명과 채용 데이터가 쌓인 회의실이 겹쳐진 가상의 광장. "
         "스티브 잡스와 유명 채용 플랫폼 대표가 AI 시대의 생존 조건을 묻는다.",
@@ -3452,7 +3272,6 @@ def featured_founder_dialogue() -> Dialogue:
 
 def featured_faith_dialogue() -> Dialogue:
     """Return the dedicated Jesus and Buddha showcase conversation."""
-    topic = "AI시대, 종교의 방향"
     return Dialogue(
         "고요한 사찰의 법당과 갈릴리의 언덕이 하나의 광장으로 이어졌다. "
         "예수와 부처는 AI가 삶과 신앙을 바꾸는 시대에 종교가 가야 할 길을 묻는다.",
@@ -4333,15 +4152,14 @@ elif st.session_state.screen == "mentor_quiz":
                 scores = apply_question_response(scores, question, answer_key)
                 st.session_state.mentor_scores = scores
                 if question_index + 1 == len(MENTOR_QUESTIONS):
-                    mentor, group, score = calculate_best_mentor(scores)
                     rankings = calculate_mentor_rankings(scores)
-                    conflicts = conflicting_mentors(scores)
+                    mentor, group, score = rankings[0]
+                    conflicts = conflicting_mentors(scores, rankings=rankings)
                     st.session_state.update({
                         "screen": "mentor_result",
                         "mentor": mentor,
                         "mentor_group": group,
                         "mentor_score": score,
-                        "mentor_report": enhanced_mentor_report(scores, group),
                         "mentor_rankings": rankings,
                         "mentor_conflicts": conflicts,
                     })
@@ -4357,15 +4175,14 @@ elif st.session_state.screen == "mentor_quiz":
             scores = apply_question_response(scores, question, "neutral")
             st.session_state.mentor_scores = scores
             if question_index + 1 == len(MENTOR_QUESTIONS):
-                mentor, group, score = calculate_best_mentor(scores)
                 rankings = calculate_mentor_rankings(scores)
-                conflicts = conflicting_mentors(scores)
+                mentor, group, score = rankings[0]
+                conflicts = conflicting_mentors(scores, rankings=rankings)
                 st.session_state.update({
                     "screen": "mentor_result",
                     "mentor": mentor,
                     "mentor_group": group,
                     "mentor_score": score,
-                    "mentor_report": enhanced_mentor_report(scores, group),
                     "mentor_rankings": rankings,
                     "mentor_conflicts": conflicts,
                 })
@@ -4396,19 +4213,19 @@ elif st.session_state.screen == "mentor_result":
         if mentor_portrait
         else f'<div class="mentor-result-portrait" aria-label="{html.escape(mentor)} 초상화">{html.escape(chat_avatar(mentor))}</div>'
     )
-    report = st.session_state.mentor_report
     scores = st.session_state.get("mentor_scores", {})
     match_reason, match_evidence, match_difference = mentor_match_reasons(mentor, scores)
     mentor_tagline, mentor_resemblance, mentor_advice = mentor_story(mentor, scores)
     rankings = st.session_state.get("mentor_rankings", [])
     top_rankings = rankings[:5]
-    conflict_person = conflicting_mentors(scores)[0][0] if scores else "-"
+    conflicts = conflicting_mentors(scores) if scores else []
+    conflict_person = conflicts[0][0] if conflicts else "-"
     match_score = int(round(top_rankings[0][2])) if top_rankings else 0
     match_score = max(0, min(100, match_score))
     tag_options = (("Action", "실행"), ("Innovation", "창의"), ("Logic", "논리"), ("Empathy", "공감"), ("Mastery", "집중"), ("Acceptance", "유연"), ("Order", "질서"), ("Reflection", "성찰"))
     tags = [label for axis, label in tag_options if scores.get(axis, 0) >= 3][:4]
     neutral_count = sum(1 for state in st.session_state.get("mentor_answer_history", []) if state.get("response") == "neutral")
-    summary = mentor_match_summary(scores, neutral_count=neutral_count)
+    summary = mentor_match_summary(scores, neutral_count=neutral_count, rankings=rankings)
     mentor_viewpoint = mentor_viewpoint_for(mentor, scores)
     st.markdown('<div class="eyebrow">YOUR AGORA MENTOR · RESULT</div>', unsafe_allow_html=True)
     st.markdown(
@@ -4427,7 +4244,7 @@ elif st.session_state.screen == "mentor_result":
     )
     st.markdown(mentor_radar_chart(scores, mentor), unsafe_allow_html=True)
     similar_rankings = [item for item in rankings if item[0] != mentor][:2]
-    contrast_ranking = conflicting_mentors(scores)[0] if scores else None
+    contrast_ranking = conflicts[0] if conflicts else None
     st.markdown('<div class="mentor-comparison-title">당신의 다른 가능성</div>', unsafe_allow_html=True)
     comparison_columns = st.columns(2)
     for column, (person, person_group, score) in zip(comparison_columns, similar_rankings):
@@ -4504,12 +4321,18 @@ elif st.session_state.screen == "parallel_age":
 
     if submitted:
         parallel_cards = build_parallel_age_cards(age, emotion, concern, limit=4)
-        st.session_state.parallel_age_result = enrich_parallel_age_cards_with_llm(
-            parallel_cards,
-            age=age,
-            emotion=emotion,
-            concern=concern,
-        )
+        allowed, remaining = consume_demo_ai_budget("parallel")
+        notify_demo_ai_click(allowed, remaining)
+        if allowed:
+            st.session_state.parallel_age_result = enrich_parallel_age_cards_with_llm(
+                parallel_cards,
+                age=age,
+                emotion=emotion,
+                concern=concern,
+            )
+        else:
+            st.session_state.parallel_age_result = parallel_cards
+            render_demo_limit_alert("기록 기반 결과만 표시합니다.")
 
     result_cards = st.session_state.get("parallel_age_result", [])
     if result_cards:
@@ -4636,13 +4459,18 @@ elif st.session_state.screen == "ask":
         if not topic_prompt.strip():
             st.error("인물들의 시선을 보고 싶은 주제를 입력해주세요.")
         else:
-            with st.spinner("아홉 인물이 각자의 시선을 정리하는 중…"):
-                try:
-                    st.session_state.perspective_comments = remote_perspective_comments(topic_prompt.strip())
-                    st.session_state.perspective_topic = topic_prompt.strip()
-                    st.rerun()
-                except RuntimeError as error:
-                    st.error(str(error))
+            comments_allowed, comments_remaining = consume_demo_ai_budget("comments")
+            notify_demo_ai_click(comments_allowed, comments_remaining)
+            if not comments_allowed:
+                render_demo_limit_alert("준비된 ‘오늘의 질문’에서 인물들의 관점을 먼저 살펴보세요.")
+            else:
+                with st.spinner("아홉 인물이 각자의 시선을 정리하는 중…"):
+                    try:
+                        st.session_state.perspective_comments = remote_perspective_comments(topic_prompt.strip())
+                        st.session_state.perspective_topic = topic_prompt.strip()
+                        st.rerun()
+                    except RuntimeError as error:
+                        st.error(str(error))
     comments = st.session_state.get("perspective_comments", [])
     if comments:
         st.markdown(f"#### “{html.escape(st.session_state.perspective_topic)}”에 대한 코멘트")
@@ -4768,8 +4596,15 @@ elif st.session_state.screen == "select":
                             generation_status.write("준비된 큐레이션 대화를 불러오는 중")
                             dialogue = curated_dialogue
                         else:
-                            generation_status.write("두 인물의 시대와 관점을 정리하는 중")
-                            dialogue = remote_dialogue(person_a, person_b, topic, intensity)
+                            dialogue_allowed, dialogue_remaining = consume_demo_ai_budget("dialogue")
+                            notify_demo_ai_click(dialogue_allowed, dialogue_remaining)
+                            if not dialogue_allowed:
+                                generation_status.write("데모 한도로 로컬 대화를 준비하는 중")
+                                dialogue = local_dialogue(person_a, person_b, topic, debate_name)
+                                render_demo_limit_alert("AI 생성 없이 준비된 대화 방식으로 계속 진행합니다.")
+                            else:
+                                generation_status.write("두 인물의 시대와 관점을 정리하는 중")
+                                dialogue = remote_dialogue(person_a, person_b, topic, intensity)
                         generation_status.update(label="대화가 준비되었습니다.", state="complete", expanded=False)
                     except RuntimeError as error:
                         generation_status.update(label="대화를 준비하지 못했습니다.", state="error", expanded=True)
@@ -4867,13 +4702,23 @@ else:
             with st.status("두 인물이 당신의 의견을 읽는 중…", expanded=True) as followup_status:
                 try:
                     followup_status.write("지금까지의 대화와 연결점을 찾는 중")
-                    st.session_state.dialogue_followups = remote_dialogue_followup(
-                        person_a,
-                        person_b,
-                        topic,
-                        dialogue.script,
-                        user_message.strip(),
-                    )
+                    allowed, remaining = consume_demo_ai_budget("followup")
+                    notify_demo_ai_click(allowed, remaining)
+                    if allowed:
+                        st.session_state.dialogue_followups = remote_dialogue_followup(
+                            person_a,
+                            person_b,
+                            topic,
+                            dialogue.script,
+                            user_message.strip(),
+                        )
+                    else:
+                        st.session_state.dialogue_followups = [
+                            (person_a, direct_reply(person_a, person_b, topic, user_message.strip())),
+                            (person_b, direct_reply(person_b, person_a, topic, user_message.strip())),
+                        ]
+                        followup_status.write("데모 한도로 준비된 로컬 응답을 연결하는 중")
+                        render_demo_limit_alert("AI 생성 없이 두 인물의 기본 관점으로 계속 답합니다.")
                     st.session_state.dialogue_followup_prompt = user_message.strip()
                     followup_status.update(label="두 인물의 답변이 도착했습니다.", state="complete", expanded=False)
                     st.rerun()
